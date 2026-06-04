@@ -9,17 +9,20 @@ mcp = FastMCP("MCP-GestionProyectos")
 # ==========================================
 # Miguel: Pydantic es la mejor forma de obligar a la IA a seguir una estructura.
 # Modifica estas clases si necesitas más datos del documento.
+class Subtarea(BaseModel):
+    nombre: str = Field(..., min_length=1)
+
 class Tarea(BaseModel):
-    nombre: str = Field(..., description="Nombre de la tarea")
-    responsable: str = Field(..., description="Responsable de la tarea")
+    nombre: str = Field(..., min_length=1)
+    subtareas: List[Subtarea] = []
 
 class Fase(BaseModel):
-    nombre: str = Field(..., description="Nombre de la fase (ej. Etapa 1: Planeación)")
-    tareas: List[Tarea] = Field(..., description="Lista de tareas en esta fase")
+    nombre: str = Field(..., min_length=1)
+    tareas: List[Tarea] = []
 
-class EstructuraEDT(BaseModel):
-    proyecto: str = Field(..., description="Nombre del proyecto (ej. MINTRANET)")
-    fases: List[Fase] = Field(..., description="Fases principales del proyecto")
+class EDTInput(BaseModel):
+    nombre_proyecto: str = Field(..., min_length=1)
+    fases: List[Fase]
 
 # ==========================================
 # TAREAS IN-45 (ROGELIO) e IN-46 (LEO)
