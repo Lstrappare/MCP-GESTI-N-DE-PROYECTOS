@@ -7,8 +7,6 @@ mcp = FastMCP("MCP-GestionProyectos")
 # ==========================================
 # TAREA IN-44 (MIGUEL): ESQUEMA JSON (PYDANTIC)
 # ==========================================
-# Miguel: Pydantic es la mejor forma de obligar a la IA a seguir una estructura.
-# Modifica estas clases si necesitas más datos del documento.
 class Subtarea(BaseModel):
     nombre: str = Field(..., min_length=1)
 
@@ -24,22 +22,20 @@ class EDTInput(BaseModel):
     nombre_proyecto: str = Field(..., min_length=1)
     fases: List[Fase]
 
-# ==========================================
-# TAREAS IN-45 (ROGELIO) e IN-46 (LEO)
-# ==========================================
+
 @mcp.tool()
-def generar_edt(datos: EstructuraEDT) -> str:
+def generar_edt(datos: EDTInput) -> str:
     """
     Genera la estructura de desglose del trabajo (EDT) en formato Mermaid.js a partir de los datos del proyecto.
     """
-    # IN-46 LEO: Validación estructural y manejo de excepciones
+    # Validación estructural y manejo de excepciones
     try:
         if not datos.fases:
-            raise ValueError("El JSON no contiene fases definidas. Revisa la extracción del PDF.")
+            raise ValueError("El JSON no contiene fases definidas. Revisa la extracción de los datos.")
 
-        # IN-45 ROGELIO: Lógica de construcción del diagrama Mermaid
+        # Lógica de construcción del diagrama Mermaid
         mermaid_code = "```mermaid\ngraph TD;\n"
-        mermaid_code += f"    Root[{datos.proyecto}]\n"
+        mermaid_code += f"    Root[{datos.nombre_proyecto}]\n"
         
         for i, fase in enumerate(datos.fases):
             fase_id = f"F{i}"
@@ -50,14 +46,19 @@ def generar_edt(datos: EstructuraEDT) -> str:
                 
             for j, tarea in enumerate(fase.tareas):
                 tarea_id = f"T{i}_{j}"
-                mermaid_code += f"    {fase_id} --> {tarea_id}[{tarea.nombre} - {tarea.responsable}]\n"
+                mermaid_code += f"    {fase_id} --> {tarea_id}[{tarea.nombre}]\n"
+                
+                # Integración del nivel de subtareas
+                if tarea.subtareas:
+                    for k, subtarea in enumerate(tarea.subtareas):
+                        subtarea_id = f"ST{i}_{j}_{k}"
+                        mermaid_code += f"    {tarea_id} --> {subtarea_id}[{subtarea.nombre}]\n"
         
-        mermaid_code += "
-```"
+        mermaid_code += "```"
         return mermaid_code
 
     except Exception as e:
-        # LEO: Este return es vital. Si falla, el Agente IA leerá este texto y corregirá su propio JSON.
+        # Retorno vital para que el Agente IA lea el error y corrija su propio JSON.
         return f"Error de validación: {str(e)}. Corrige los parámetros y vuelve a ejecutar la herramienta."
 
 if __name__ == "__main__":
