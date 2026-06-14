@@ -90,8 +90,7 @@ def generar_edt(datos: EDTInput) -> str:
             )
 
         lines: list[str] = [
-            "```mermaid",
-            "graph TD;",
+            "graph TD",
             f'    Root["{datos.nombre_proyecto}"]',
         ]
 
@@ -125,7 +124,7 @@ def generar_edt(datos: EDTInput) -> str:
                 f"    style F{i} fill:{color_fondo},stroke:{color_borde},stroke-width:2px"
             )
 
-        lines.append("```")
+
         return "\n".join(lines)
 
     except Exception as e:
