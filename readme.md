@@ -279,15 +279,29 @@ Usa el mismo JSON de arriba. La herramienta responderá con:
 
 ## 💬 8. Cómo pedírselo a Claude Desktop
 
-Una vez integrado, escríbele a Claude:
+El servidor tiene **dos herramientas distintas**. Claude elige automáticamente la correcta según lo que le pidas:
 
-> *"Genera el EDT del proyecto MINTRANET con las fases Inicio, Planeación, Ejecución, Control y Cierre. Usa estructura en cascada vertical."*
+### Herramienta `generar_edt` → devuelve código Mermaid en texto
 
-Para obtener la imagen directamente:
+> *"Genera el EDT del proyecto MINTRANET con las fases Inicio, Planeación, Ejecución, Control y Cierre en cascada vertical."*
 
-> *"Genera el EDT y **exporta la imagen PNG** a mis Downloads."*
+Claude devolverá el código Mermaid como texto. Claude Desktop puede renderizarlo como diagrama interactivo, pero **solo permite descargarlo como `.html`**, no como imagen.
 
-Claude usará automáticamente la herramienta correcta.
+---
+
+### Herramienta `exportar_imagen_edt` → muestra la imagen en el chat y guarda el PNG
+
+> *"Genera el EDT del proyecto MINTRANET y **muéstrame la imagen**."*
+
+> *"Exporta el diagrama como **imagen PNG**."*
+
+> *"Usa la herramienta `exportar_imagen_edt` para generar el EDT."*
+
+Con esta herramienta Claude Desktop:
+1. **Muestra la imagen inline** directamente en el chat (sin `.html`)
+2. **Guarda automáticamente** el archivo PNG en `~/Downloads/EDT_Proyecto_MINTRANET_YYYYMMDD_HHMMSS.png`
+
+> ⚠️ **Recuerda reiniciar Claude Desktop** después de cualquier cambio en `server.py` para que cargue la versión actualizada.
 
 ---
 
@@ -307,6 +321,8 @@ deactivate
 | Problema | Solución |
 |---|---|
 | No aparece el 🔨 en Claude Desktop | Verifica las rutas en `claude_desktop_config.json` y reinicia Claude |
+| Claude solo descarga `.html` al pedir el diagrama | Pídele explícitamente usar `exportar_imagen_edt`: *"Muéstrame la imagen"* |
+| `string_too_short` en el Inspector | El campo `nombre_proyecto` quedó vacío — escribe un nombre real antes de ejecutar |
 | `mcp: command not found` | Usa `python -m mcp dev server.py` |
 | `python: command not found` (macOS/Linux) | Usa `python3` en lugar de `python` |
 | Error de permisos en Windows (`Activate.ps1`) | Ejecuta `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` como administrador |

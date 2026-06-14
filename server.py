@@ -5,7 +5,7 @@ import httpx
 from datetime import datetime
 from pathlib import Path
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Image
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -147,55 +147,41 @@ def generar_edt(datos: EDTInput) -> str:
 
 
 @mcp.tool()
-def exportar_imagen_edt(datos: EDTInput) -> str:
+def exportar_imagen_edt(datos: EDTInput) -> Image:
     """
-    Genera el EDT en Mermaid, lo renderiza como imagen PNG y lo guarda
-    automáticamente en la carpeta Downloads del usuario.
+    Genera el EDT en Mermaid, lo renderiza como imagen PNG y lo muestra
+    directamente en el chat. También guarda el archivo en ~/Downloads/.
 
     Usa la API pública mermaid.ink para renderizar sin dependencias locales.
-    Devuelve la ruta absoluta del archivo guardado.
+    Devuelve la imagen para que Claude la muestre inline en la conversación.
 
     CUÁNDO USAR ESTA HERRAMIENTA:
-    - Cuando el usuario pida explícitamente la imagen, el PNG o descargar el diagrama.
+    - Cuando el usuario pida la imagen, el PNG, ver el diagrama o descargarlo.
     - Aplica las mismas reglas de estructura que generar_edt.
     """
-    try:
-        # 1. Construir el código Mermaid
-        mermaid_code = _construir_mermaid(datos)
+    # 1. Construir el código Mermaid
+    mermaid_code = _construir_mermaid(datos)
 
-        # 2. Codificar en base64 para la API de mermaid.ink
-        encoded = base64.urlsafe_b64encode(
-            mermaid_code.encode("utf-8")
-        ).decode("utf-8")
-        url_imagen = f"https://mermaid.ink/img/{encoded}?bgColor=white"
+    # 2. Codificar en base64 para la API de mermaid.ink
+    encoded = base64.urlsafe_b64encode(
+        mermaid_code.encode("utf-8")
+    ).decode("utf-8")
+    url_imagen = f"https://mermaid.ink/img/{encoded}?bgColor=white"
 
-        # 3. Descargar la imagen PNG
-        response = httpx.get(url_imagen, timeout=20, follow_redirects=True)
-        response.raise_for_status()
+    # 3. Descargar los bytes PNG
+    response = httpx.get(url_imagen, timeout=20, follow_redirects=True)
+    response.raise_for_status()
+    image_bytes = response.content
 
-        # 4. Guardar en ~/Downloads con nombre único por timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        nombre_seguro = datos.nombre_proyecto.replace(" ", "_").replace("/", "-")
-        nombre_archivo = f"EDT_{nombre_seguro}_{timestamp}.png"
-        ruta = Path.home() / "Downloads" / nombre_archivo
-        ruta.write_bytes(response.content)
+    # 4. Guardar también en ~/Downloads como respaldo
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    nombre_seguro = datos.nombre_proyecto.replace(" ", "_").replace("/", "-")
+    nombre_archivo = f"EDT_{nombre_seguro}_{timestamp}.png"
+    ruta = Path.home() / "Downloads" / nombre_archivo
+    ruta.write_bytes(image_bytes)
 
-        return (
-            f"✅ Imagen generada y guardada exitosamente.\n"
-            f"📁 Ruta: {ruta}\n"
-            f"🖼️  Archivo: {nombre_archivo}"
-        )
-
-    except httpx.HTTPStatusError as e:
-        return (
-            f"Error al llamar a mermaid.ink (HTTP {e.response.status_code}). "
-            "Verifica tu conexión a internet e intenta de nuevo."
-        )
-    except Exception as e:
-        return (
-            f"Error al exportar imagen: {str(e)}. "
-            "Corrige los parámetros y vuelve a ejecutar la herramienta."
-        )
+    # 5. Devolver objeto Image → Claude Desktop lo muestra inline en el chat
+    return Image(data=image_bytes, format="png")
 
 
 if __name__ == "__main__":
