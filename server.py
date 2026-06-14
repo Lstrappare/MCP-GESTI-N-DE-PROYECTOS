@@ -27,8 +27,17 @@ class Fase(BaseModel):
 
 
 class EDTInput(BaseModel):
-    nombre_proyecto: str = Field(..., min_length=1)
-    fases: List[Fase]
+    nombre_proyecto: str = Field(..., min_length=1, description="El nombre oficial del proyecto.")
+    fases: List[Fase] = Field(
+        ...,
+        description="""
+        REGLA ESTRICTA PARA LA IA:
+        1. Debes generar exactamente las etapas principales indicadas en los documentos fuente (ej. Inicio, Planeación, Ejecución, Control, Cierre).
+        2. El anidamiento dentro de cada etapa debe ser COMPLETAMENTE VERTICAL Y LINEAL.
+        3. Cada tarea padre debe tener un máximo de UNA (1) subtarea.
+        4. Crea una cadena en cascada perfecta hacia abajo. ¡PROHIBIDO agrupar elementos horizontalmente!
+        """
+    )
 
 
 # ==========================================
@@ -61,9 +70,17 @@ def _agregar_nodos(
 @mcp.tool()
 def generar_edt(datos: EDTInput) -> str:
     """
-    Genera la Estructura de Desglose del Trabajo (EDT) en formato
-    Mermaid.js a partir de los datos del proyecto.
-    Soporta profundidad de tareas ilimitada mediante recursividad.
+    Transforma la estructura de un proyecto en un diagrama de Mermaid.
+
+    INSTRUCCIONES CRÍTICAS PARA EL LLM ANTES DE INVOCAR ESTA HERRAMIENTA:
+    - Lee todos los archivos .txt proporcionados por el usuario.
+    - Extrae la información y fuérzala a una estructura de árbol de
+      profundidad máxima pero de anchura mínima.
+    - Para que el diagrama no se expanda hacia los lados, encadena cada
+      tarea como hija única de la tarea anterior.
+    - Solo invoca esta herramienta cuando hayas estructurado mentalmente
+      el JSON cumpliendo la regla de 1 solo hijo por nodo.
+    - Soporta profundidad de tareas ilimitada mediante recursividad.
     """
     try:
         if not datos.fases:
@@ -92,6 +109,21 @@ def generar_edt(datos: EDTInput) -> str:
                 # La función recursiva se encarga de este nodo
                 # y de toda su descendencia (subtareas de subtareas…)
                 _agregar_nodos(tarea, fase_id, tarea_id, lines)
+
+        # Agregar estilos de color antes de cerrar el bloque de Mermaid
+        lines.append("\n    %% Estilos automáticos de MINTRANET")
+        lines.append("    style Root fill:#f8f9fa,stroke:#343a40,stroke-width:3px")
+
+        # Lista de colores predefinidos para las 5 etapas
+        colores = ["#d4edda", "#cce5ff", "#fff3cd", "#f8d7da", "#e2e3e5"]
+        bordes  = ["#28a745", "#007bff", "#ffc107", "#dc3545", "#6c757d"]
+
+        for i in range(len(datos.fases)):
+            color_fondo = colores[i % len(colores)]
+            color_borde = bordes[i % len(bordes)]
+            lines.append(
+                f"    style F{i} fill:{color_fondo},stroke:{color_borde},stroke-width:2px"
+            )
 
         lines.append("```")
         return "\n".join(lines)
