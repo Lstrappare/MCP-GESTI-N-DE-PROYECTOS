@@ -1,6 +1,6 @@
 # 🦆 Servidor MCP de Gestión de Proyectos
 
-Servidor de herramientas basado en el **Model Context Protocol (MCP)** para automatizar la generación de Estructuras de Desglose del Trabajo (EDT) en formato Mermaid.js e imagen PNG para el proyecto MINTRANET.
+Servidor de herramientas basado en el **Model Context Protocol (MCP)** para automatizar la generación de Estructuras de Desglose del Trabajo (EDT) en formato Mermaid.js, imagen PNG y documento Word corporativo (.docx) para el proyecto MINTRANET.
 
 ### 🔧 Herramientas disponibles
 
@@ -8,6 +8,7 @@ Servidor de herramientas basado en el **Model Context Protocol (MCP)** para auto
 |---|---|
 | `generar_edt` | Genera el código Mermaid del EDT en texto |
 | `exportar_imagen_edt` | Renderiza el EDT como PNG y lo guarda en `~/Downloads/` |
+| `generar_documento_proyecto_word` | Genera un documento corporativo `.docx` con diagrama EDT, tabla base jerarquizada y minuta de validación |
 
 ---
 
@@ -141,7 +142,8 @@ Luego vuelve a abrirlo. Haz clic en el ícono de **martillo 🔨** en el chat pa
 ```
 gestion-proyectos
   ├── generar_edt
-  └── exportar_imagen_edt
+  ├── exportar_imagen_edt
+  └── generar_documento_proyecto_word
 ```
 
 ---
@@ -279,7 +281,7 @@ Usa el mismo JSON de arriba. La herramienta responderá con:
 
 ## 💬 8. Cómo pedírselo a Claude Desktop
 
-El servidor tiene **dos herramientas distintas**. Claude elige automáticamente la correcta según lo que le pidas:
+El servidor tiene **tres herramientas distintas**. Claude elige automáticamente la correcta según lo que le pidas:
 
 ### Herramienta `generar_edt` → devuelve código Mermaid en texto
 
@@ -300,6 +302,26 @@ Claude devolverá el código Mermaid como texto. Claude Desktop puede renderizar
 Con esta herramienta Claude Desktop:
 1. **Muestra la imagen inline** directamente en el chat (sin `.html`)
 2. **Guarda automáticamente** el archivo PNG en `~/Downloads/EDT_Proyecto_MINTRANET_YYYYMMDD_HHMMSS.png`
+
+---
+
+### Herramienta `generar_documento_proyecto_word` → genera documento corporativo .docx
+
+> *"Genera el documento Word de la EDT del proyecto MINTRANET con la estructura metodológica completa."*
+
+> *"Usa la herramienta `generar_documento_proyecto_word` para crear el documento corporativo."*
+
+> *"Lee los archivos .txt del proyecto y genera el documento Word con el diagrama, la tabla base y la minuta de validación."*
+
+Con esta herramienta Claude Desktop:
+1. **Lee archivos de contexto** `.txt` proporcionados por el usuario
+2. **Clasifica las tareas** dentro de la Estructura Metodológica Fija de 5 etapas
+3. **Genera un `.docx` corporativo** que incluye:
+   - Portada con datos del proyecto
+   - Diagrama EDT visual (imagen embebida)
+   - Tabla Base de la EDT jerarquizada (Código EDT, Nombre, Descripción Operativa, Hito)
+   - Minuta de Validación con campos de firma
+4. **Guarda automáticamente** el archivo en `~/Downloads/EDT_NombreProyecto_YYYYMMDD_HHMMSS.docx`
 
 > ⚠️ **Recuerda reiniciar Claude Desktop** después de cualquier cambio en `server.py` para que cargue la versión actualizada.
 
