@@ -160,35 +160,59 @@ def exportar_imagen_edt(datos: EDTInput) -> Image:
     Genera el EDT en Mermaid, lo renderiza como imagen PNG y lo muestra
     directamente en el chat. También guarda el archivo en ~/Downloads/.
 
-    Usa la API pública mermaid.ink para renderizar sin dependencias locales.
-    Devuelve la imagen para que Claude la muestre inline en la conversación.
+    Usa la API pública kroki.io (POST) para renderizar sin límite de URL,
+    con fallback a mermaid.ink (GET) si kroki falla.
 
     CUÁNDO USAR ESTA HERRAMIENTA:
     - Cuando el usuario pida la imagen, el PNG, ver el diagrama o descargarlo.
     - Aplica las mismas reglas de estructura que generar_edt.
+
+    ESTRUCTURA METODOLÓGICA FIJA — 5 ETAPAS OBLIGATORIAS:
+    1. Etapa 0 (Inicio): Planeación Estratégica, Análisis del Entorno y Mercado,
+       Estudio de Factibilidad, Definición de la Solución Tecnológica, Gestión Inicial del Proyecto.
+    2. Etapa 1 (Planeación): Integración del Proyecto, Gestión de Interesados,
+       Gestión del Alcance, Gestión de Requisitos.
+    3. Etapa 2 (Ejecución): Tecnológica, Operativa, Recursos Humanos, Finanzas, Comercial.
+    4. Etapa 3 (Control): Checklist (con hija 'Checklist de los 21 programas'),
+       Control y seguimiento, Control de cambios.
+    5. Etapa 4 (Cierre): Plantilla de resultados, Acta de cierre.
+
+    Las tareas del proyecto deben anidarse como subtareas de nivel 3 o inferior
+    dentro de esta estructura fija.
+
+    REQUISITO DE NODOS:
+    - Para garantizar una imagen legible y sin errores, se recomienda que el
+      diagrama tenga exactamente 90 nodos (5 fases + 85 tareas).
+    - El JSON debe estructurarse en 5 fases, cada una con una cadena vertical
+      de 17 tareas anidadas secuencialmente (una subtarea por nodo).
+    - Ejemplo: 5 fases × 17 tareas = 85 tareas + 5 fases = 90 nodos.
     """
     # 1. Construir el código Mermaid
     mermaid_code = _construir_mermaid(datos)
 
-    # 2. Codificar en base64 para la API de mermaid.ink
-    encoded = base64.urlsafe_b64encode(
-        mermaid_code.encode("utf-8")
-    ).decode("utf-8")
-    url_imagen = f"https://mermaid.ink/img/{encoded}?bgColor=white"
+    # 2. Intentar con kroki.io (POST) – soporta diagramas grandes sin límite
+    url_kroki = "https://kroki.io/mermaid/png"
+    payload = {"diagram": mermaid_code}
+    try:
+        response = httpx.post(url_kroki, json=payload, timeout=30, follow_redirects=True)
+        response.raise_for_status()
+        image_bytes = response.content
+    except Exception as e:
+        # Fallback a mermaid.ink (GET) si kroki falla (puede dar 414 si es muy grande)
+        encoded = base64.urlsafe_b64encode(mermaid_code.encode("utf-8")).decode("utf-8")
+        url_mermaid = f"https://mermaid.ink/img/{encoded}?bgColor=white"
+        response = httpx.get(url_mermaid, timeout=30, follow_redirects=True)
+        response.raise_for_status()
+        image_bytes = response.content
 
-    # 3. Descargar los bytes PNG
-    response = httpx.get(url_imagen, timeout=20, follow_redirects=True)
-    response.raise_for_status()
-    image_bytes = response.content
-
-    # 4. Guardar también en ~/Downloads como respaldo
+    # 3. Guardar en ~/Downloads/
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     nombre_seguro = datos.nombre_proyecto.replace(" ", "_").replace("/", "-")
     nombre_archivo = f"EDT_{nombre_seguro}_{timestamp}.png"
     ruta = Path.home() / "Downloads" / nombre_archivo
     ruta.write_bytes(image_bytes)
 
-    # 5. Devolver objeto Image → Claude Desktop lo muestra inline en el chat
+    # 4. Devolver objeto Image
     return Image(data=image_bytes, format="png")
 
 
