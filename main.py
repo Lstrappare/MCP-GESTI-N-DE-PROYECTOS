@@ -32,6 +32,7 @@ from services.mermaid_service import (
     guardar_png_edt,
 )
 from services.docx_service import generar_documento_word
+from services.validator_service import validar_datos_proyecto as _validar_datos_proyecto
 
 mcp = FastMCP("MCP-GestionProyectos")
 
@@ -130,8 +131,56 @@ def generar_documento_proyecto_word(datos: DocumentoEDTInput) -> str:
       hito (ej. "Hito 1", "N/A").
     - Las tareas del proyecto deben anidarse en nivel 3 o inferior.
     - El archivo .docx se guarda automáticamente en ~/Downloads/.
+
+    REGLAS ESTRICTAS PARA EL LLM:
+    - NUNCA inventes datos. Si el usuario no proporcionó un campo, déjalo vacío.
+    - NUNCA asumas presupuestos, responsables, tiempos ni actividades.
+    - Antes de invocar esta herramienta, usa validar_datos_proyecto para verificar
+      que todos los datos requeridos están completos.
+    - Si validar_datos_proyecto reporta campos faltantes, solicítaselos al usuario
+      ANTES de llamar a esta herramienta.
     """
+    resultado = _validar_datos_proyecto(datos)
+    if not resultado.es_valido:
+        return resultado.sugerencia
+
     return generar_documento_word(datos)
+
+
+@mcp.tool()
+def validar_datos_proyecto(datos: DocumentoEDTInput) -> str:
+    """
+    Verifica que todos los datos requeridos para generar el documento Word estén
+    completos. Devuelve un resumen claro de qué campos están listos y cuáles faltan.
+
+    USA ESTA HERRAMIENTA ANTES de llamar a generar_documento_proyecto_word.
+
+    CAMPOS OBLIGATORIOS QUE VERIFICA:
+    1. Información General: nombre del proyecto, ID del proyecto.
+    2. Información Financiera: presupuesto de la fase, presupuesto total del proyecto.
+    3. EDT: fases con al menos una tarea cada una.
+    4. Minuta de Validación: mínimo 3 actividades, cada una con nombre, tiempo,
+       recursos y responsable.
+    5. Conclusión personalizada sobre la alineación del proyecto.
+
+    Si hay campos faltantes, la herramienta los lista agrupados para que el LLM
+    se los solicite al usuario de forma clara.
+    """
+    resultado = _validar_datos_proyecto(datos)
+
+    if resultado.es_valido:
+        return (
+            "✅ Validación exitosa. Todos los datos requeridos están completos.\n\n"
+            + "Puede proceder con generar_documento_proyecto_word."
+        )
+
+    lineas = [resultado.sugerencia, ""]
+    if resultado.campos_completos:
+        lineas.append("📋 Campos ya completos:")
+        for campo in resultado.campos_completos:
+            lineas.append(f"  ✅ {campo}")
+
+    return "\n".join(lineas)
 
 
 if __name__ == "__main__":
