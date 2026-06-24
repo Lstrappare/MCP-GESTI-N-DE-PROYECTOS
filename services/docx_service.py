@@ -122,6 +122,56 @@ def agregar_fila_estilizada(table, valores, fondo=None, borde=None, bold=False, 
 # HELPERS DE BAJO NIVEL — SHADING y BORDES
 # ==============================================================================
 
+def _set_cell_width(cell, width):
+    """Establece el ancho de una celda."""
+    cell.width = width
+
+
+def _merge_horizontal(table, row, start_col, end_col):
+    """Fusiona celdas horizontalmente en una fila."""
+    for col in range(end_col, start_col, -1):
+        table.cell(row, start_col).merge(table.cell(row, col))
+
+
+def _merge_vertical(table, col, start_row, end_row):
+    """Fusiona celdas verticalmente en una columna."""
+    for row in range(end_row, start_row, -1):
+        table.cell(start_row, col).merge(table.cell(row, col))
+
+
+def _set_cell_text(cell, text, alignment=None, font_size=10, bold=False, color=None):
+    """Establece el texto de una celda con formato."""
+    for p in cell.paragraphs:
+        p.clear()
+    p = cell.paragraphs[0]
+    run = p.add_run(text)
+    run.font.size = Pt(font_size)
+    run.font.bold = bold
+    run.font.name = "Calibri"
+    if color:
+        run.font.color.rgb = color
+    if alignment is not None:
+        p.alignment = alignment
+
+
+def _aplicar_estilo_tabla_plantilla(table):
+    """Aplica bordes sutiles y estilos por defecto a una tabla de plantilla."""
+    border_style = {"sz": "4", "val": "single", "color": "BFBFBF"}
+    for row in table.rows:
+        for cell in row.cells:
+            _set_cell_borders(
+                cell, top=border_style, bottom=border_style,
+                start=border_style, end=border_style,
+            )
+            for paragraph in cell.paragraphs:
+                for run in paragraph.runs:
+                    if run.font.size is None:
+                        run.font.size = Pt(9)
+                    if run.font.name is None:
+                        run.font.name = "Calibri"
+                    if run.font.color.rgb is None:
+                        run.font.color.rgb = _COLOR_TEXTO
+
 def _set_cell_shading(cell, color_hex: str) -> None:
     """Aplica color de fondo a una celda de tabla Word."""
     shading_elm = parse_xml(
@@ -237,93 +287,96 @@ def _agregar_filas_tabla_recursivo(
 
 
 # ==============================================================================
-# SECCIÓN 1 — PORTADA
+# SECCIÓN 1 — ENCABEZADO PLANTILLA CORPORATIVA
 # ==============================================================================
 
-def _construir_portada(doc, datos: DocumentoEDTInput, fecha: str) -> None:
-    """Construye la portada corporativa del documento."""
-    for _ in range(4):
-        doc.add_paragraph()
+def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str) -> None:
+    """Construye el encabezado corporativo de la plantilla EDT."""
+    table = doc.add_table(rows=3, cols=4)
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.autofit = True
 
-    p_line = doc.add_paragraph()
-    p_line.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p_line.add_run("━" * 50)
-    run.font.color.rgb = _COLOR_SECUNDARIO
-    run.font.size = Pt(14)
-
-    _add_styled_paragraph(
-        doc, "ESTRUCTURA DE DESGLOSE DEL TRABAJO",
-        font_size=26, bold=True, color=_COLOR_PRIMARIO,
-        alignment=WD_ALIGN_PARAGRAPH.CENTER, space_after=4,
+    # Columna 0: nombre_empresa (vertical merge rows 0-2)
+    _merge_vertical(table, 0, 0, 2)
+    cell_empresa = table.cell(0, 0)
+    _set_cell_text(
+        cell_empresa, datos.nombre_empresa or "MINTRANET",
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=14, bold=True,
+        color=_COLOR_BLANCO,
     )
-    _add_styled_paragraph(
-        doc, "(EDT / WBS)",
-        font_size=16, bold=False, color=_COLOR_SECUNDARIO,
-        alignment=WD_ALIGN_PARAGRAPH.CENTER, space_after=20,
+    _set_cell_shading(cell_empresa, "1B3A5C")
+    _set_cell_width(cell_empresa, Cm(3.5))
+
+    # Fila 0, columnas 1-2: horizontal merge → Nombre Plantilla
+    _merge_horizontal(table, 0, 1, 2)
+    cell_plantilla = table.cell(0, 1)
+    _set_cell_text(
+        cell_plantilla, "Nombre Plantilla: Estructura de Desglose de Trabajo (EDT)",
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=10, bold=True,
+        color=_COLOR_PRIMARIO,
     )
 
-    p_line2 = doc.add_paragraph()
-    p_line2.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run2 = p_line2.add_run("━" * 50)
-    run2.font.color.rgb = _COLOR_SECUNDARIO
-    run2.font.size = Pt(14)
+    # Fila 0, columna 3: Etapa
+    cell_etapa = table.cell(0, 3)
+    _set_cell_text(
+        cell_etapa, "Etapa: 1)\nPlaneación",
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
+        color=_COLOR_TEXTO,
+    )
+    _set_cell_shading(cell_etapa, "EBF5FB")
+    _set_cell_width(cell_etapa, Cm(3))
+
+    # Fila 1, columna 1: Título del proyecto + ID
+    cell_titulo = table.cell(1, 1)
+    _set_cell_text(
+        cell_titulo,
+        f"Título del proyecto: {datos.nombre_proyecto}\nID del Proyecto: {datos.id_proyecto or 'N/A'}",
+        alignment=WD_ALIGN_PARAGRAPH.LEFT, font_size=9, bold=False,
+        color=_COLOR_TEXTO,
+    )
+    _set_cell_width(cell_titulo, Cm(5.5))
+
+    # Fila 1, columna 2: Presupuestos
+    cell_presup = table.cell(1, 2)
+    _set_cell_text(
+        cell_presup,
+        f"Presupuesto: {datos.presupuesto_fase or 'N/A'}\nPresupuesto del Proyecto: {datos.presupuesto_proyecto or 'N/A'}",
+        alignment=WD_ALIGN_PARAGRAPH.LEFT, font_size=9, bold=False,
+        color=_COLOR_TEXTO,
+    )
+    _set_cell_width(cell_presup, Cm(5.5))
+
+    # Fila 1, columna 3: Plantilla No.
+    cell_plantilla_no = table.cell(1, 3)
+    _set_cell_text(
+        cell_plantilla_no, "Plantilla No.: 8",
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
+        color=_COLOR_TEXTO,
+    )
+    _set_cell_shading(cell_plantilla_no, "EBF5FB")
+
+    # Fila 2, columnas 1-2: horizontal merge (continuidad visual, sin texto)
+    _merge_horizontal(table, 2, 1, 2)
+    cell_continuidad = table.cell(2, 1)
+    _set_cell_text(
+        cell_continuidad, "",
+        alignment=WD_ALIGN_PARAGRAPH.LEFT, font_size=9, bold=False,
+        color=_COLOR_TEXTO,
+    )
+
+    # Fila 2, columna 3: Fecha
+    cell_fecha = table.cell(2, 3)
+    _set_cell_text(
+        cell_fecha, f"Fecha: {fecha}",
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
+        color=_COLOR_TEXTO,
+    )
+    _set_cell_shading(cell_fecha, "EBF5FB")
+
+    # Aplicar estilo de plantilla a toda la tabla
+    _aplicar_estilo_tabla_plantilla(table)
 
     doc.add_paragraph()
-
-    tabla_info = doc.add_table(rows=3, cols=2)
-    tabla_info.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-    datos_portada = [
-        ("Proyecto:", datos.nombre_proyecto),
-        ("ID del Proyecto:", datos.id_proyecto or "N/A"),
-        ("Presupuesto Total:", datos.presupuesto_total or "N/A"),
-    ]
-
-    for i, (label, valor) in enumerate(datos_portada):
-        cell_label = tabla_info.cell(i, 0)
-        cell_valor = tabla_info.cell(i, 1)
-        cell_label.text = label
-        cell_valor.text = valor
-
-        for paragraph in cell_label.paragraphs:
-            paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            for run in paragraph.runs:
-                run.font.bold = True
-                run.font.size = Pt(12)
-                run.font.name = "Calibri"
-                run.font.color.rgb = _COLOR_PRIMARIO
-
-        for paragraph in cell_valor.paragraphs:
-            paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
-            for run in paragraph.runs:
-                run.font.size = Pt(12)
-                run.font.name = "Calibri"
-                run.font.color.rgb = _COLOR_TEXTO
-
-        for cell in [cell_label, cell_valor]:
-            _set_cell_borders(
-                cell,
-                top={"sz": "0", "val": "none", "color": "FFFFFF"},
-                bottom={"sz": "0", "val": "none", "color": "FFFFFF"},
-                start={"sz": "0", "val": "none", "color": "FFFFFF"},
-                end={"sz": "0", "val": "none", "color": "FFFFFF"},
-            )
-
-    doc.add_paragraph()
-
-    _add_styled_paragraph(
-        doc, f"Fecha de generación: {fecha}",
-        font_size=11, bold=False, color=_COLOR_SECUNDARIO,
-        alignment=WD_ALIGN_PARAGRAPH.CENTER, space_after=10,
-    )
-
-    p_line3 = doc.add_paragraph()
-    p_line3.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run3 = p_line3.add_run("━" * 50)
-    run3.font.color.rgb = _COLOR_SECUNDARIO
-    run3.font.size = Pt(14)
-
-    doc.add_page_break()
 
 
 # ==============================================================================
@@ -331,34 +384,13 @@ def _construir_portada(doc, datos: DocumentoEDTInput, fecha: str) -> None:
 # ==============================================================================
 
 def _construir_seccion_diagrama(doc, image_bytes: bytes) -> None:
-    """Inserta la sección del diagrama EDT como imagen."""
-    _add_styled_paragraph(
-        doc, "1. DIAGRAMA EDT",
-        font_size=16, bold=True, color=_COLOR_PRIMARIO,
-        alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=6,
-    )
-
-    p_sep = doc.add_paragraph()
-    run_sep = p_sep.add_run("─" * 80)
-    run_sep.font.color.rgb = _COLOR_GRIS_CLARO
-    run_sep.font.size = Pt(8)
-
-    _add_styled_paragraph(
-        doc,
-        "El siguiente diagrama presenta la Estructura de Desglose del Trabajo "
-        "del proyecto de forma visual y jerárquica.",
-        font_size=10, bold=False, color=_COLOR_TEXTO,
-        alignment=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=12,
-    )
-
+    """Inserta el diagrama EDT como imagen centrada."""
     image_stream = BytesIO(image_bytes)
     p_img = doc.add_paragraph()
     p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run_img = p_img.add_run()
     run_img.add_picture(image_stream, width=Inches(6.5))
-
     doc.add_paragraph()
-    doc.add_page_break()
 
 
 # ==============================================================================
@@ -368,7 +400,7 @@ def _construir_seccion_diagrama(doc, image_bytes: bytes) -> None:
 def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
     """Construye la Tabla Base de la EDT jerarquizada."""
     _add_styled_paragraph(
-        doc, "2. TABLA BASE DE LA EDT",
+        doc, "TABLA BASE DE LA EDT",
         font_size=16, bold=True, color=_COLOR_PRIMARIO,
         alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=6,
     )
@@ -455,7 +487,7 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
 def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None:
     """Construye la Minuta de Validación."""
     _add_styled_paragraph(
-        doc, "3. MINUTA DE VALIDACIÓN",
+        doc, "MINUTA DE VALIDACIÓN",
         font_size=16, bold=True, color=_COLOR_PRIMARIO,
         alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=6,
     )
@@ -555,7 +587,10 @@ def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None
         doc, headers_firma, "1B3A5C",
     )
 
-    roles = ["Project Manager", "Sponsor / Patrocinador", "Líder Técnico"]
+    for _ in range(3):
+        tabla_firmas.add_row()
+
+    roles = ["Director del proyecto", "Patrocinador del proyecto", "Cliente del proyecto"]
     for i, rol in enumerate(roles, start=1):
         tabla_firmas.cell(i, 0).text = rol
         tabla_firmas.cell(i, 1).text = ""
@@ -640,17 +675,28 @@ def generar_documento_word(datos: DocumentoEDTInput) -> str:
             section.left_margin = Cm(2.54)
             section.right_margin = Cm(2.54)
 
-        # 3. Construir secciones
-        _construir_portada(doc, datos, fecha)
+        # 3. Encabezado plantilla corporativa
+        _construir_encabezado_plantilla(doc, datos, fecha)
 
+        # 4. Título centrado de la plantilla
+        _add_styled_paragraph(
+            doc, "PLANTILLA ESTRUCTURA DE DESGLOSE DEL TRABAJO (EDT)",
+            font_size=18, bold=True, color=_COLOR_PRIMARIO,
+            alignment=WD_ALIGN_PARAGRAPH.CENTER, space_after=4,
+        )
+
+        p_sep = doc.add_paragraph()
+        run_sep = p_sep.add_run("─" * 80)
+        run_sep.font.color.rgb = _COLOR_GRIS_CLARO
+        run_sep.font.size = Pt(8)
+
+        doc.add_paragraph()
+
+        # 5. Diagrama EDT
         if image_bytes:
             _construir_seccion_diagrama(doc, image_bytes)
+            doc.add_page_break()
         else:
-            _add_styled_paragraph(
-                doc, "1. DIAGRAMA EDT",
-                font_size=16, bold=True, color=_COLOR_PRIMARIO,
-                alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=6,
-            )
             _add_styled_paragraph(
                 doc,
                 "⚠️ No se pudo generar la imagen del diagrama EDT. "
@@ -663,7 +709,7 @@ def generar_documento_word(datos: DocumentoEDTInput) -> str:
         _construir_seccion_tabla(doc, datos)
         _construir_seccion_minuta(doc, datos, fecha)
 
-        # 4. Configurar encabezado y pie de página
+        # 6. Configurar encabezado y pie de página
         for section in doc.sections:
             header = section.header
             header.is_linked_to_previous = False
@@ -685,7 +731,7 @@ def generar_documento_word(datos: DocumentoEDTInput) -> str:
                 run.font.color.rgb = _COLOR_GRIS_CLARO
                 run.font.name = "Calibri"
 
-        # 5. Guardar archivo
+        # 7. Guardar archivo
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         nombre_seguro = datos.nombre_proyecto.replace(" ", "_").replace("/", "-")
         nombre_archivo = f"{_PREFIJO_ARCHIVO}_{nombre_seguro}_{timestamp}.docx"
