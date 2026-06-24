@@ -290,11 +290,18 @@ def _agregar_filas_tabla_recursivo(
 # SECCIÓN 1 — ENCABEZADO PLANTILLA CORPORATIVA
 # ==============================================================================
 
-def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str) -> None:
-    """Construye el encabezado corporativo de la plantilla EDT."""
+def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str, tipo_encabezado: str = "EDT") -> None:
+    """Construye el encabezado corporativo de la plantilla EDT o Minuta."""
     table = doc.add_table(rows=3, cols=4)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
+
+    if tipo_encabezado == "Minuta":
+        texto_plantilla = "Nombre Minuta: Estructura de Desglose de Trabajo (EDT)"
+        texto_numero = "Minuta No.: 8"
+    else:
+        texto_plantilla = "Nombre Plantilla: Estructura de Desglose de Trabajo (EDT)"
+        texto_numero = "Plantilla No.: 8"
 
     # Columna 0: nombre_empresa (vertical merge rows 0-2)
     _merge_vertical(table, 0, 0, 2)
@@ -307,11 +314,11 @@ def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str) -
     _set_cell_shading(cell_empresa, "1B3A5C")
     _set_cell_width(cell_empresa, Cm(3.5))
 
-    # Fila 0, columnas 1-2: horizontal merge → Nombre Plantilla
+    # Fila 0, columnas 1-2: horizontal merge → Nombre Plantilla / Minuta
     _merge_horizontal(table, 0, 1, 2)
     cell_plantilla = table.cell(0, 1)
     _set_cell_text(
-        cell_plantilla, "Nombre Plantilla: Estructura de Desglose de Trabajo (EDT)",
+        cell_plantilla, texto_plantilla,
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=10, bold=True,
         color=_COLOR_PRIMARIO,
     )
@@ -346,10 +353,10 @@ def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str) -
     )
     _set_cell_width(cell_presup, Cm(5.5))
 
-    # Fila 1, columna 3: Plantilla No.
+    # Fila 1, columna 3: Plantilla No. / Minuta No.
     cell_plantilla_no = table.cell(1, 3)
     _set_cell_text(
-        cell_plantilla_no, "Plantilla No.: 8",
+        cell_plantilla_no, texto_numero,
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
         color=_COLOR_TEXTO,
     )
@@ -481,105 +488,99 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
 
 
 # ==============================================================================
-# SECCIÓN 4 — MINUTA DE VALIDACIÓN
+# SECCIÓN 4 — MINUTA DE VALIDACIÓN (ANEXO INDEPENDIENTE)
 # ==============================================================================
 
 def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None:
-    """Construye la Minuta de Validación."""
+    """Construye la Minuta de Validación como anexo independiente."""
+    doc.add_page_break()
+
+    # Encabezado corporativo de Minuta
+    _construir_encabezado_plantilla(doc, datos, fecha, tipo_encabezado="Minuta")
+
+    # Subtítulo "22.1 MINUTA EDT" con fondo azul claro
+    tabla_subtitulo = doc.add_table(rows=1, cols=1)
+    tabla_subtitulo.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tabla_subtitulo.autofit = True
+    cell_sub = tabla_subtitulo.cell(0, 0)
+    _set_cell_text(
+        cell_sub, "22.1 MINUTA EDT",
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=14, bold=True,
+        color=_COLOR_PRIMARIO,
+    )
+    _set_cell_shading(cell_sub, "EBF5FB")
+    aplicar_bordes_uniformes(cell_sub, size="4", color="BFBFBF")
+    doc.add_paragraph()
+
+    # Objetivo de la reunión
     _add_styled_paragraph(
-        doc, "MINUTA DE VALIDACIÓN",
-        font_size=16, bold=True, color=_COLOR_PRIMARIO,
+        doc, "Objetivo de la reunión",
+        font_size=12, bold=True, color=_COLOR_PRIMARIO,
         alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=6,
     )
 
-    p_sep = doc.add_paragraph()
-    run_sep = p_sep.add_run("─" * 80)
-    run_sep.font.color.rgb = _COLOR_GRIS_CLARO
-    run_sep.font.size = Pt(8)
-
     _add_styled_paragraph(
         doc,
-        "La presente minuta certifica la validación y aprobación de la Estructura "
-        "de Desglose del Trabajo (EDT) del proyecto.",
+        "Validar la Estructura de Desglose del Trabajo (EDT) del proyecto, asegurando "
+        "que todas las actividades, tiempos, recursos y responsables estén correctamente "
+        "definidos y alineados con los objetivos del proyecto.",
         font_size=10, bold=False, color=_COLOR_TEXTO,
         alignment=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=16,
     )
 
-    _add_styled_paragraph(
-        doc, "Datos del Proyecto",
-        font_size=13, bold=True, color=_COLOR_SECUNDARIO,
-        alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=8,
+    # Tabla de actividades
+    headers_act = ["Actividad", "Tiempo", "Recursos", "Responsable"]
+    tabla_actividades = crear_tabla_con_encabezados(
+        doc, headers_act, "1B3A5C",
+        widths=[Cm(5), Cm(3), Cm(5), Cm(4.5)],
     )
 
-    tabla_datos = doc.add_table(rows=4, cols=2)
-    tabla_datos.alignment = WD_TABLE_ALIGNMENT.LEFT
-
-    datos_proyecto = [
-        ("Nombre del Proyecto", datos.nombre_proyecto),
-        ("ID del Proyecto", datos.id_proyecto or "N/A"),
-        ("Presupuesto Total", datos.presupuesto_total or "N/A"),
-        ("Fecha de Generación", fecha),
+    actividades = datos.actividades_minuta if datos.actividades_minuta else [
+        ("Crear EDT", "1 día", "Plantillas aprobadas", "PM"),
+        ("Validar EDT", "1 día", "Acta de constitución", "Director del proyecto"),
     ]
 
-    for i, (label, valor) in enumerate(datos_proyecto):
-        cell_label = tabla_datos.cell(i, 0)
-        cell_valor = tabla_datos.cell(i, 1)
-        cell_label.text = label
-        cell_valor.text = valor
-
-        _set_cell_shading(cell_label, "EBF5FB")
-        border_style = {"sz": "4", "val": "single", "color": "BDC3C7"}
-
-        for cell in [cell_label, cell_valor]:
+    for i, act in enumerate(actividades):
+        if hasattr(act, 'actividad'):
+            valores = [act.actividad, act.tiempo, act.recursos, act.responsable]
+        else:
+            valores = list(act)
+        row = tabla_actividades.add_row()
+        for j, valor in enumerate(valores):
+            cell = row.cells[j]
+            cell.text = str(valor)
+            for paragraph in cell.paragraphs:
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                for run in paragraph.runs:
+                    run.font.size = Pt(9)
+                    run.font.name = "Calibri"
+                    run.font.color.rgb = _COLOR_TEXTO
+            border_style = {"sz": "4", "val": "single", "color": "BDC3C7"}
             _set_cell_borders(
                 cell, top=border_style, bottom=border_style,
                 start=border_style, end=border_style,
             )
-            for paragraph in cell.paragraphs:
-                for run in paragraph.runs:
-                    run.font.size = Pt(10)
-                    run.font.name = "Calibri"
-                    run.font.color.rgb = _COLOR_TEXTO
-
-        for paragraph in cell_label.paragraphs:
-            for run in paragraph.runs:
-                run.font.bold = True
-
-    for row in tabla_datos.rows:
-        row.cells[0].width = Cm(6)
-        row.cells[1].width = Cm(11)
 
     doc.add_paragraph()
 
-    # Total de tareas
-    total_tareas = 0
-    for fase in datos.fases:
-        def _contar(tareas):
-            count = 0
-            for t in tareas:
-                count += 1
-                if t.subtareas:
-                    count += _contar(t.subtareas)
-            return count
-        total_tareas += _contar(fase.tareas)
-
+    # Conclusión
     _add_styled_paragraph(
-        doc, f"Total de tareas/actividades identificadas: {total_tareas}",
-        font_size=10, bold=True, color=_COLOR_TEXTO,
+        doc, "Conclusión",
+        font_size=12, bold=True, color=_COLOR_PRIMARIO,
         alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=6,
     )
 
     _add_styled_paragraph(
-        doc, f"Total de etapas: {len(datos.fases)}",
-        font_size=10, bold=True, color=_COLOR_TEXTO,
-        alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=16,
+        doc, datos.conclusion_minuta,
+        font_size=10, bold=False, color=_COLOR_TEXTO,
+        alignment=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=16,
     )
 
     # Tabla de firmas
     _add_styled_paragraph(
         doc, "Firmas de Validación",
-        font_size=13, bold=True, color=_COLOR_SECUNDARIO,
-        alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=12,
+        font_size=12, bold=True, color=_COLOR_PRIMARIO,
+        alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=8,
     )
 
     headers_firma = ["Rol", "Nombre Completo", "Firma"]
@@ -620,18 +621,6 @@ def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None
         row.cells[0].width = Cm(5)
         row.cells[1].width = Cm(7)
         row.cells[2].width = Cm(5)
-
-    doc.add_paragraph()
-    doc.add_paragraph()
-
-    _add_styled_paragraph(
-        doc,
-        "Este documento fue generado automáticamente por el sistema MCP de Gestión "
-        "de Proyectos. La validación de la EDT requiere la firma de los responsables "
-        "indicados anteriormente.",
-        font_size=8, bold=False, color=_COLOR_SECUNDARIO,
-        alignment=WD_ALIGN_PARAGRAPH.CENTER, space_after=4,
-    )
 
 
 # ==============================================================================

@@ -7,12 +7,12 @@ Servidor de herramientas basado en el **Model Context Protocol (MCP)** para auto
 ```
 .
 ├── main.py                          # Servidor MCP + registro de herramientas
-├── models.py                        # Modelos Pydantic unificados (EDTInput, DocumentoEDTInput)
+├── models.py                        # Modelos Pydantic (EDTInput, DocumentoEDTInput, ActividadMinuta)
 ├── config/
 │   └── settings.py                  # Constantes: colores, URLs, rutas de salida
 └── services/
     ├── mermaid_service.py           # Construcción Mermaid y renderizado PNG (Kroki + mermaid.ink)
-    └── docx_service.py              # Generación de documento Word (.docx)
+    └── docx_service.py              # Generación de documento Word (.docx) con plantilla corporativa
 ```
 
 ### 🔧 Herramientas disponibles
@@ -331,11 +331,72 @@ Con esta herramienta Claude Desktop:
 1. **Lee archivos de contexto** `.txt` proporcionados por el usuario
 2. **Clasifica las tareas** dentro de la Estructura Metodológica Fija de 5 etapas
 3. **Genera un `.docx` corporativo** que incluye:
-   - Portada con datos del proyecto
-   - Diagrama EDT visual (imagen embebida)
+   - Encabezado corporativo tipo tablero (empresa, título, presupuestos, fecha)
+   - Título centrado: *PLANTILLA ESTRUCTURA DE DESGLOSE DEL TRABAJO (EDT)*
+   - Diagrama EDT visual (imagen embebida centrada)
    - Tabla Base de la EDT jerarquizada (Código EDT, Nombre, Descripción Operativa, Hito)
-   - Minuta de Validación con campos de firma
+   - Minuta de Validación como anexo independiente (encabezado propio, objetivo, tabla de actividades, conclusión y firmas)
 4. **Guarda automáticamente** el archivo en `~/Downloads/EDT_NombreProyecto_YYYYMMDD_HHMMSS.docx`
+
+**Campos adicionales del modelo `DocumentoEDTInput`:**
+| Campo | Tipo | Default | Descripción |
+|---|---|---|---|
+| `nombre_empresa` | `Optional[str]` | `"MINTRANET"` | Nombre de la empresa en el encabezado |
+| `presupuesto_fase` | `Optional[str]` | `"N/A"` | Presupuesto asignado a la fase |
+| `presupuesto_proyecto` | `Optional[str]` | `"N/A"` | Presupuesto total del proyecto |
+| `actividades_minuta` | `List[ActividadMinuta]` | `[]` | Actividades de la minuta (usa defaults si vacía) |
+| `conclusion_minuta` | `Optional[str]` | texto de validación | Conclusión de la minuta |
+
+**Modelo `ActividadMinuta`:**
+| Campo | Tipo |
+|---|---|
+| `actividad` | `str` |
+| `tiempo` | `str` |
+| `recursos` | `str` |
+| `responsable` | `str` |
+
+### JSON de prueba — `generar_documento_proyecto_word`
+
+```json
+{
+  "datos": {
+    "nombre_proyecto": "Proyecto MINTRANET",
+    "id_proyecto": "PROY-001",
+    "nombre_empresa": "MINTRANET",
+    "presupuesto_fase": "$500,000",
+    "presupuesto_proyecto": "$3,000,000",
+    "fases": [
+      {
+        "nombre": "Inicio",
+        "tareas": [
+          {
+            "nombre": "Acta de constitución",
+            "descripcion_operativa": "Documento formal de inicio",
+            "hito": "Hito 1",
+            "subtareas": [{ "nombre": "Firma del patrocinador", "descripcion_operativa": "Validación final", "hito": "N/A", "subtareas": [] }]
+          }
+        ]
+      },
+      {
+        "nombre": "Planeación",
+        "tareas": [
+          {
+            "nombre": "Cronograma",
+            "descripcion_operativa": "Planificación de actividades",
+            "hito": "Hito 2",
+            "subtareas": []
+          }
+        ]
+      }
+    ],
+    "actividades_minuta": [
+      { "actividad": "Revisar EDT", "tiempo": "2 horas", "recursos": "Documento EDT", "responsable": "Director del proyecto" },
+      { "actividad": "Firmar acta de validación", "tiempo": "30 min", "recursos": "Acta de constitución", "responsable": "Patrocinador del proyecto" }
+    ],
+    "conclusion_minuta": "La EDT ha sido validada satisfactoriamente por todas las partes. Se procede a la aprobación formal."
+  }
+}
+```
 
 > ⚠️ **Recuerda reiniciar Claude Desktop** después de cualquier cambio en `main.py` para que cargue la versión actualizada.
 
@@ -372,7 +433,9 @@ deactivate
 ## 📝 Notas
 
 - `main.py` es el punto de entrada del servidor. `server.py` se conserva como respaldo de la versión monolítica original.
-- Los modelos Pydantic están unificados en `models.py` (`TareaBase`, `FaseBase`, `EDTInput`, `DocumentoEDTInput`).
+- Los modelos Pydantic están unificados en `models.py` (`TareaBase`, `FaseBase`, `EDTInput`, `DocumentoEDTInput`, `ActividadMinuta`).
+- El documento Word usa una **plantilla corporativa** con encabezado tipo tablero (empresa, proyecto, presupuestos, etapa y fecha).
+- La **Minuta de Validación** funciona como anexo independiente con página propia, encabezado de minuta, objetivo, tabla de actividades y firmas.
 - La herramienta `generar_edt` soporta **profundidad ilimitada** de tareas y subtareas mediante recursividad.
 - La herramienta `exportar_imagen_edt` requiere **conexión a internet** (Kroki como primario, mermaid.ink como fallback).
 - Los diagramas incluyen **estilos de color automáticos** para cada fase (5 colores rotativos).

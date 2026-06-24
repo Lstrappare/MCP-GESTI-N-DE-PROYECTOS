@@ -38,6 +38,13 @@ class EDTInput(BaseModel):
     )
 
 
+class ActividadMinuta(BaseModel):
+    actividad: str = Field(..., min_length=1, description="Nombre de la actividad de la minuta.")
+    tiempo: str = Field(..., min_length=1, description="Tiempo estimado para la actividad.")
+    recursos: str = Field(..., min_length=1, description="Recursos necesarios para la actividad.")
+    responsable: str = Field(..., min_length=1, description="Responsable de la actividad.")
+
+
 class DocumentoEDTInput(EDTInput):
     id_proyecto: Optional[str] = Field("N/A", description="Identificador único del proyecto.")
     nombre_empresa: Optional[str] = Field("MINTRANET", description="Nombre de la empresa.")
@@ -47,6 +54,12 @@ class DocumentoEDTInput(EDTInput):
     fecha_generacion: Optional[str] = Field(
         None,
         description="Fecha de generación del documento. Se auto-genera si no se proporciona.",
+    )
+    actividades_minuta: List[ActividadMinuta] = []
+    conclusion_minuta: Optional[str] = Field(
+        "La estructura de desglose del trabajo queda validada por los responsables del proyecto, "
+        "conforme a los criterios técnicos, financieros y metodológicos establecidos.",
+        description="Conclusión de la minuta de validación.",
     )
     fases: List[FaseBase] = Field(
         ...,
