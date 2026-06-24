@@ -8,11 +8,13 @@ Servidor de herramientas basado en el **Model Context Protocol (MCP)** para auto
 .
 ├── main.py                          # Servidor MCP + registro de herramientas
 ├── models.py                        # Modelos Pydantic (EDTInput, DocumentoEDTInput, ActividadMinuta)
+├── SKILL.md                         # Instrucciones para la IA sobre uso óptimo del MCP
 ├── config/
 │   └── settings.py                  # Constantes: colores, URLs, rutas de salida
 └── services/
     ├── mermaid_service.py           # Construcción Mermaid y renderizado PNG (Kroki + mermaid.ink)
-    └── docx_service.py              # Generación de documento Word (.docx) con plantilla corporativa
+    ├── docx_service.py              # Generación de documento Word (.docx) con plantilla corporativa
+    └── validator_service.py         # Validación obligatoria de datos antes de generar documentos
 ```
 
 ### 🔧 Herramientas disponibles
@@ -21,6 +23,7 @@ Servidor de herramientas basado en el **Model Context Protocol (MCP)** para auto
 |---|---|
 | `generar_edt` | Genera el código Mermaid del EDT en texto |
 | `exportar_imagen_edt` | Renderiza el EDT como PNG vía Kroki (fallback: mermaid.ink) y lo guarda en `~/Downloads/` |
+| `validar_datos_proyecto` | Verifica que todos los datos requeridos estén completos antes de generar el documento Word |
 | `generar_documento_proyecto_word` | Genera un documento corporativo `.docx` con diagrama EDT, tabla base jerarquizada y minuta de validación |
 
 ---
@@ -156,6 +159,7 @@ Luego vuelve a abrirlo. Haz clic en el ícono de **martillo 🔨** en el chat pa
 gestion-proyectos
   ├── generar_edt
   ├── exportar_imagen_edt
+  ├── validar_datos_proyecto
   └── generar_documento_proyecto_word
 ```
 
@@ -295,7 +299,29 @@ Usa el mismo JSON de arriba. La herramienta responderá con:
 
 ## 💬 8. Cómo pedírselo a Claude Desktop
 
-El servidor tiene **tres herramientas distintas**. Claude elige automáticamente la correcta según lo que le pidas:
+El servidor tiene **cuatro herramientas**. Claude elige automáticamente la correcta según lo que le pidas.
+
+> **📋 SKILL.md** — Este proyecto incluye un archivo `SKILL.md` con instrucciones detalladas para que la IA use el MCP de forma óptima. Puedes pedirle a Claude: *"Carga el archivo SKILL.md y sigue sus instrucciones para gestionar mi proyecto."*
+
+### Flujo de trabajo recomendado
+
+1. **Recopilar datos** — El usuario proporciona archivos `.txt` o información del proyecto.
+2. **Validar** — Usar `validar_datos_proyecto` para verificar que todos los campos obligatorios están completos.
+3. **Completar faltantes** — Si hay campos faltantes, solicitarlos al usuario. No inventar datos.
+4. **Generar** — Solo cuando la validación sea exitosa, ejecutar `generar_documento_proyecto_word`.
+
+### Herramienta `validar_datos_proyecto` → verifica datos antes de generar
+
+> *"Valida los datos del proyecto antes de generar el documento."*
+
+Esta herramienta revisa:
+- Nombre e ID del proyecto
+- Presupuesto de la fase y presupuesto total
+- Actividades de la EDT
+- Mínimo 3 actividades de minuta con nombre, tiempo, recursos y responsable
+- Conclusión personalizada
+
+Si faltan datos, devuelve una lista clara de lo que necesita el usuario. **No genera ningún documento** hasta que todos los campos estén completos.
 
 ### Herramienta `generar_edt` → devuelve código Mermaid en texto
 
@@ -434,11 +460,13 @@ deactivate
 
 - `main.py` es el punto de entrada del servidor. `server.py` se conserva como respaldo de la versión monolítica original.
 - Los modelos Pydantic están unificados en `models.py` (`TareaBase`, `FaseBase`, `EDTInput`, `DocumentoEDTInput`, `ActividadMinuta`).
+- **Validación obligatoria**: `generar_documento_proyecto_word` pasa primero por `validator_service.py`. Si hay datos incompletos, no se genera el documento y se informa qué falta.
 - El documento Word usa una **plantilla corporativa** con encabezado tipo tablero (empresa, proyecto, presupuestos, etapa y fecha).
 - La **Minuta de Validación** funciona como anexo independiente con página propia, encabezado de minuta, objetivo, tabla de actividades y firmas.
 - La herramienta `generar_edt` soporta **profundidad ilimitada** de tareas y subtareas mediante recursividad.
 - La herramienta `exportar_imagen_edt` requiere **conexión a internet** (Kroki como primario, mermaid.ink como fallback).
 - Los diagramas incluyen **estilos de color automáticos** para cada fase (5 colores rotativos).
+- El archivo `SKILL.md` contiene instrucciones detalladas para que la IA recopile datos, valide y genere documentos de forma correcta y sin alucinaciones.
 
 # Autores
 - Jose Manuel Cisneros Valero 
