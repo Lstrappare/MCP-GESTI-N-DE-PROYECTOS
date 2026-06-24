@@ -1,312 +1,126 @@
-# ==============================================================================
-# Archivo: server.py
-# Autores:
-#- Cisneros Valero José Manuel -
-#- García Vázquez Rogelio -
-#- Gonzales Velázquez Josué - 
-#- Flores Jasso Miguel Angel -
-#- Martínez Nicolas Francisco Leonardo -
-#- Parra Mendoza Ernesto Zuriel –
-#
-#
-# Descripción:
-#   Este programa implementa un servidor robusto bajo el estándar Model Context 
-#   Protocol (MCP) utilizando el framework FastMCP. Su objetivo principal es actuar 
-#   como un puente inteligente para que Modelos de Lenguaje (LLMs) procesen, 
-#   autoricen y sistematicen información de proyectos a través de tres componentes:
-#     1. Generación de diagramas jerárquicos EDT empleando sintaxis Mermaid.
-#     2. Renderizado remoto y exportación automática de diagramas visuales en PNG.
-#     3. Creación automatizada de documentación corporativa en formato Word (.docx),
-#        incluyendo esquemas visuales, tablas de codificación y minutas de validación.
-#
-#   Diseñado con un enfoque de recursividad ilimitada para estructuras de tareas anidadas.
-#
-# ==============================================================================
-
 from __future__ import annotations
 
-import base64
-import httpx
 from datetime import datetime
 from pathlib import Path
 from io import BytesIO
-
-from mcp.server.fastmcp import FastMCP, Image
-from pydantic import BaseModel, Field
 from typing import List, Optional
 
-# python-docx imports para generación de documentos Word
 from docx import Document
 from docx.shared import Inches, Pt, Cm, RGBColor, Emu
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.section import WD_ORIENT
 from docx.oxml.ns import qn, nsdecls
 from docx.oxml import parse_xml
 
-mcp = FastMCP("MCP-GestionProyectos")
+from models import DocumentoEDTInput, TareaBase
+from config.settings import (
+    _COLOR_PRIMARIO,
+    _COLOR_SECUNDARIO,
+    _COLOR_ACENTO,
+    _COLOR_TEXTO,
+    _COLOR_GRIS_CLARO,
+    _COLOR_BLANCO,
+    _COLORES_ETAPA,
+    _COLOR_SUBTAREA_BASE,
+    _PREFIJO_ARCHIVO,
+    _CARPETA_DOWNLOADS,
+)
+from services.mermaid_service import generar_imagen_mermaid_para_docx
+
 
 # ==============================================================================
-# MODELOS PYDANTIC — ESTRUCTURA RECURSIVA
-# Una Tarea puede contener subtareas del mismo tipo Tarea (profundidad ilimitada).
+# HELPERS GENÉRICOS DRY — ESTILOS
 # ==============================================================================
 
-class Tarea(BaseModel):
-    nombre: str = Field(..., min_length=1)
-    subtareas: Optional[List[Tarea]] = []
-
-# Necesario para que Pydantic resuelva la auto-referencia después de la definición.
-Tarea.model_rebuild()
-
-
-class Fase(BaseModel):
-    nombre: str = Field(..., min_length=1)
-    tareas: List[Tarea] = []
+def aplicar_estilo_runs(paragraph, font_size=10, bold=False, color=None, font_name="Calibri"):
+    """Aplica estilo a todos los runs de un párrafo."""
+    for run in paragraph.runs:
+        run.font.size = Pt(font_size)
+        run.font.bold = bold
+        run.font.name = font_name
+        if color:
+            run.font.color.rgb = color
 
 
-class EDTInput(BaseModel):
-    nombre_proyecto: str = Field(..., min_length=1, description="El nombre oficial del proyecto.")
-    fases: List[Fase] = Field(
-        ...,
-        description="""
-        REGLA ESTRICTA PARA LA IA:
-        1. Debes generar exactamente las etapas principales indicadas en los documentos fuente (ej. Inicio, Planeación, Ejecución, Control, Cierre).
-        2. El anidamiento dentro de cada etapa debe ser COMPLETAMENTE VERTICAL Y LINEAL.
-        3. Cada tarea padre debe tener un máximo de UNA (1) subtarea.
-        4. Crea una cadena en cascada perfecta hacia abajo. ¡PROHIBIDO agrupar elementos horizontalmente!
-        """
+def aplicar_estilo_celda(cell, fondo=None, borde=None, fuente_color=None, font_size=10, bold=False, alignment=None):
+    """Aplica estilos completos a una celda de tabla."""
+    if fondo:
+        _set_cell_shading(cell, fondo)
+    if borde:
+        _set_cell_borders(
+            cell, top=borde, bottom=borde, start=borde, end=borde,
+        )
+    for paragraph in cell.paragraphs:
+        if alignment is not None:
+            paragraph.alignment = alignment
+        for run in paragraph.runs:
+            run.font.size = Pt(font_size)
+            run.font.bold = bold
+            run.font.name = "Calibri"
+            if fuente_color:
+                run.font.color.rgb = fuente_color
+
+
+def aplicar_bordes_uniformes(cell, size="4", color="BFBFBF", val="single"):
+    """Aplica bordes uniformes a una celda."""
+    border_style = {"sz": size, "val": val, "color": color}
+    _set_cell_borders(
+        cell, top=border_style, bottom=border_style,
+        start=border_style, end=border_style,
     )
 
 
-# ==============================================================================
-# FUNCIÓN AUXILIAR RECURSIVA
-# Genera las conexiones Mermaid para un nodo y todos sus descendientes sin límite de
-# profundidad. Usa un prefijo de ID único heredado por cada nivel de la llamada.
-# ==============================================================================
+def crear_tabla_con_encabezados(doc, headers, colores, widths=None):
+    """Crea una tabla con fila de encabezados estilizada."""
+    table = doc.add_table(rows=1, cols=len(headers))
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.autofit = True
 
-def _agregar_nodos(
-    tarea: Tarea,
-    parent_id: str,
-    node_id: str,
-    lines: list[str],
-) -> None:
-    """Añade la arista parent→nodo y desciende recursivamente."""
-    lines.append(f'    {parent_id} --> {node_id}["{tarea.nombre}"]')
+    header_row = table.rows[0]
+    for i, header in enumerate(headers):
+        cell = header_row.cells[i]
+        cell.text = header
+        _set_cell_shading(cell, colores[i] if isinstance(colores, list) else colores)
+        _aplicar_bordes_thick(cell)
+        for paragraph in cell.paragraphs:
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            for run in paragraph.runs:
+                run.font.bold = True
+                run.font.size = Pt(10)
+                run.font.name = "Calibri"
+                run.font.color.rgb = _COLOR_BLANCO
 
-    if tarea.subtareas:
-        for idx, subtarea in enumerate(tarea.subtareas):
-            child_id = f"{node_id}_{idx}"
-            _agregar_nodos(subtarea, node_id, child_id, lines)
+    if widths:
+        for i, width in enumerate(widths):
+            header_row.cells[i].width = width
 
-
-# ==============================================================================
-# HELPER COMPARTIDO — CONSTRUCCIÓN MERMAID
-# ==============================================================================
-
-def _construir_mermaid(datos: EDTInput) -> str:
-    """Construye y retorna el código Mermaid completo del EDT."""
-    if not datos.fases:
-        raise ValueError(
-            "El JSON no contiene fases definidas. "
-            "Revisa la extracción de los datos."
-        )
-
-    lines: list[str] = [
-        "graph TD",
-        f'    Root["{datos.nombre_proyecto}"]',
-    ]
-
-    for i, fase in enumerate(datos.fases):
-        fase_id = f"F{i}"
-        lines.append(f'    Root --> {fase_id}["{fase.nombre}"]')
-
-        if not fase.tareas:
-            raise ValueError(
-                f"La fase '{fase.nombre}' vino sin tareas asignadas."
-            )
-
-        for j, tarea in enumerate(fase.tareas):
-            tarea_id = f"T{i}_{j}"
-            _agregar_nodos(tarea, fase_id, tarea_id, lines)
-
-    # Estilos de color automáticos de MINTRANET
-    lines.append("\n    %% Estilos automáticos de MINTRANET")
-    lines.append("    style Root fill:#f8f9fa,stroke:#343a40,stroke-width:3px")
-
-    colores = ["#d4edda", "#cce5ff", "#fff3cd", "#f8d7da", "#e2e3e5"]
-    bordes  = ["#28a745", "#007bff", "#ffc107", "#dc3545", "#6c757d"]
-
-    for i in range(len(datos.fases)):
-        color_fondo = colores[i % len(colores)]
-        color_borde = bordes[i % len(bordes)]
-        lines.append(
-            f"    style F{i} fill:{color_fondo},stroke:{color_borde},stroke-width:2px"
-        )
-
-    return "\n".join(lines)
+    return table
 
 
-# ==============================================================================
-# HERRAMIENTAS MCP
-# ==============================================================================
-
-@mcp.tool()
-def generar_edt(datos: EDTInput) -> str:
-    """
-    Transforma la estructura de un proyecto en un diagrama de Mermaid.
-
-    INSTRUCCIONES CRÍTICAS PARA EL LLM ANTES DE INVOCAR ESTA HERRAMIENTA:
-    - Lee todos los archivos .txt proporcionados por el usuario.
-    - Extrae la información y fuérzala a una estructura de árbol de
-      profundidad máxima pero de anchura mínima.
-    - Para que el diagrama no se expanda hacia los lados, encadena cada
-      tarea como hija única de la tarea anterior.
-    - Solo invoca esta herramienta cuando hayas estructurado mentalmente
-      el JSON cumpliendo la regla de 1 solo hijo por nodo.
-    - Soporta profundidad de tareas ilimitada mediante recursividad.
-    """
-    try:
-        return _construir_mermaid(datos)
-    except Exception as e:
-        # Retorno vital para que el Agente IA lea el error y corrija su JSON.
-        return (
-            f"Error de validación: {str(e)}. "
-            "Corrige los parámetros y vuelve a ejecutar la herramienta."
-        )
-
-
-@mcp.tool()
-def exportar_imagen_edt(datos: EDTInput) -> Image:
-    """
-    Genera el EDT en Mermaid, lo renderiza como imagen PNG y lo muestra
-    directamente en el chat. También guarda el archivo en ~/Downloads/.
-
-    Usa la API pública kroki.io (POST) para renderizar sin límite de URL,
-    con fallback a mermaid.ink (GET) si kroki falla.
-
-    CUÁNDO USAR ESTA HERRAMIENTA:
-    - Cuando el usuario pida la imagen, el PNG, ver el diagrama o descargarlo.
-    - Aplica las mismas reglas de estructura que generar_edt.
-
-    ESTRUCTURA METODOLÓGICA FIJA — 5 ETAPAS OBLIGATORIAS:
-    1. Etapa 0 (Inicio): Planeación Estratégica, Análisis del Entorno y Mercado,
-       Estudio de Factibilidad, Definición de la Solución Tecnológica, Gestión Inicial del Proyecto.
-    2. Etapa 1 (Planeación): Integración del Proyecto, Gestión de Interesados,
-       Gestión del Alcance, Gestión de Requisitos.
-    3. Etapa 2 (Ejecución): Tecnológica, Operativa, Recursos Humanos, Finanzas, Comercial.
-    4. Etapa 3 (Control): Checklist (con hija 'Checklist de los 21 programas'),
-       Control y seguimiento, Control de cambios.
-    5. Etapa 4 (Cierre): Plantilla de resultados, Acta de cierre.
-
-    Las tareas del proyecto deben anidarse como subtareas de nivel 3 o inferior
-    dentro de esta estructura fija.
-
-    REQUISITO DE NODOS:
-    - Para garantizar una imagen legible y sin errores, se recomienda que el
-      diagrama tenga exactamente 90 nodos (5 fases + 85 tareas).
-    - El JSON debe estructurarse en 5 fases, cada una con una cadena vertical
-      de 17 tareas anidadas secuencialmente (una subtarea por nodo).
-    - Ejemplo: 5 fases × 17 tareas = 85 tareas + 5 fases = 90 nodos.
-    """
-    # 1. Construir el código Mermaid
-    mermaid_code = _construir_mermaid(datos)
-
-    # 2. Intentar con kroki.io (POST) – soporta diagramas grandes sin límite
-    url_kroki = "https://kroki.io/mermaid/png"
-    payload = {"diagram": mermaid_code}
-    try:
-        response = httpx.post(url_kroki, json=payload, timeout=30, follow_redirects=True)
-        response.raise_for_status()
-        image_bytes = response.content
-    except Exception as e:
-        # Fallback a mermaid.ink (GET) si kroki falla (puede dar 414 si es muy grande)
-        encoded = base64.urlsafe_b64encode(mermaid_code.encode("utf-8")).decode("utf-8")
-        url_mermaid = f"https://mermaid.ink/img/{encoded}?bgColor=white"
-        response = httpx.get(url_mermaid, timeout=30, follow_redirects=True)
-        response.raise_for_status()
-        image_bytes = response.content
-
-    # 3. Guardar en ~/Downloads/
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nombre_seguro = datos.nombre_proyecto.replace(" ", "_").replace("/", "-")
-    nombre_archivo = f"EDT_{nombre_seguro}_{timestamp}.png"
-    ruta = Path.home() / "Downloads" / nombre_archivo
-    ruta.write_bytes(image_bytes)
-
-    # 4. Devolver objeto Image
-    return Image(data=image_bytes, format="png")
-
-
-# ==============================================================================
-# MODELOS PYDANTIC — DOCUMENTO WORD EDT
-# Modelos extendidos con campos adicionales para la Tabla Base.
-# Independientes de los originales para mantener retrocompatibilidad.
-# ==============================================================================
-
-class TareaEDT(BaseModel):
-    nombre: str = Field(..., min_length=1)
-    descripcion_operativa: Optional[str] = "N/A"
-    hito: Optional[str] = "N/A"
-    subtareas: Optional[List["TareaEDT"]] = []
-
-TareaEDT.model_rebuild()
-
-
-class FaseEDT(BaseModel):
-    nombre: str = Field(..., min_length=1)
-    tareas: List[TareaEDT] = []
-
-
-class DocumentoEDTInput(BaseModel):
-    nombre_proyecto: str = Field(..., min_length=1, description="Nombre oficial del proyecto.")
-    id_proyecto: Optional[str] = Field("N/A", description="Identificador único del proyecto.")
-    presupuesto_total: Optional[str] = Field("N/A", description="Presupuesto total del proyecto.")
-    fecha_generacion: Optional[str] = Field(
-        None,
-        description="Fecha de generación del documento. Se auto-genera si no se proporciona.",
-    )
-    fases: List[FaseEDT] = Field(
-        ...,
-        description="""
-        ESTRUCTURA METODOLÓGICA FIJA — 5 ETAPAS OBLIGATORIAS:
-        1. Etapa 0 (Inicio): Planeación Estratégica, Análisis del Entorno y Mercado,
-           Estudio de Factibilidad, Definición de la Solución Tecnológica, Gestión Inicial del Proyecto.
-        2. Etapa 1 (Planeación): Integración del Proyecto, Gestión de Interesados,
-           Gestión del Alcance, Gestión de Requisitos.
-        3. Etapa 2 (Ejecución): Tecnológica, Operativa, Recursos Humanos, Finanzas, Comercial.
-        4. Etapa 3 (Control): Checklist (con hija 'Checklist de los 21 programas'),
-           Control y seguimiento, Control de cambios.
-        5. Etapa 4 (Cierre): Plantilla de resultados, Acta de cierre.
-
-        Las tareas del proyecto deben anidarse en nivel 3 o inferior dentro de esta estructura.
-        """,
+def _aplicar_bordes_thick(cell):
+    border_style = {"sz": "6", "val": "single", "color": "1B3A5C"}
+    _set_cell_borders(
+        cell, top=border_style, bottom=border_style,
+        start=border_style, end=border_style,
     )
 
 
+def agregar_fila_estilizada(table, valores, fondo=None, borde=None, bold=False, font_size=10, fuente_color=None):
+    """Agrega una fila a la tabla con estilos uniformes en todas sus celdas."""
+    row = table.add_row()
+    for i, valor in enumerate(valores):
+        cell = row.cells[i]
+        cell.text = str(valor)
+        aplicar_estilo_celda(
+            cell, fondo=fondo, borde=borde,
+            fuente_color=fuente_color, font_size=font_size, bold=bold,
+        )
+    return row
+
+
 # ==============================================================================
-# HELPERS — GENERACIÓN DE DOCUMENTO WORD
+# HELPERS DE BAJO NIVEL — SHADING y BORDES
 # ==============================================================================
-
-# Paleta de colores corporativos
-_COLOR_PRIMARIO = RGBColor(0x1B, 0x3A, 0x5C)       # Azul oscuro corporativo
-_COLOR_SECUNDARIO = RGBColor(0x2E, 0x86, 0xC1)      # Azul medio
-_COLOR_ACENTO = RGBColor(0x17, 0xA5, 0x89)           # Verde-azul
-_COLOR_TEXTO = RGBColor(0x2C, 0x3E, 0x50)            # Gris oscuro
-_COLOR_GRIS_CLARO = RGBColor(0xEC, 0xF0, 0xF1)       # Fondo gris claro
-_COLOR_BLANCO = RGBColor(0xFF, 0xFF, 0xFF)
-
-# Colores de fondo para cada etapa (hex sin #)
-_COLORES_ETAPA = [
-    "D4EDDA",  # Verde claro — Inicio
-    "CCE5FF",  # Azul claro — Planeación
-    "FFF3CD",  # Amarillo claro — Ejecución
-    "F8D7DA",  # Rojo claro — Control
-    "E2E3E5",  # Gris claro — Cierre
-]
-
-# Colores de fondo para subtareas base (nivel 2)
-_COLOR_SUBTAREA_BASE = "F0F4F8"
-
 
 def _set_cell_shading(cell, color_hex: str) -> None:
     """Aplica color de fondo a una celda de tabla Word."""
@@ -337,17 +151,9 @@ def _set_cell_borders(cell, **kwargs) -> None:
     tcPr.append(tcBorders)
 
 
-def _format_paragraph(paragraph, font_size=10, bold=False, color=None, alignment=None, font_name="Calibri"):
-    """Formatea un párrafo con estilos corporativos."""
-    if alignment is not None:
-        paragraph.alignment = alignment
-    for run in paragraph.runs:
-        run.font.size = Pt(font_size)
-        run.font.bold = bold
-        run.font.name = font_name
-        if color:
-            run.font.color.rgb = color
-
+# ==============================================================================
+# HELPERS — PÁRRAFOS
+# ==============================================================================
 
 def _add_styled_paragraph(doc, text, font_size=10, bold=False, color=None, alignment=None, space_after=6):
     """Agrega un párrafo con estilo al documento."""
@@ -364,42 +170,12 @@ def _add_styled_paragraph(doc, text, font_size=10, bold=False, color=None, align
     return p
 
 
-def _convertir_a_edt_input(datos: DocumentoEDTInput) -> EDTInput:
-    """Convierte DocumentoEDTInput a EDTInput para reutilizar lógica Mermaid."""
-    def _convertir_tarea(t: TareaEDT) -> Tarea:
-        return Tarea(
-            nombre=t.nombre,
-            subtareas=[_convertir_tarea(st) for st in (t.subtareas or [])],
-        )
-
-    fases_convertidas = []
-    for fase in datos.fases:
-        fases_convertidas.append(
-            Fase(
-                nombre=fase.nombre,
-                tareas=[_convertir_tarea(t) for t in fase.tareas],
-            )
-        )
-
-    return EDTInput(
-        nombre_proyecto=datos.nombre_proyecto,
-        fases=fases_convertidas,
-    )
-
-
-def _generar_imagen_mermaid(datos: DocumentoEDTInput) -> bytes:
-    """Genera la imagen PNG del diagrama EDT usando mermaid.ink."""
-    edt_input = _convertir_a_edt_input(datos)
-    mermaid_code = _construir_mermaid(edt_input)
-    encoded = base64.urlsafe_b64encode(mermaid_code.encode("utf-8")).decode("utf-8")
-    url_imagen = f"https://mermaid.ink/img/{encoded}?bgColor=white"
-    response = httpx.get(url_imagen, timeout=30, follow_redirects=True)
-    response.raise_for_status()
-    return response.content
-
+# ==============================================================================
+# RECURSIVIDAD — TABLA BASE EDT
+# ==============================================================================
 
 def _agregar_filas_tabla_recursivo(
-    table, tarea: TareaEDT, codigo_padre: str, indice: int,
+    table, tarea: TareaBase, codigo_padre: str, indice: int,
     nivel: int, color_etapa_idx: int
 ) -> int:
     """
@@ -410,7 +186,6 @@ def _agregar_filas_tabla_recursivo(
     row = table.add_row()
     cells = row.cells
 
-    # Determinar indentación visual según nivel
     indent = "    " * (nivel - 2) if nivel >= 2 else ""
     nombre_display = f"{indent}{tarea.nombre}" if nivel >= 3 else tarea.nombre
 
@@ -419,7 +194,6 @@ def _agregar_filas_tabla_recursivo(
     cells[2].text = tarea.descripcion_operativa or "N/A"
     cells[3].text = tarea.hito or "N/A"
 
-    # Estilizar celdas
     for cell in cells:
         for paragraph in cell.paragraphs:
             paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -428,9 +202,7 @@ def _agregar_filas_tabla_recursivo(
                 run.font.name = "Calibri"
                 run.font.color.rgb = _COLOR_TEXTO
 
-    # Aplicar colores según nivel
     if nivel == 1:
-        # Nivel de etapa — color de etapa
         color_hex = _COLORES_ETAPA[color_etapa_idx % len(_COLORES_ETAPA)]
         for cell in cells:
             _set_cell_shading(cell, color_hex)
@@ -439,7 +211,6 @@ def _agregar_filas_tabla_recursivo(
                     run.font.bold = True
                     run.font.size = Pt(10)
     elif nivel == 2:
-        # Subtarea base — fondo sutil
         for cell in cells:
             _set_cell_shading(cell, _COLOR_SUBTAREA_BASE)
             for paragraph in cell.paragraphs:
@@ -447,7 +218,6 @@ def _agregar_filas_tabla_recursivo(
                     run.font.bold = True
                     run.font.size = Pt(9)
 
-    # Aplicar bordes sutiles
     border_style = {"sz": "4", "val": "single", "color": "BFBFBF"}
     for cell in cells:
         _set_cell_borders(
@@ -455,7 +225,6 @@ def _agregar_filas_tabla_recursivo(
             start=border_style, end=border_style,
         )
 
-    # Procesar subtareas recursivamente
     count = 1
     if tarea.subtareas:
         for sub_idx, subtarea in enumerate(tarea.subtareas, start=1):
@@ -467,19 +236,21 @@ def _agregar_filas_tabla_recursivo(
     return count
 
 
+# ==============================================================================
+# SECCIÓN 1 — PORTADA
+# ==============================================================================
+
 def _construir_portada(doc, datos: DocumentoEDTInput, fecha: str) -> None:
     """Construye la portada corporativa del documento."""
     for _ in range(4):
         doc.add_paragraph()
 
-    # Línea decorativa superior
     p_line = doc.add_paragraph()
     p_line.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = p_line.add_run("━" * 50)
     run.font.color.rgb = _COLOR_SECUNDARIO
     run.font.size = Pt(14)
 
-    # Título del documento
     _add_styled_paragraph(
         doc, "ESTRUCTURA DE DESGLOSE DEL TRABAJO",
         font_size=26, bold=True, color=_COLOR_PRIMARIO,
@@ -491,7 +262,6 @@ def _construir_portada(doc, datos: DocumentoEDTInput, fecha: str) -> None:
         alignment=WD_ALIGN_PARAGRAPH.CENTER, space_after=20,
     )
 
-    # Línea decorativa
     p_line2 = doc.add_paragraph()
     p_line2.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run2 = p_line2.add_run("━" * 50)
@@ -500,7 +270,6 @@ def _construir_portada(doc, datos: DocumentoEDTInput, fecha: str) -> None:
 
     doc.add_paragraph()
 
-    # Datos del proyecto en tabla de portada
     tabla_info = doc.add_table(rows=3, cols=2)
     tabla_info.alignment = WD_TABLE_ALIGNMENT.CENTER
 
@@ -531,7 +300,6 @@ def _construir_portada(doc, datos: DocumentoEDTInput, fecha: str) -> None:
                 run.font.name = "Calibri"
                 run.font.color.rgb = _COLOR_TEXTO
 
-        # Remover bordes de la tabla de portada
         for cell in [cell_label, cell_valor]:
             _set_cell_borders(
                 cell,
@@ -543,14 +311,12 @@ def _construir_portada(doc, datos: DocumentoEDTInput, fecha: str) -> None:
 
     doc.add_paragraph()
 
-    # Fecha
     _add_styled_paragraph(
         doc, f"Fecha de generación: {fecha}",
         font_size=11, bold=False, color=_COLOR_SECUNDARIO,
         alignment=WD_ALIGN_PARAGRAPH.CENTER, space_after=10,
     )
 
-    # Línea decorativa inferior
     p_line3 = doc.add_paragraph()
     p_line3.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run3 = p_line3.add_run("━" * 50)
@@ -559,6 +325,10 @@ def _construir_portada(doc, datos: DocumentoEDTInput, fecha: str) -> None:
 
     doc.add_page_break()
 
+
+# ==============================================================================
+# SECCIÓN 2 — DIAGRAMA EDT
+# ==============================================================================
 
 def _construir_seccion_diagrama(doc, image_bytes: bytes) -> None:
     """Inserta la sección del diagrama EDT como imagen."""
@@ -581,7 +351,6 @@ def _construir_seccion_diagrama(doc, image_bytes: bytes) -> None:
         alignment=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=12,
     )
 
-    # Insertar imagen
     image_stream = BytesIO(image_bytes)
     p_img = doc.add_paragraph()
     p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -591,6 +360,10 @@ def _construir_seccion_diagrama(doc, image_bytes: bytes) -> None:
     doc.add_paragraph()
     doc.add_page_break()
 
+
+# ==============================================================================
+# SECCIÓN 3 — TABLA BASE DE LA EDT
+# ==============================================================================
 
 def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
     """Construye la Tabla Base de la EDT jerarquizada."""
@@ -613,37 +386,13 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
         alignment=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=12,
     )
 
-    # Crear tabla con encabezados
-    table = doc.add_table(rows=1, cols=4)
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    table.autofit = True
-
-    # Encabezados
     headers = ["Código EDT", "Nombre de la Tarea", "Descripción Operativa", "Hito"]
-    header_row = table.rows[0]
-    for i, header in enumerate(headers):
-        cell = header_row.cells[i]
-        cell.text = header
-        _set_cell_shading(cell, "1B3A5C")  # Azul oscuro
-        for paragraph in cell.paragraphs:
-            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            for run in paragraph.runs:
-                run.font.bold = True
-                run.font.size = Pt(10)
-                run.font.name = "Calibri"
-                run.font.color.rgb = _COLOR_BLANCO
-        border_style = {"sz": "6", "val": "single", "color": "1B3A5C"}
-        _set_cell_borders(
-            cell, top=border_style, bottom=border_style,
-            start=border_style, end=border_style,
-        )
+    table = crear_tabla_con_encabezados(
+        doc, headers, "1B3A5C",
+        widths=[Cm(2.5), Cm(6), Cm(6.5), Cm(2.5)],
+    )
 
-    # Ajustar anchos de columnas
-    widths = [Cm(2.5), Cm(6), Cm(6.5), Cm(2.5)]
-    for i, width in enumerate(widths):
-        header_row.cells[i].width = width
-
-    # Agregar fila del proyecto raíz
+    # Fila del proyecto raíz
     root_row = table.add_row()
     root_row.cells[0].text = "0"
     root_row.cells[1].text = datos.nombre_proyecto
@@ -689,7 +438,6 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
                 start=border_style, end=border_style,
             )
 
-        # Tareas de la fase
         for tarea_idx, tarea in enumerate(fase.tareas, start=1):
             _agregar_filas_tabla_recursivo(
                 table, tarea, fase_codigo, tarea_idx,
@@ -699,6 +447,10 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
     doc.add_paragraph()
     doc.add_page_break()
 
+
+# ==============================================================================
+# SECCIÓN 4 — MINUTA DE VALIDACIÓN
+# ==============================================================================
 
 def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None:
     """Construye la Minuta de Validación."""
@@ -798,26 +550,10 @@ def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None
         alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=12,
     )
 
-    tabla_firmas = doc.add_table(rows=4, cols=3)
-    tabla_firmas.alignment = WD_TABLE_ALIGNMENT.CENTER
-
     headers_firma = ["Rol", "Nombre Completo", "Firma"]
-    for i, header in enumerate(headers_firma):
-        cell = tabla_firmas.cell(0, i)
-        cell.text = header
-        _set_cell_shading(cell, "1B3A5C")
-        for paragraph in cell.paragraphs:
-            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            for run in paragraph.runs:
-                run.font.bold = True
-                run.font.size = Pt(10)
-                run.font.name = "Calibri"
-                run.font.color.rgb = _COLOR_BLANCO
-        border_style = {"sz": "6", "val": "single", "color": "1B3A5C"}
-        _set_cell_borders(
-            cell, top=border_style, bottom=border_style,
-            start=border_style, end=border_style,
-        )
+    tabla_firmas = crear_tabla_con_encabezados(
+        doc, headers_firma, "1B3A5C",
+    )
 
     roles = ["Project Manager", "Sponsor / Patrocinador", "Líder Técnico"]
     for i, rol in enumerate(roles, start=1):
@@ -853,7 +589,6 @@ def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None
     doc.add_paragraph()
     doc.add_paragraph()
 
-    # Nota al pie
     _add_styled_paragraph(
         doc,
         "Este documento fue generado automáticamente por el sistema MCP de Gestión "
@@ -865,11 +600,10 @@ def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None
 
 
 # ==============================================================================
-# HERRAMIENTA MCP — DOCUMENTO WORD
+# FUNCIÓN PÚBLICA PRINCIPAL — GENERAR DOCUMENTO WORD
 # ==============================================================================
 
-@mcp.tool()
-def generar_documento_proyecto_word(datos: DocumentoEDTInput) -> str:
+def generar_documento_word(datos: DocumentoEDTInput) -> str:
     """
     Genera un documento corporativo .docx con la EDT completa del proyecto.
 
@@ -878,15 +612,6 @@ def generar_documento_proyecto_word(datos: DocumentoEDTInput) -> str:
     2. TABLA BASE DE LA EDT — Tabla jerárquica con Código EDT, Nombre, Descripción
        Operativa e Hito para cada tarea.
     3. MINUTA DE VALIDACIÓN — Datos del proyecto y campos de firma para validación.
-
-    INSTRUCCIONES PARA EL LLM:
-    - Lee todos los archivos .txt del usuario y extrae: nombre del proyecto,
-      ID del proyecto, presupuesto total, y todas las tareas/actividades.
-    - Clasifica TODAS las tareas dentro de la Estructura Metodológica Fija de 5 etapas.
-    - Para cada tarea, proporciona: descripcion_operativa (breve descripción) y
-      hito (ej. "Hito 1", "N/A").
-    - Las tareas del proyecto deben anidarse en nivel 3 o inferior.
-    - El archivo .docx se guarda automáticamente en ~/Downloads/.
     """
     try:
         fecha = datos.fecha_generacion or datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -896,8 +621,8 @@ def generar_documento_proyecto_word(datos: DocumentoEDTInput) -> str:
 
         # 1. Generar imagen del diagrama EDT
         try:
-            image_bytes = _generar_imagen_mermaid(datos)
-        except Exception as img_err:
+            image_bytes = generar_imagen_mermaid_para_docx(datos)
+        except Exception:
             image_bytes = None
 
         # 2. Crear documento Word
@@ -940,7 +665,6 @@ def generar_documento_proyecto_word(datos: DocumentoEDTInput) -> str:
 
         # 4. Configurar encabezado y pie de página
         for section in doc.sections:
-            # Encabezado
             header = section.header
             header.is_linked_to_previous = False
             header_p = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
@@ -951,7 +675,6 @@ def generar_documento_proyecto_word(datos: DocumentoEDTInput) -> str:
                 run.font.color.rgb = _COLOR_SECUNDARIO
                 run.font.name = "Calibri"
 
-            # Pie de página
             footer = section.footer
             footer.is_linked_to_previous = False
             footer_p = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
@@ -965,8 +688,8 @@ def generar_documento_proyecto_word(datos: DocumentoEDTInput) -> str:
         # 5. Guardar archivo
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         nombre_seguro = datos.nombre_proyecto.replace(" ", "_").replace("/", "-")
-        nombre_archivo = f"EDT_{nombre_seguro}_{timestamp}.docx"
-        ruta = Path.home() / "Downloads" / nombre_archivo
+        nombre_archivo = f"{_PREFIJO_ARCHIVO}_{nombre_seguro}_{timestamp}.docx"
+        ruta = _CARPETA_DOWNLOADS / nombre_archivo
         doc.save(str(ruta))
 
         return (
@@ -984,8 +707,3 @@ def generar_documento_proyecto_word(datos: DocumentoEDTInput) -> str:
             f"❌ Error al generar el documento: {str(e)}.\n"
             "Revisa los parámetros y vuelve a ejecutar la herramienta."
         )
-
-
-if __name__ == "__main__":
-    print("Iniciando Servidor MCP de Gestión de Proyectos...")
-    mcp.run(transport='stdio')

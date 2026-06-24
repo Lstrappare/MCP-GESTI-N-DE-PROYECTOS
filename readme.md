@@ -2,12 +2,25 @@
 
 Servidor de herramientas basado en el **Model Context Protocol (MCP)** para automatizar la generación de Estructuras de Desglose del Trabajo (EDT) en formato Mermaid.js, imagen PNG y documento Word corporativo (.docx) para el proyecto MINTRANET.
 
+## 🗂️ Estructura del proyecto
+
+```
+.
+├── main.py                          # Servidor MCP + registro de herramientas
+├── models.py                        # Modelos Pydantic unificados (EDTInput, DocumentoEDTInput)
+├── config/
+│   └── settings.py                  # Constantes: colores, URLs, rutas de salida
+└── services/
+    ├── mermaid_service.py           # Construcción Mermaid y renderizado PNG (Kroki + mermaid.ink)
+    └── docx_service.py              # Generación de documento Word (.docx)
+```
+
 ### 🔧 Herramientas disponibles
 
 | Herramienta | Descripción |
 |---|---|
 | `generar_edt` | Genera el código Mermaid del EDT en texto |
-| `exportar_imagen_edt` | Renderiza el EDT como PNG y lo guarda en `~/Downloads/` |
+| `exportar_imagen_edt` | Renderiza el EDT como PNG vía Kroki (fallback: mermaid.ink) y lo guarda en `~/Downloads/` |
 | `generar_documento_proyecto_word` | Genera un documento corporativo `.docx` con diagrama EDT, tabla base jerarquizada y minuta de validación |
 
 ---
@@ -108,7 +121,7 @@ Abre `claude_desktop_config.json` y agrega la sección `gestion-proyectos` dentr
     "gestion-proyectos": {
       "command": "/RUTA_ABSOLUTA/MCP-GESTI-N-DE-PROYECTOS/venv/bin/python",
       "args": [
-        "/RUTA_ABSOLUTA/MCP-GESTI-N-DE-PROYECTOS/server.py"
+        "/RUTA_ABSOLUTA/MCP-GESTI-N-DE-PROYECTOS/main.py"
       ]
     }
   }
@@ -122,7 +135,7 @@ Abre `claude_desktop_config.json` y agrega la sección `gestion-proyectos` dentr
     "gestion-proyectos": {
       "command": "C:\\RUTA_ABSOLUTA\\MCP-GESTI-N-DE-PROYECTOS\\venv\\Scripts\\python.exe",
       "args": [
-        "C:\\RUTA_ABSOLUTA\\MCP-GESTI-N-DE-PROYECTOS\\server.py"
+        "C:\\RUTA_ABSOLUTA\\MCP-GESTI-N-DE-PROYECTOS\\main.py"
       ]
     }
   }
@@ -155,18 +168,18 @@ El inspector abre una UI web para invocar las herramientas manualmente.
 ### macOS / Linux
 ```bash
 source venv/bin/activate
-mcp dev server.py
+mcp dev main.py
 ```
 
 ### Windows
 ```powershell
 venv\Scripts\Activate.ps1
-mcp dev server.py
+mcp dev main.py
 ```
 
 Luego abre **`http://localhost:5173`** en tu navegador.
 
-> Si `mcp` no se reconoce: `python -m mcp dev server.py`
+> Si `mcp` no se reconoce: `python -m mcp dev main.py`
 
 ---
 
@@ -178,7 +191,8 @@ Verifica que todo funciona sin levantar el inspector ni Claude:
 ```bash
 source venv/bin/activate
 python -c "
-from server import generar_edt, EDTInput, Fase, Tarea
+from main import generar_edt
+from models import EDTInput, Fase, Tarea
 
 datos = EDTInput(
     nombre_proyecto='Proyecto de Prueba',
@@ -202,14 +216,14 @@ print(generar_edt(datos))
 ### Windows (PowerShell)
 ```powershell
 venv\Scripts\Activate.ps1
-python -c "from server import generar_edt, EDTInput, Fase, Tarea; datos = EDTInput(nombre_proyecto='Proyecto Test', fases=[Fase(nombre='Inicio', tareas=[Tarea(nombre='Acta', subtareas=[Tarea(nombre='Firma')])])]); print(generar_edt(datos))"
+python -c "from main import generar_edt; from models import EDTInput, Fase, Tarea; datos = EDTInput(nombre_proyecto='Proyecto Test', fases=[Fase(nombre='Inicio', tareas=[Tarea(nombre='Acta', subtareas=[Tarea(nombre='Firma')])])]); print(generar_edt(datos))"
 ```
 
 ---
 
 ## 🗂️ 7. JSON de prueba en el Inspector
 
-Cuando uses `mcp dev server.py`, selecciona la herramienta y pega este JSON:
+Cuando uses `mcp dev main.py`, selecciona la herramienta y pega este JSON:
 
 ### `generar_edt` — devuelve código Mermaid
 
@@ -323,7 +337,7 @@ Con esta herramienta Claude Desktop:
    - Minuta de Validación con campos de firma
 4. **Guarda automáticamente** el archivo en `~/Downloads/EDT_NombreProyecto_YYYYMMDD_HHMMSS.docx`
 
-> ⚠️ **Recuerda reiniciar Claude Desktop** después de cualquier cambio en `server.py` para que cargue la versión actualizada.
+> ⚠️ **Recuerda reiniciar Claude Desktop** después de cualquier cambio en `main.py` para que cargue la versión actualizada.
 
 ---
 
@@ -345,7 +359,7 @@ deactivate
 | No aparece el 🔨 en Claude Desktop | Verifica las rutas en `claude_desktop_config.json` y reinicia Claude |
 | Claude solo descarga `.html` al pedir el diagrama | Pídele explícitamente usar `exportar_imagen_edt`: *"Muéstrame la imagen"* |
 | `string_too_short` en el Inspector | El campo `nombre_proyecto` quedó vacío — escribe un nombre real antes de ejecutar |
-| `mcp: command not found` | Usa `python -m mcp dev server.py` |
+| `mcp: command not found` | Usa `python -m mcp dev main.py` |
 | `python: command not found` (macOS/Linux) | Usa `python3` en lugar de `python` |
 | Error de permisos en Windows (`Activate.ps1`) | Ejecuta `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` como administrador |
 | Puerto 5173 ocupado | Cierra otras instancias del inspector o reinicia la terminal |
@@ -357,7 +371,16 @@ deactivate
 
 ## 📝 Notas
 
+- `main.py` es el punto de entrada del servidor. `server.py` se conserva como respaldo de la versión monolítica original.
+- Los modelos Pydantic están unificados en `models.py` (`TareaBase`, `FaseBase`, `EDTInput`, `DocumentoEDTInput`).
 - La herramienta `generar_edt` soporta **profundidad ilimitada** de tareas y subtareas mediante recursividad.
-- La herramienta `exportar_imagen_edt` requiere **conexión a internet** para usar la API de `mermaid.ink`.
+- La herramienta `exportar_imagen_edt` requiere **conexión a internet** (Kroki como primario, mermaid.ink como fallback).
 - Los diagramas incluyen **estilos de color automáticos** para cada fase (5 colores rotativos).
-- Si tienes dudas, contacta a **José Manuel**.
+
+# Autores
+- Jose Manuel Cisneros Valero 
+- García Vázquez Rogelio 
+- Gonzales Velázquez Josué 
+- Flores Jasso Miguel Angel 
+- Martínez Nicolas Francisco Leonardo 
+- Parra Mendoza Ernesto Zuriel 

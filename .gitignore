@@ -14,3 +14,24 @@ __pycache__/
 
 # Archivos de SO (Mac)
 .DS_Store
+
+# Archivos generados (datos de proyectos — confidenciales)
+*.docx
+*.png
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# opencode
+.opencode/
+.agents/
+skills-lock.json
+
+# Distribución Python
+*.egg-info/
+dist/
+build/
