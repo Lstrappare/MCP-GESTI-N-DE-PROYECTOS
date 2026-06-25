@@ -1,9 +1,9 @@
 {
   "nombre_proyecto": "Proyecto MINTRANET — Sistema de Intranet Empresarial",
-  "id_proyecto": "MIN-2026-001",
+  "id_proyecto": "NIMTR3EA5TB4",
   "nombre_empresa": "MINTRANET",
-  "presupuesto_fase": "$500,000 MXN",
-  "presupuesto_proyecto": "$3,500,000 MXN",
+  "presupuesto_fase": "$20,880.00 MXN",
+  "presupuesto_proyecto": "$7,125,000 MXN",
   "fases": [
     {
       "nombre": "ETAPA 0 (Inicio)",

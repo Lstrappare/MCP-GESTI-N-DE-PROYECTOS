@@ -58,7 +58,7 @@ class ActividadMinuta(BaseModel):
 
 class DocumentoEDTInput(EDTInput):
     id_proyecto: Optional[str] = Field("N/A", description="Identificador único del proyecto.")
-    nombre_empresa: Optional[str] = Field("MINTRANET", description="Nombre de la empresa.")
+    nombre_empresa: Optional[str] = Field("N/A", description="Nombre de la empresa.")
     presupuesto_fase: Optional[str] = Field("N/A", description="Presupuesto asignado a la fase.")
     presupuesto_proyecto: Optional[str] = Field("N/A", description="Presupuesto total del proyecto.")
     presupuesto_total: Optional[str] = Field("N/A", description="Presupuesto total del proyecto.")

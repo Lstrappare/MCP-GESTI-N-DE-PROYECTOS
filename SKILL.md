@@ -92,7 +92,7 @@ Solo cuando `validar_datos_proyecto` devuelva validación exitosa:
 |---|---|---|
 | `nombre_proyecto` | Sí | Nombre oficial del proyecto |
 | `id_proyecto` | Sí (validación) | No usar `"N/A"` |
-| `nombre_empresa` | Opcional | Default: `"MINTRANET"` |
+| `nombre_empresa` | Opcional | Default: `"N/A"` |
 | `presupuesto_fase` | Sí (validación) | No usar `"N/A"` |
 | `presupuesto_proyecto` | Sí (validación) | No usar `"N/A"` |
 | `fases` | Sí | Lista de `FaseBase` con `TareaBase` |

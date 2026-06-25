@@ -391,7 +391,7 @@ def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str, t
     run_icon.font.bold = True
     run_icon.font.name = "Calibri"
     run_icon.font.color.rgb = _COLOR_PRIMARIO
-    run_nombre = p_logo.add_run(datos.nombre_empresa or "MINTRANET")
+    run_nombre = p_logo.add_run(datos.nombre_empresa or "N/A")
     run_nombre.font.size = Pt(14)
     run_nombre.font.bold = True
     run_nombre.font.name = "Calibri"
@@ -406,7 +406,7 @@ def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str, t
     _merge_vertical(table, 0, 0, 2)
     cell_logo = table.cell(0, 0)
     _set_cell_text(
-        cell_logo, f"◼ LOGO\n\n{datos.nombre_empresa or 'MINTRANET'}",
+        cell_logo, f"◼ LOGO\n\n{datos.nombre_empresa or 'N/A'}",
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=10, bold=True,
         color=_COLOR_PRIMARIO,
     )
@@ -424,7 +424,7 @@ def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str, t
     # Fila 0, columna 3: Etapa
     cell_etapa = table.cell(0, 3)
     _set_cell_text(
-        cell_etapa, "Etapa:\n0) Planeación",
+        cell_etapa, "Etapa:\n1) Planeación",
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
         color=_COLOR_TEXTO,
     )
@@ -578,7 +578,6 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
 
     doc.add_paragraph()
     _construir_tabla_firmas(doc)
-    doc.add_page_break()
 
 
 # ==============================================================================

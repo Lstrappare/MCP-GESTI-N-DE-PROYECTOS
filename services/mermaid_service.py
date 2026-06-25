@@ -72,8 +72,8 @@ def construir_mermaid(datos: EDTInput) -> str:
             tarea_id = f"T{i}_{j}"
             _agregar_nodos(tarea, fase_id, tarea_id, lines)
 
-    # Estilos de color automáticos de MINTRANET
-    lines.append("\n    %% Estilos automáticos de MINTRANET")
+    # Estilos de color automáticos 
+    lines.append("\n    %% Estilos automáticos")
     lines.append(f"    style Root {MERMAID_ESTILO_ROOT}")
 
     for i in range(len(datos.fases)):
@@ -112,7 +112,7 @@ def construir_mermaid_fase(datos: EDTInput, fase_idx: int) -> str:
         _agregar_nodos(tarea, fase_id, tarea_id, lines)
 
     # Estilo root + fase
-    lines.append("\n    %% Estilos automáticos de MINTRANET")
+    lines.append("\n    %% Estilos automáticos")
     lines.append(f"    style Root {MERMAID_ESTILO_ROOT}")
     color_fondo = MERMAID_COLORES_FASE[0]
     color_borde = MERMAID_BORDES_FASE[0]
@@ -141,7 +141,7 @@ def construir_mermaid_tarea(datos: EDTInput, fase_idx: int, tarea_idx: int) -> s
     tarea_id = "T0_0"
     _agregar_nodos(tarea, "F0", tarea_id, lines)
 
-    lines.append("\n    %% Estilos automáticos de MINTRANET")
+    lines.append("\n    %% Estilos automáticos")
     lines.append(f"    style Root {MERMAID_ESTILO_ROOT}")
     color_fondo = MERMAID_COLORES_FASE[0]
     color_borde = MERMAID_BORDES_FASE[0]
