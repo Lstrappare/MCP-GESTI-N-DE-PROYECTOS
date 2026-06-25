@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de EDT</title>
+    <style>
+        /* Estilos básicos */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f0f4f8;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            color: #1B3A5C;
+            border-bottom: 3px solid #2E86C1;
+            padding-bottom: 10px;
+        }
+        .seccion {
+            margin-bottom: 30px;
+            border: 1px solid #dde6ed;
+            padding: 20px;
+            border-radius: 6px;
+            background: #fafcfe;
+        }
+        .seccion h2 {
+            margin-top: 0;
+            color: #2E86C1;
+            font-size: 1.2rem;
+        }
+        label {
+            display: inline-block;
+            width: 160px;
+            font-weight: 600;
+            color: #1B3A5C;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        textarea {
+            height: 60px;
+            resize: vertical;
+        }
+        .fila {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .col {
+            flex: 1;
+            min-width: 200px;
+        }
+        .btn {
+            background: #1B3A5C;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px 5px 5px 0;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #2E86C1;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 13px;
+        }
+        .resultado {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 5px solid #1B3A5C;
+            border-radius: 4px;
+            display: none;
+        }
+        .imagen-container {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        .imagen-container img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .cargando {
+            display: none;
+            font-weight: bold;
+            color: #2E86C1;
+            margin: 10px 0;
+        }
+        .flex {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .card-fase {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            background: #f5f8fa;
+        }
+        .card-tarea {
+            border: 1px solid #dde6ed;
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 4px;
+        }
+        .card-subtarea {
+            border: 1px solid #e9edf2;
+            padding: 8px;
+            margin: 5px 0 5px 30px;
+            background: #f9fafb;
+            border-radius: 4px;
+        }
+        .card-actividad {
+            border: 1px solid #dde6ed;
+            padding: 10px;
+            margin: 6px 0;
+            background: #f5f8fa;
+            border-radius: 4px;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        @media (max-width: 700px) {
+            .grid-4 { grid-template-columns: 1fr 1fr; }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        .badge {
+            background: #2E86C1;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .alert-success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .alert-danger { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 Gestor de Estructura de Desglose del Trabajo (EDT)</h1>
+    <p>Completa los datos del proyecto y genera el diagrama, la imagen o el documento Word.</p>
+
+    <!-- ========== DATOS GENERALES ========== -->
+    <div class="seccion">
+        <h2>📋 Datos Generales</h2>
+        <div class="fila">
+            <div class="col">
+                <label>Nombre del Proyecto *</label>
+                <input type="text" id="nombreProyecto" placeholder="Ej: Sistema de Intranet" value="Proyecto MINTRANET">
+            </div>
+            <div class="col">
+                <label>ID del Proyecto</label>
+                <input type="text" id="idProyecto" placeholder="Ej: PRJ-001" value="NIMTR3EA5TB4">
+            </div>
+            <div class="col">
+                <label>Empresa</label>
+                <input type="text" id="nombreEmpresa" placeholder="Ej: MINTRANET" value="MINTRANET">
+            </div>
+        </div>
+        <div class="fila">
+            <div class="col">
+                <label>Presupuesto de la Fase</label>
+                <input type="text" id="presupuestoFase" placeholder="$ 500,000" value="$20,880.00 MXN">
+            </div>
+            <div class="col">
+                <label>Presupuesto Total</label>
+                <input type="text" id="presupuestoTotal" placeholder="$ 3,000,000" value="$7,125,000 MXN">
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== EDT (FASES Y TAREAS) ========== -->
+    <div class="seccion">
+        <h2>📂 Estructura EDT (Fases y Tareas)</h2>
+        <p>Agrega fases, y dentro de cada una, tareas con descripción e hito. Puedes anidar subtareas.</p>
+        <div id="fasesContainer"></div>
+        <button class="btn btn-success btn-sm" onclick="agregarFase()">➕ Agregar Fase</button>
+    </div>
+
+    <!-- ========== MINUTA DE VALIDACIÓN ========== -->
+    <div class="seccion">
+        <h2>📝 Minuta de Validación</h2>
+        <p>Registra al menos 3 actividades de validación con su tiempo, recursos y responsable.</p>
+        <div id="actividadesContainer"></div>
+        <button class="btn btn-success btn-sm" onclick="agregarActividad()">➕ Agregar Actividad</button>
+        <div style="margin-top:15px;">
+            <label>Conclusión de la Minuta</label>
+            <textarea id="conclusionMinuta" rows="3">La estructura de desglose del trabajo ha sido validada por los responsables del proyecto. Se confirma la alineación con los objetivos estratégicos, la viabilidad técnica y financiera, y se autoriza el inicio de la fase de ejecución conforme al plan presentado.</textarea>
+        </div>
+    </div>
+
+    <!-- ========== BOTONES DE ACCIÓN ========== -->
+    <div class="flex" style="margin-top:20px;">
+        <button class="btn btn-warning" onclick="validarDatos()">✔️ Validar Datos</button>
+        <button class="btn" onclick="generarMermaid()">📐 Generar Mermaid</button>
+        <button class="btn btn-success" onclick="generarImagen()">🖼️ Generar Imagen</button>
+        <button class="btn btn-danger" onclick="generarDocumento()">📄 Generar Documento</button>
+    </div>
+
+    <div id="cargando" class="cargando">⏳ Procesando... por favor espera.</div>
+    <div id="resultado" class="resultado"></div>
+    <div id="imagenResultado" class="imagen-container"></div>
+    <div id="enlaceDocumento" style="display:none; margin-top:15px;">
+        <a id="descargaDoc" href="#" class="btn btn-success">⬇️ Descargar Documento Word</a>
+    </div>
+</div>
+
+<script>
+    // ======================================================================
+    // ESTADO GLOBAL
+    // ======================================================================
+    let fases = [];
+    let actividadesMinuta = [];
+
+    // ======================================================================
+    // FUNCIONES PARA FASES Y TAREAS (con subtareas)
+    // ======================================================================
+
+    function agregarFase(nombre = "", tareasIniciales = null) {
+        const fase = {
+            nombre: nombre || `Fase ${fases.length + 1}`,
+            tareas: tareasIniciales || []
+        };
+        if (!fase.tareas.length) {
+            fase.tareas.push({ nombre: "Nueva tarea", descripcion_operativa: "", hito: "", subtareas: [] });
+        }
+        fases.push(fase);
+        renderizarFases();
+    }
+
+    function renderizarFases() {
+        const container = document.getElementById('fasesContainer');
+        container.innerHTML = '';
+        fases.forEach((fase, idxF) => {
+            const divFase = document.createElement('div');
+            divFase.className = 'card-fase';
+            divFase.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <input type="text" value="${fase.nombre}" placeholder="Nombre de la fase" style="width:60%; font-weight:bold; font-size:1.1em;" onchange="actualizarFase(${idxF}, 'nombre', this.value)">
+                    <button class="btn btn-danger btn-sm" onclick="eliminarFase(${idxF})">🗑️ Eliminar Fase</button>
+                </div>
+                <div id="tareasFase-${idxF}" style="margin-top:10px;"></div>
+                <button class="btn btn-success btn-sm" onclick="agregarTarea(${idxF})">➕ Agregar Tarea</button>
+            `;
+            container.appendChild(divFase);
+
+            // Renderizar tareas de esta fase
+            const tareasContainer = document.getElementById(`tareasFase-${idxF}`);
+            fase.tareas.forEach((tarea, idxT) => {
+                const divTarea = document.createElement('div');
+                divTarea.className = 'card-tarea';
+                divTarea.innerHTML = `
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <input type="text" value="${tarea.nombre}" placeholder="Nombre tarea" style="flex:2;" onchange="actualizarTarea(${idxF}, ${idxT}, 'nombre', this.value)">
+                        <input type="text" value="${tarea.descripcion_operativa || ''}" placeholder="Descripción operativa" style="flex:3;" onchange="actualizarTarea(${idxF}, ${idxT}, 'descripcion_operativa', this.value)">
+                        <input type="text" value="${tarea.hito || ''}" placeholder="Hito" style="flex:1;" onchange="actualizarTarea(${idxF}, ${idxT}, 'hito', this.value)">
+                        <button class="btn btn-danger btn-sm" onclick="eliminarTarea(${idxF}, ${idxT})">✖</button>
+                    </div>
+                    <div id="subtareas-${idxF}-${idxT}" style="margin-left:30px; margin-top:5px;"></div>
+                    <button class="btn btn-sm" style="background:#6c757d; color:white;" onclick="agregarSubtarea(${idxF}, ${idxT})">➕ Subtarea</button>
+                `;
+                tareasContainer.appendChild(divTarea);
+
+                // Renderizar subtareas
+                const subtareasContainer = document.getElementById(`subtareas-${idxF}-${idxT}`);
+                if (tarea.subtareas) {
+                    tarea.subtareas.forEach((sub, idxS) => {
+                        const divSub = document.createElement('div');
+                        divSub.className = 'card-subtarea';
+                        divSub.innerHTML = `
+                            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                <input type="text" value="${sub.nombre}" placeholder="Subtarea" style="flex:2;" onchange="actualizarSubtarea(${idxF}, ${idxT}, ${idxS}, 'nombre', this.value)">
+                                <input type="text" value="${sub.descripcion_operativa || ''}" placeholder="Descripción" style="flex:3;" onchange="actualizarSubtarea(${idxF}, ${idxT}, ${idxS}, 'descripcion_operativa', this.value)">
+                                <input type="text" value="${sub.hito || ''}" placeholder="Hito" style="flex:1;" onchange="actualizarSubtarea(${idxF}, ${idxT}, ${idxS}, 'hito', this.value)">
+                                <button class="btn btn-danger btn-sm" onclick="eliminarSubtarea(${idxF}, ${idxT}, ${idxS})">✖</button>
+                            </div>
+                        `;
+                        subtareasContainer.appendChild(divSub);
+                    });
+                }
+            });
+        });
+    }
+
+    // Funciones de manipulación de fases/tareas/subtareas
+    function actualizarFase(idx, campo, valor) { fases[idx][campo] = valor; }
+    function eliminarFase(idx) { fases.splice(idx, 1); renderizarFases(); }
+    function agregarTarea(idxF) {
+        fases[idxF].tareas.push({ nombre: "Nueva tarea", descripcion_operativa: "", hito: "", subtareas: [] });
+        renderizarFases();
+    }
+    function eliminarTarea(idxF, idxT) {
+        fases[idxF].tareas.splice(idxT, 1);
+        renderizarFases();
+    }
+    function actualizarTarea(idxF, idxT, campo, valor) {
+        fases[idxF].tareas[idxT][campo] = valor;
+    }
+    function agregarSubtarea(idxF, idxT) {
+        if (!fases[idxF].tareas[idxT].subtareas) fases[idxF].tareas[idxT].subtareas = [];
+        fases[idxF].tareas[idxT].subtareas.push({ nombre: "Nueva subtarea", descripcion_operativa: "", hito: "" });
+        renderizarFases();
+    }
+    function eliminarSubtarea(idxF, idxT, idxS) {
+        fases[idxF].tareas[idxT].subtareas.splice(idxS, 1);
+        renderizarFases();
+    }
+    function actualizarSubtarea(idxF, idxT, idxS, campo, valor) {
+        fases[idxF].tareas[idxT].subtareas[idxS][campo] = valor;
+    }
+
+    // ======================================================================
+    // FUNCIONES PARA ACTIVIDADES DE MINUTA
+    // ======================================================================
+
+    function agregarActividad(actividad = "", tiempo = "", recursos = "", responsable = "") {
+        actividadesMinuta.push({ actividad, tiempo, recursos, responsable });
+        renderizarActividades();
+    }
+
+    function renderizarActividades() {
+        const container = document.getElementById('actividadesContainer');
+        container.innerHTML = '';
+        actividadesMinuta.forEach((act, idx) => {
+            const div = document.createElement('div');
+            div.className = 'card-actividad';
+            div.innerHTML = `
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <input type="text" value="${act.actividad}" placeholder="Actividad" style="flex:2;" onchange="actualizarActividad(${idx}, 'actividad', this.value)">
+                    <input type="text" value="${act.tiempo}" placeholder="Tiempo" style="flex:1;" onchange="actualizarActividad(${idx}, 'tiempo', this.value)">
+                    <input type="text" value="${act.recursos}" placeholder="Recursos" style="flex:2;" onchange="actualizarActividad(${idx}, 'recursos', this.value)">
+                    <input type="text" value="${act.responsable}" placeholder="Responsable" style="flex:1;" onchange="actualizarActividad(${idx}, 'responsable', this.value)">
+                    <button class="btn btn-danger btn-sm" onclick="eliminarActividad(${idx})">✖</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function actualizarActividad(idx, campo, valor) {
+        actividadesMinuta[idx][campo] = valor;
+    }
+    function eliminarActividad(idx) {
+        actividadesMinuta.splice(idx, 1);
+        renderizarActividades();
+    }
+
+    // Inicializar con 3 actividades de ejemplo
+    function initActividades() {
+        actividadesMinuta = [
+            { actividad: "Revisar EDT completa", tiempo: "3 horas", recursos: "Documento EDT impreso, sala de juntas", responsable: "Director del proyecto" },
+            { actividad: "Validar estructura con stakeholders", tiempo: "2 horas", recursos: "Acta de constitución, matriz de interesados", responsable: "Patrocinador del proyecto" },
+            { actividad: "Firmar aprobación de la EDT", tiempo: "30 minutos", recursos: "Sistema documental, firmas electrónicas", responsable: "Cliente del proyecto" }
+        ];
+        renderizarActividades();
+    }
+
+    // ======================================================================
+    // CONSTRUIR OBJETOS JSON PARA LA API
+    // ======================================================================
+
+    function getDatosGenerales() {
+        return {
+            nombre_proyecto: document.getElementById('nombreProyecto').value.trim(),
+            id_proyecto: document.getElementById('idProyecto').value.trim() || "N/A",
+            nombre_empresa: document.getElementById('nombreEmpresa').value.trim() || "N/A",
+            presupuesto_fase: document.getElementById('presupuestoFase').value.trim() || "N/A",
+            presupuesto_proyecto: document.getElementById('presupuestoTotal').value.trim() || "N/A",
+        };
+    }
+
+    function getEDTInput() {
+        const gral = getDatosGenerales();
+        return {
+            nombre_proyecto: gral.nombre_proyecto,
+            fases: fases.map(f => ({
+                nombre: f.nombre.trim(),
+                tareas: f.tareas.map(t => ({
+                    nombre: t.nombre.trim(),
+                    subtareas: (t.subtareas || []).map(s => ({
+                        nombre: s.nombre.trim()
+                    }))
+                }))
+            }))
+        };
+    }
+
+    function getDocumentoInput() {
+        const gral = getDatosGenerales();
+        return {
+            nombre_proyecto: gral.nombre_proyecto,
+            id_proyecto: gral.id_proyecto,
+            nombre_empresa: gral.nombre_empresa,
+            presupuesto_fase: gral.presupuesto_fase,
+            presupuesto_proyecto: gral.presupuesto_proyecto,
+            presupuesto_total: gral.presupuesto_proyecto, // alias
+            fecha_generacion: new Date().toISOString(),
+            fases: fases.map(f => ({
+                nombre: f.nombre.trim(),
+                tareas: f.tareas.map(t => ({
+                    nombre: t.nombre.trim(),
+                    descripcion_operativa: t.descripcion_operativa || "N/A",
+                    hito: t.hito || "N/A",
+                    subtareas: (t.subtareas || []).map(s => ({
+                        nombre: s.nombre.trim(),
+                        descripcion_operativa: s.descripcion_operativa || "N/A",
+                        hito: s.hito || "N/A",
+                        subtareas: []
+                    }))
+                }))
+            })),
+            actividades_minuta: actividadesMinuta.filter(a => a.actividad.trim() !== ""),
+            conclusion_minuta: document.getElementById('conclusionMinuta').value.trim() || "La estructura de desglose del trabajo queda validada por los responsables del proyecto, conforme a los criterios técnicos, financieros y metodológicos establecidos."
+        };
+    }
+
+    // ======================================================================
+    // FUNCIONES DE LLAMADA A LA API
+    // ======================================================================
+
+    async function llamarAPI(endpoint, datos) {
+        const loading = document.getElementById('cargando');
+        loading.style.display = 'block';
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Error ${response.status}: ${errorText}`);
+            }
+            return await response.json();
+        } catch (e) {
+            alert('Error en la petición: ' + e.message);
+            throw e;
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    function mostrarResultado(html) {
+        const div = document.getElementById('resultado');
+        div.style.display = 'block';
+        div.innerHTML = html;
+    }
+
+    function limpiarResultados() {
+        document.getElementById('resultado').style.display = 'none';
+        document.getElementById('imagenResultado').style.display = 'none';
+        document.getElementById('enlaceDocumento').style.display = 'none';
+    }
+
+    // ======================================================================
+    // ACCIONES DE LOS BOTONES
+    // ======================================================================
+
+    async function validarDatos() {
+        limpiarResultados();
+        const datos = getDocumentoInput();
+        if (!datos.nombre_proyecto) {
+            mostrarResultado('<div class="alert alert-danger">❌ El nombre del proyecto es obligatorio.</div>');
+            return;
+        }
+        try {
+            const result = await llamarAPI('/api/edt/validar', datos);
+            let html = '';
+            if (result.es_valido) {
+                html = `<div class="alert alert-success">✅ ${result.mensaje}</div>`;
+            } else {
+                html = `<div class="alert alert-danger">⚠️ ${result.mensaje}</div>`;
+                if (result.faltantes && result.faltantes.length) {
+                    html += `<ul style="color:#721c24;">`;
+                    result.faltantes.forEach(f => html += `<li>${f}</li>`);
+                    html += `</ul>`;
+                }
+            }
+            mostrarResultado(html);
+        } catch (e) {}
+    }
+
+    async function generarMermaid() {
+        limpiarResultados();
+        const datos = getEDTInput();
+        if (!datos.nombre_proyecto) {
+            mostrarResultado('<div class="alert alert-danger">❌ El nombre del proyecto es obligatorio.</div>');
+            return;
+        }
+        try {
+            const result = await llamarAPI('/api/edt/mermaid', datos);
+            mostrarResultado(`<pre style="background:#f0f0f0; padding:15px; border-radius:4px; overflow:auto;">${result.mermaid}</pre>`);
+        } catch (e) {}
+    }
+
+    async function generarImagen() {
+        limpiarResultados();
+        const datos = getEDTInput();
+        if (!datos.nombre_proyecto) {
+            mostrarResultado('<div class="alert alert-danger">❌ El nombre del proyecto es obligatorio.</div>');
+            return;
+        }
+        try {
+            const result = await llamarAPI('/api/edt/imagen', datos);
+            const imgDiv = document.getElementById('imagenResultado');
+            imgDiv.style.display = 'block';
+            imgDiv.innerHTML = `<h3>Diagrama EDT</h3><img src="data:image/png;base64,${result.imagen_base64}" alt="Diagrama EDT">`;
+            mostrarResultado('<div class="alert alert-success">✅ Imagen generada correctamente.</div>');
+        } catch (e) {}
+    }
+
+    async function generarDocumento() {
+        limpiarResultados();
+        const datos = getDocumentoInput();
+        if (!datos.nombre_proyecto) {
+            mostrarResultado('<div class="alert alert-danger">❌ El nombre del proyecto es obligatorio.</div>');
+            return;
+        }
+        // Validar primero
+        try {
+            const valid = await llamarAPI('/api/edt/validar', datos);
+            if (!valid.es_valido) {
+                let html = `<div class="alert alert-danger">⚠️ Datos incompletos. Corrige lo siguiente:</div><ul>`;
+                valid.faltantes.forEach(f => html += `<li>${f}</li>`);
+                html += `</ul>`;
+                mostrarResultado(html);
+                return;
+            }
+        } catch (e) { return; }
+
+        // Generar documento
+        const loading = document.getElementById('cargando');
+        loading.style.display = 'block';
+        try {
+            const response = await fetch('/api/edt/documento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+            loading.style.display = 'none';
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Error ${response.status}: ${errorText}`);
+            }
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.getElementById('descargaDoc');
+            a.href = url;
+            const contentDisp = response.headers.get('Content-Disposition');
+            let filename = 'EDT_documento.docx';
+            if (contentDisp) {
+                const match = contentDisp.match(/filename="?([^"]+)"?/);
+                if (match) filename = match[1];
+            }
+            a.download = filename;
+            document.getElementById('enlaceDocumento').style.display = 'block';
+            mostrarResultado('<div class="alert alert-success">✅ Documento Word generado. Haz clic en el botón para descargar.</div>');
+        } catch (e) {
+            loading.style.display = 'none';
+            alert('Error: ' + e.message);
+        }
+    }
+
+    // ======================================================================
+    // INICIALIZACIÓN
+    // ======================================================================
+
+    window.onload = function() {
+        // Agregar fases de ejemplo (puedes personalizar o dejar vacías)
+        fases = [
+            {
+                nombre: "ETAPA 0 (Inicio)",
+                tareas: [
+                    { nombre: "Definir objetivos generales", descripcion_operativa: "Definir objetivos", hito: "N/A", subtareas: [] }
+                ]
+            },
+            {
+                nombre: "ETAPA 1 (Planeación)",
+                tareas: [
+                    { nombre: "Elaborar acta de constitución", descripcion_operativa: "Documento formal", hito: "N/A", subtareas: [] }
+                ]
+            },
+            {
+                nombre: "ETAPA 2 (Ejecución)",
+                tareas: [
+                    { nombre: "ÁREA TECNOLÓGICO", descripcion_operativa: "Desarrollo", hito: "N/A", subtareas: [] }
+                ]
+            },
+            {
+                nombre: "ETAPA 3 (Control)",
+                tareas: [
+                    { nombre: "Checklist", descripcion_operativa: "Verificación", hito: "N/A", subtareas: [] }
+                ]
+            },
+            {
+                nombre: "ETAPA 4 (Cierre)",
+                tareas: [
+                    { nombre: "Elaborar plantilla de resultados", descripcion_operativa: "Cierre", hito: "N/A", subtareas: [] }
+                ]
+            }
+        ];
+        renderizarFases();
+        initActividades();
+    };
+</script>
+</body>
+</html>
