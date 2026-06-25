@@ -9,102 +9,102 @@
       "nombre": "ETAPA 1 (Inicio)",
       "tareas": [
         {
-          "nombre": "1.1 Definir objetivos generales y específicos del proyecto.",
+          "nombre": "Definir objetivos generales y específicos del proyecto.",
           "descripcion_operativa": "Definir objetivos generales y específicos del proyecto.",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "1.1.1 Definir el mercado objetivo.",
+              "nombre": "Definir el mercado objetivo.",
               "descripcion_operativa": "Definir el mercado objetivo.",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "1.1.1.1 Realizar benchmarking (análisis de la competencia).",
+                  "nombre": "Realizar benchmarking (análisis de la competencia).",
                   "descripcion_operativa": "Realizar benchmarking (análisis de la competencia).",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "1.1.1.1.1 Redactar el plan operativo completo.",
+                      "nombre": "Redactar el plan operativo completo.",
                       "descripcion_operativa": "Redactar el plan operativo completo.",
                       "hito": "N/A",
                       "subtareas": [
                         {
-                          "nombre": "1.1.1.1.1.1 Generar estrategias de nivel estratégico, táctico y operativo.",
+                          "nombre": "Generar estrategias de nivel estratégico, táctico y operativo.",
                           "descripcion_operativa": "Generar estrategias de nivel estratégico, táctico y operativo.",
                           "hito": "N/A",
                           "subtareas": [
                             {
-                              "nombre": "1.1.1.1.1.1.1 Identificar problemática y necesidades de digitalización de las PyMEs objetivo.",
+                              "nombre": "Identificar problemática y necesidades de digitalización de las PyMEs objetivo.",
                               "descripcion_operativa": "Identificar problemática y necesidades de digitalización de las PyMEs objetivo.",
                               "hito": "N/A",
                               "subtareas": [
                                 {
-                                  "nombre": "1.1.1.1.1.1.1.1 Realizar levantamiento preliminar de información con empresas objetivo.",
+                                  "nombre": "Realizar levantamiento preliminar de información con empresas objetivo.",
                                   "descripcion_operativa": "Realizar levantamiento preliminar de información con empresas objetivo.",
                                   "hito": "N/A",
                                   "subtareas": [
                                     {
-                                      "nombre": "1.1.1.1.1.1.1.1.1 Definir visión general del proyecto y propuesta de valor.",
+                                      "nombre": "Definir visión general del proyecto y propuesta de valor.",
                                       "descripcion_operativa": "Definir visión general del proyecto y propuesta de valor.",
                                       "hito": "N/A",
                                       "subtareas": [
                                         {
-                                          "nombre": "1.1.1.1.1.1.1.1.1.1 Analizar viabilidad tecnológica del proyecto.",
+                                          "nombre": "Analizar viabilidad tecnológica del proyecto.",
                                           "descripcion_operativa": "Analizar viabilidad tecnológica del proyecto.",
                                           "hito": "N/A",
                                           "subtareas": [
                                             {
-                                              "nombre": "1.1.1.1.1.1.1.1.1.1.1 Analizar viabilidad financiera inicial.",
+                                              "nombre": "Analizar viabilidad financiera inicial.",
                                               "descripcion_operativa": "Analizar viabilidad financiera inicial.",
                                               "hito": "N/A",
                                               "subtareas": [
                                                 {
-                                                  "nombre": "1.1.1.1.1.1.1.1.1.1.1.1 Definir herramientas tecnológicas y ecosistema Microsoft a utilizar.",
+                                                  "nombre": "Definir herramientas tecnológicas y ecosistema Microsoft a utilizar.",
                                                   "descripcion_operativa": "Definir herramientas tecnológicas y ecosistema Microsoft a utilizar.",
                                                   "hito": "N/A",
                                                   "subtareas": [
                                                     {
-                                                      "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1 Identificar riesgos iniciales del proyecto.",
+                                                      "nombre": "Identificar riesgos iniciales del proyecto.",
                                                       "descripcion_operativa": "Identificar riesgos iniciales del proyecto.",
                                                       "hito": "N/A",
                                                       "subtareas": [
                                                         {
-                                                          "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1.1 Definir alcance preliminar del sistema.",
+                                                          "nombre": "Definir alcance preliminar del sistema.",
                                                           "descripcion_operativa": "Definir alcance preliminar del sistema.",
                                                           "hito": "N/A",
                                                           "subtareas": [
                                                             {
-                                                              "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Definir requerimientos funcionales preliminares.",
+                                                              "nombre": "Definir requerimientos funcionales preliminares.",
                                                               "descripcion_operativa": "Definir requerimientos funcionales preliminares.",
                                                               "hito": "N/A",
                                                               "subtareas": [
                                                                 {
-                                                                  "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Definir requerimientos no funcionales preliminares.",
+                                                                  "nombre": "Definir requerimientos no funcionales preliminares.",
                                                                   "descripcion_operativa": "Definir requerimientos no funcionales preliminares.",
                                                                   "hito": "N/A",
                                                                   "subtareas": [
                                                                     {
-                                                                      "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Elaborar propuesta inicial de arquitectura de solución.",
+                                                                      "nombre": "Elaborar propuesta inicial de arquitectura de solución.",
                                                                       "descripcion_operativa": "Elaborar propuesta inicial de arquitectura de solución.",
                                                                       "hito": "N/A",
                                                                       "subtareas": [
                                                                         {
-                                                                          "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Identificar interesados clave del proyecto.",
+                                                                          "nombre": "Identificar interesados clave del proyecto.",
                                                                           "descripcion_operativa": "Identificar interesados clave del proyecto.",
                                                                           "hito": "N/A",
                                                                           "subtareas": [
                                                                             {
-                                                                              "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Elaborar cronograma preliminar del proyecto.",
+                                                                              "nombre": "Elaborar cronograma preliminar del proyecto.",
                                                                               "descripcion_operativa": "Elaborar cronograma preliminar del proyecto.",
                                                                               "hito": "N/A",
                                                                               "subtareas": [
                                                                                 {
-                                                                                  "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Estimar presupuesto preliminar del proyecto.",
+                                                                                  "nombre": "Estimar presupuesto preliminar del proyecto.",
                                                                                   "descripcion_operativa": "Estimar presupuesto preliminar del proyecto.",
                                                                                   "hito": "N/A",
                                                                                   "subtareas": [
                                                                                     {
-                                                                                      "nombre": "1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Validar factibilidad operativa del proyecto.",
+                                                                                      "nombre": "Validar factibilidad operativa del proyecto.",
                                                                                       "descripcion_operativa": "Validar factibilidad operativa del proyecto.",
                                                                                       "hito": "N/A",
                                                                                       "subtareas": []
@@ -153,32 +153,32 @@
       "nombre": "ETAPA 2 (Planeación)",
       "tareas": [
         {
-          "nombre": "2.1 Elaborar acta de constitución.",
+          "nombre": "Elaborar acta de constitución.",
           "descripcion_operativa": "Elaborar acta de constitución.",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "2.1.1 Gestión de interesados.",
+              "nombre": "Gestión de interesados.",
               "descripcion_operativa": "Gestión de interesados.",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "2.1.1.1 Gestión de alcance.",
+                  "nombre": "Gestión de alcance.",
                   "descripcion_operativa": "Gestión de alcance.",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "2.1.1.1.1 Elaborar EDT (WBS).",
+                      "nombre": "Elaborar EDT (WBS).",
                       "descripcion_operativa": "Elaborar EDT (WBS).",
                       "hito": "N/A",
                       "subtareas": [
                         {
-                          "nombre": "2.1.1.1.1.1 Plan de dirección del proyecto.",
+                          "nombre": "Plan de dirección del proyecto.",
                           "descripcion_operativa": "Plan de dirección del proyecto.",
                           "hito": "N/A",
                           "subtareas": [
                             {
-                              "nombre": "2.1.1.1.1.1.1 Plantilla de requisitos.",
+                              "nombre": "Plantilla de requisitos.",
                               "descripcion_operativa": "Plantilla de requisitos.",
                               "hito": "N/A",
                               "subtareas": []
@@ -199,52 +199,52 @@
       "nombre": "ETAPA 3 (Ejecución)",
       "tareas": [
         {
-          "nombre": "3.1 ÁREA TECNOLÓGICO",
+          "nombre": "ÁREA TECNOLÓGICO",
           "descripcion_operativa": "Área de tecnología del proyecto",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "3.1.1 Gestionar el diseño y desarrollo del servicio de comunicación interna (intranet) para los sectores de banca, transporte y fábricas en la alcaldía Iztacalco.",
+              "nombre": "Gestionar el diseño y desarrollo del servicio de comunicación interna (intranet) para los sectores de banca, transporte y fábricas en la alcaldía Iztacalco.",
               "descripcion_operativa": "Gestionar el diseño y desarrollo del servicio de comunicación interna (intranet) para los sectores de banca, transporte ",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "3.1.1.1 Gestionar el desarrollo del proyecto de intranet mediante las etapas de planeación, desarrollo, pruebas e implementación.",
+                  "nombre": "Gestionar el desarrollo del proyecto de intranet mediante las etapas de planeación, desarrollo, pruebas e implementación.",
                   "descripcion_operativa": "Gestionar el desarrollo del proyecto de intranet mediante las etapas de planeación, desarrollo, pruebas e implementación",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "3.1.1.1.1 Gestionar el desarrollo de un prototipo funcional del sistema de intranet como parte de la estrategia de innovación tecnológica.",
+                      "nombre": "Gestionar el desarrollo de un prototipo funcional del sistema de intranet como parte de la estrategia de innovación tecnológica.",
                       "descripcion_operativa": "Gestionar el desarrollo de un prototipo funcional del sistema de intranet como parte de la estrategia de innovación tecn",
                       "hito": "N/A",
                       "subtareas": [
                         {
-                          "nombre": "3.1.1.1.1.1 Coordinar la formulación y evaluación del proyecto mediante estudios de mercado, técnico, económico y financiero.",
+                          "nombre": "Coordinar la formulación y evaluación del proyecto mediante estudios de mercado, técnico, económico y financiero.",
                           "descripcion_operativa": "Coordinar la formulación y evaluación del proyecto mediante estudios de mercado, técnico, económico y financiero.",
                           "hito": "N/A",
                           "subtareas": [
                             {
-                              "nombre": "3.1.1.1.1.1.1 Gestionar la planificación del proyecto mediante la elaboración de un plan operativo, plan de generación de trabajo y plan de comercialización.",
+                              "nombre": "Gestionar la planificación del proyecto mediante la elaboración de un plan operativo, plan de generación de trabajo y plan de comercialización.",
                               "descripcion_operativa": "Gestionar la planificación del proyecto mediante la elaboración de un plan operativo, plan de generación de trabajo y pl",
                               "hito": "N/A",
                               "subtareas": [
                                 {
-                                  "nombre": "3.1.1.1.1.1.1.1 Supervisar el diseño de la arquitectura tecnológica del sistema y la definición de la estructura del código fuente.",
+                                  "nombre": "Supervisar el diseño de la arquitectura tecnológica del sistema y la definición de la estructura del código fuente.",
                                   "descripcion_operativa": "Supervisar el diseño de la arquitectura tecnológica del sistema y la definición de la estructura del código fuente.",
                                   "hito": "N/A",
                                   "subtareas": [
                                     {
-                                      "nombre": "3.1.1.1.1.1.1.1.1 Coordinar la realización de un estudio de mercado para identificar necesidades del servicio de intranet.",
+                                      "nombre": "Coordinar la realización de un estudio de mercado para identificar necesidades del servicio de intranet.",
                                       "descripcion_operativa": "Coordinar la realización de un estudio de mercado para identificar necesidades del servicio de intranet.",
                                       "hito": "N/A",
                                       "subtareas": [
                                         {
-                                          "nombre": "3.1.1.1.1.1.1.1.1.1 Gestionar la elaboración del perfil del proyecto mediante la integración de documentos técnicos, operativos y comerciales.",
+                                          "nombre": "Gestionar la elaboración del perfil del proyecto mediante la integración de documentos técnicos, operativos y comerciales.",
                                           "descripcion_operativa": "Gestionar la elaboración del perfil del proyecto mediante la integración de documentos técnicos, operativos y comerciale",
                                           "hito": "N/A",
                                           "subtareas": [
                                             {
-                                              "nombre": "3.1.1.1.1.1.1.1.1.1.1 Supervisar la generación del código fuente del sistema de intranet y la elaboración de documentación técnica y manuales de usuario.",
+                                              "nombre": "Supervisar la generación del código fuente del sistema de intranet y la elaboración de documentación técnica y manuales de usuario.",
                                               "descripcion_operativa": "Supervisar la generación del código fuente del sistema de intranet y la elaboración de documentación técnica y manuales ",
                                               "hito": "N/A",
                                               "subtareas": []
@@ -268,52 +268,52 @@
           ]
         },
         {
-          "nombre": "3.2 ÁREA OPERATIVO",
+          "nombre": "ÁREA OPERATIVO",
           "descripcion_operativa": "Área de operación del proyecto",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "3.2.1 Diseño de Arquitectura en la nube.",
+              "nombre": "Diseño de Arquitectura en la nube.",
               "descripcion_operativa": "Diseño de Arquitectura en la nube.",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "3.2.1.1 Diseño de Topología de red y capa de aplicación.",
+                  "nombre": "Diseño de Topología de red y capa de aplicación.",
                   "descripcion_operativa": "Diseño de Topología de red y capa de aplicación.",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "3.2.1.1.1 Diseño de control de accesos y disponibilidad.",
+                      "nombre": "Diseño de control de accesos y disponibilidad.",
                       "descripcion_operativa": "Diseño de control de accesos y disponibilidad.",
                       "hito": "N/A",
                       "subtareas": [
                         {
-                          "nombre": "3.2.1.1.1.1 Creación de Cluster en Azure.",
+                          "nombre": "Creación de Cluster en Azure.",
                           "descripcion_operativa": "Creación de Cluster en Azure.",
                           "hito": "N/A",
                           "subtareas": [
                             {
-                              "nombre": "3.2.1.1.1.1.1 Configuración de base de datos.",
+                              "nombre": "Configuración de base de datos.",
                               "descripcion_operativa": "Configuración de base de datos.",
                               "hito": "N/A",
                               "subtareas": [
                                 {
-                                  "nombre": "3.2.1.1.1.1.1.1 Configuración del sistema de monitoreo.",
+                                  "nombre": "Configuración del sistema de monitoreo.",
                                   "descripcion_operativa": "Configuración del sistema de monitoreo.",
                                   "hito": "N/A",
                                   "subtareas": [
                                     {
-                                      "nombre": "3.2.1.1.1.1.1.1.1 Elaboración de un manual de seguridad.",
+                                      "nombre": "Elaboración de un manual de seguridad.",
                                       "descripcion_operativa": "Elaboración de un manual de seguridad.",
                                       "hito": "N/A",
                                       "subtareas": [
                                         {
-                                          "nombre": "3.2.1.1.1.1.1.1.1.1 Diseño de plan de pruebas de seguridad.",
+                                          "nombre": "Diseño de plan de pruebas de seguridad.",
                                           "descripcion_operativa": "Diseño de plan de pruebas de seguridad.",
                                           "hito": "N/A",
                                           "subtareas": [
                                             {
-                                              "nombre": "3.2.1.1.1.1.1.1.1.1.1 Diseño de plan de evaluación de desempeño.",
+                                              "nombre": "Diseño de plan de evaluación de desempeño.",
                                               "descripcion_operativa": "Diseño de plan de evaluación de desempeño.",
                                               "hito": "N/A",
                                               "subtareas": []
@@ -337,52 +337,52 @@
           ]
         },
         {
-          "nombre": "3.3 ÁREA RECURSOS HUMANOS",
+          "nombre": "ÁREA RECURSOS HUMANOS",
           "descripcion_operativa": "Área de recursos humanos del proyecto",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "3.3.1 Definir la estructura organizacional de RH y crear perfiles de puesto para 9 roles (Líder, Arquitecto, 3 Desarrolladores, 2 DevOps, 2 QA, Soporte).",
+              "nombre": "Definir la estructura organizacional de RH y crear perfiles de puesto para 9 roles (Líder, Arquitecto, 3 Desarrolladores, 2 DevOps, 2 QA, Soporte).",
               "descripcion_operativa": "Definir la estructura organizacional de RH y crear perfiles de puesto para 9 roles (Líder, Arquitecto, 3 Desarrolladores",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "3.3.1.1 Establecer plan estratégico de capacitación técnica (Azure, metodologías ágiles, seguridad cloud) para todo el equipo.",
+                  "nombre": "Establecer plan estratégico de capacitación técnica (Azure, metodologías ágiles, seguridad cloud) para todo el equipo.",
                   "descripcion_operativa": "Establecer plan estratégico de capacitación técnica (Azure, metodologías ágiles, seguridad cloud) para todo el equipo.",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "3.3.1.1.1 Crear políticas de contratación, código de conducta y confidencialidad alineadas a la Ley Federal del Trabajo.",
+                      "nombre": "Crear políticas de contratación, código de conducta y confidencialidad alineadas a la Ley Federal del Trabajo.",
                       "descripcion_operativa": "Crear políticas de contratación, código de conducta y confidencialidad alineadas a la Ley Federal del Trabajo.",
                       "hito": "N/A",
                       "subtareas": [
                         {
-                          "nombre": "3.3.1.1.1.1 Diseñar el proceso de reclutamiento: fuentes, pruebas técnicas, guías de entrevista para los 9 perfiles.",
+                          "nombre": "Diseñar el proceso de reclutamiento: fuentes, pruebas técnicas, guías de entrevista para los 9 perfiles.",
                           "descripcion_operativa": "Diseñar el proceso de reclutamiento: fuentes, pruebas técnicas, guías de entrevista para los 9 perfiles.",
                           "hito": "N/A",
                           "subtareas": [
                             {
-                              "nombre": "3.3.1.1.1.1.1 Implementar plan de inducción y capacitación intensiva por rol (Azure para DevOps, pruebas automatizadas para QA, Scrum para todos).",
+                              "nombre": "Implementar plan de inducción y capacitación intensiva por rol (Azure para DevOps, pruebas automatizadas para QA, Scrum para todos).",
                               "descripcion_operativa": "Implementar plan de inducción y capacitación intensiva por rol (Azure para DevOps, pruebas automatizadas para QA, Scrum ",
                               "hito": "N/A",
                               "subtareas": [
                                 {
-                                  "nombre": "3.3.1.1.1.1.1.1 Establecer sistema de evaluación de desempeño quincenal con métricas y rúbricas por rol.",
+                                  "nombre": "Establecer sistema de evaluación de desempeño quincenal con métricas y rúbricas por rol.",
                                   "descripcion_operativa": "Establecer sistema de evaluación de desempeño quincenal con métricas y rúbricas por rol.",
                                   "hito": "N/A",
                                   "subtareas": [
                                     {
-                                      "nombre": "3.3.1.1.1.1.1.1.1 Ejecutar reclutamiento: publicar vacantes, filtrar CVs, aplicar pruebas, realizar 28 entrevistas y contratar a los 9 seleccionados.",
+                                      "nombre": "Ejecutar reclutamiento: publicar vacantes, filtrar CVs, aplicar pruebas, realizar 28 entrevistas y contratar a los 9 seleccionados.",
                                       "descripcion_operativa": "Ejecutar reclutamiento: publicar vacantes, filtrar CVs, aplicar pruebas, realizar 28 entrevistas y contratar a los 9 sel",
                                       "hito": "N/A",
                                       "subtareas": [
                                         {
-                                          "nombre": "3.3.1.1.1.1.1.1.1.1 Administrar nómina quincenal, prestaciones, IMSS, INFONAVIT y obligaciones patronales durante todo el proyecto.",
+                                          "nombre": "Administrar nómina quincenal, prestaciones, IMSS, INFONAVIT y obligaciones patronales durante todo el proyecto.",
                                           "descripcion_operativa": "Administrar nómina quincenal, prestaciones, IMSS, INFONAVIT y obligaciones patronales durante todo el proyecto.",
                                           "hito": "N/A",
                                           "subtareas": [
                                             {
-                                              "nombre": "3.3.1.1.1.1.1.1.1.1.1 Implementar comunicación interna y gestión de clima laboral: comunicados semanales, reuniones 1:1 mensuales, encuestas trimestrales.",
+                                              "nombre": "Implementar comunicación interna y gestión de clima laboral: comunicados semanales, reuniones 1:1 mensuales, encuestas trimestrales.",
                                               "descripcion_operativa": "Implementar comunicación interna y gestión de clima laboral: comunicados semanales, reuniones 1:1 mensuales, encuestas t",
                                               "hito": "N/A",
                                               "subtareas": []
@@ -406,52 +406,52 @@
           ]
         },
         {
-          "nombre": "3.4 ÁREA FINANZAS",
+          "nombre": "ÁREA FINANZAS",
           "descripcion_operativa": "Área de finanzas del proyecto",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "3.4.1 Identificar y asegurar 1 fuente de financiamiento para cubrir infraestructura y operaciones del primer año.",
+              "nombre": "Identificar y asegurar 1 fuente de financiamiento para cubrir infraestructura y operaciones del primer año.",
               "descripcion_operativa": "Identificar y asegurar 1 fuente de financiamiento para cubrir infraestructura y operaciones del primer año.",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "3.4.1.1 Autorizar presupuesto anual de Infraestructura Cloud (Azure).",
+                  "nombre": "Autorizar presupuesto anual de Infraestructura Cloud (Azure).",
                   "descripcion_operativa": "Autorizar presupuesto anual de Infraestructura Cloud (Azure).",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "3.4.1.1.1 Aprobar orden de compra de Equipo de Cómputo de Alto Rendimiento.",
+                      "nombre": "Aprobar orden de compra de Equipo de Cómputo de Alto Rendimiento.",
                       "descripcion_operativa": "Aprobar orden de compra de Equipo de Cómputo de Alto Rendimiento.",
                       "hito": "N/A",
                       "subtareas": [
                         {
-                          "nombre": "3.4.1.1.1.1 Ejecutar pago de licencias de software (Azure, GitHub, Jira, Office 365).",
+                          "nombre": "Ejecutar pago de licencias de software (Azure, GitHub, Jira, Office 365).",
                           "descripcion_operativa": "Ejecutar pago de licencias de software (Azure, GitHub, Jira, Office 365).",
                           "hito": "N/A",
                           "subtareas": [
                             {
-                              "nombre": "3.4.1.1.1.1.1 Gestionar y dispersar pago de nómina de los 7 perfiles técnicos.",
+                              "nombre": "Gestionar y dispersar pago de nómina de los 7 perfiles técnicos.",
                               "descripcion_operativa": "Gestionar y dispersar pago de nómina de los 7 perfiles técnicos.",
                               "hito": "N/A",
                               "subtareas": [
                                 {
-                                  "nombre": "3.4.1.1.1.1.1.1 Contratar y pagar servicios generales e internet empresarial.",
+                                  "nombre": "Contratar y pagar servicios generales e internet empresarial.",
                                   "descripcion_operativa": "Contratar y pagar servicios generales e internet empresarial.",
                                   "hito": "N/A",
                                   "subtareas": [
                                     {
-                                      "nombre": "3.4.1.1.1.1.1.1.1 Elaborar cuadros comparativos de proveedores para compras tecnológicas.",
+                                      "nombre": "Elaborar cuadros comparativos de proveedores para compras tecnológicas.",
                                       "descripcion_operativa": "Elaborar cuadros comparativos de proveedores para compras tecnológicas.",
                                       "hito": "N/A",
                                       "subtareas": [
                                         {
-                                          "nombre": "3.4.1.1.1.1.1.1.1.1 Recopilar y validar facturas (XML y PDF) para asegurar deducibilidad.",
+                                          "nombre": "Recopilar y validar facturas (XML y PDF) para asegurar deducibilidad.",
                                           "descripcion_operativa": "Recopilar y validar facturas (XML y PDF) para asegurar deducibilidad.",
                                           "hito": "N/A",
                                           "subtareas": [
                                             {
-                                              "nombre": "3.4.1.1.1.1.1.1.1.1.1 Elaborar reporte de Gasto vs Presupuesto del consumo de nube (Azure).",
+                                              "nombre": "Elaborar reporte de Gasto vs Presupuesto del consumo de nube (Azure).",
                                               "descripcion_operativa": "Elaborar reporte de Gasto vs Presupuesto del consumo de nube (Azure).",
                                               "hito": "N/A",
                                               "subtareas": []
@@ -475,52 +475,52 @@
           ]
         },
         {
-          "nombre": "3.5 ÁREA COMERCIAL",
+          "nombre": "ÁREA COMERCIAL",
           "descripcion_operativa": "Área comercial del proyecto",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "3.5.1 Comercializar servicios logrando la venta de 50 nuevas cuentas B2B.",
+              "nombre": "Comercializar servicios logrando la venta de 50 nuevas cuentas B2B.",
               "descripcion_operativa": "Comercializar servicios logrando la venta de 50 nuevas cuentas B2B.",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "3.5.1.1 Alcanzar cuota de ventas de $3,000,000 MXN (instalaciones y anualidades).",
+                  "nombre": "Alcanzar cuota de ventas de $3,000,000 MXN (instalaciones y anualidades).",
                   "descripcion_operativa": "Alcanzar cuota de ventas de $3,000,000 MXN (instalaciones y anualidades).",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "3.5.1.1.1 Alcanzar tasa de conversión del 50% sobre el Mercado Meta inicial de 100 empresas.",
+                      "nombre": "Alcanzar tasa de conversión del 50% sobre el Mercado Meta inicial de 100 empresas.",
                       "descripcion_operativa": "Alcanzar tasa de conversión del 50% sobre el Mercado Meta inicial de 100 empresas.",
                       "hito": "N/A",
                       "subtareas": [
                         {
-                          "nombre": "3.5.1.1.1.1 Ejecutar campaña de prospección directa (visitas presenciales y llamadas) a las 100 empresas del mercado.",
+                          "nombre": "Ejecutar campaña de prospección directa (visitas presenciales y llamadas) a las 100 empresas del mercado.",
                           "descripcion_operativa": "Ejecutar campaña de prospección directa (visitas presenciales y llamadas) a las 100 empresas del mercado.",
                           "hito": "N/A",
                           "subtareas": [
                             {
-                              "nombre": "3.5.1.1.1.1.1 Agendar y realizar un mínimo de 15 demostraciones (demos) del software por mes.",
+                              "nombre": "Agendar y realizar un mínimo de 15 demostraciones (demos) del software por mes.",
                               "descripcion_operativa": "Agendar y realizar un mínimo de 15 demostraciones (demos) del software por mes.",
                               "hito": "N/A",
                               "subtareas": [
                                 {
-                                  "nombre": "3.5.1.1.1.1.1.1 Administrar y ejecutar presupuesto de viáticos y prospección gastando un máximo de $50,000 mensuales.",
+                                  "nombre": "Administrar y ejecutar presupuesto de viáticos y prospección gastando un máximo de $50,000 mensuales.",
                                   "descripcion_operativa": "Administrar y ejecutar presupuesto de viáticos y prospección gastando un máximo de $50,000 mensuales.",
                                   "hito": "N/A",
                                   "subtareas": [
                                     {
-                                      "nombre": "3.5.1.1.1.1.1.1.1 Contactar a 5 nuevos prospectos diarios vía telefónica, correo o LinkedIn.",
+                                      "nombre": "Contactar a 5 nuevos prospectos diarios vía telefónica, correo o LinkedIn.",
                                       "descripcion_operativa": "Contactar a 5 nuevos prospectos diarios vía telefónica, correo o LinkedIn.",
                                       "hito": "N/A",
                                       "subtareas": [
                                         {
-                                          "nombre": "3.5.1.1.1.1.1.1.1.1 Notificar a Finanzas 1 nuevo contrato firmado para emisión de factura de $60,000 MXN.",
+                                          "nombre": "Notificar a Finanzas 1 nuevo contrato firmado para emisión de factura de $60,000 MXN.",
                                           "descripcion_operativa": "Notificar a Finanzas 1 nuevo contrato firmado para emisión de factura de $60,000 MXN.",
                                           "hito": "N/A",
                                           "subtareas": [
                                             {
-                                              "nombre": "3.5.1.1.1.1.1.1.1.1.1 Realizar 1 llamada de seguimiento a cada cliente para asegurar satisfacción y pedir referidos.",
+                                              "nombre": "Realizar 1 llamada de seguimiento a cada cliente para asegurar satisfacción y pedir referidos.",
                                               "descripcion_operativa": "Realizar 1 llamada de seguimiento a cada cliente para asegurar satisfacción y pedir referidos.",
                                               "hito": "N/A",
                                               "subtareas": []
@@ -549,137 +549,137 @@
       "nombre": "ETAPA 4 (Control)",
       "tareas": [
         {
-          "nombre": "4.1 Checklist",
+          "nombre": "Checklist",
           "descripcion_operativa": "Checklist de verificación y control",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "4.1.1 Elaborar checklist de verificación y control.",
+              "nombre": "Elaborar checklist de verificación y control.",
               "descripcion_operativa": "Elaborar checklist de verificación y control.",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "4.1.1.1 Programa 0 inicio – Etapa 0",
+                  "nombre": "Programa 0 inicio – Etapa 0",
                   "descripcion_operativa": "Programa 0 inicio – Etapa 0",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "4.1.1.1.1 Programa 1 Idea del negocio – Etapa 0",
+                      "nombre": "Programa 1 Idea del negocio – Etapa 0",
                       "descripcion_operativa": "Programa 1 Idea del negocio – Etapa 0",
                       "hito": "N/A",
                       "subtareas": [
                         {
-                          "nombre": "4.1.1.1.1.1 Programa plan operativo - Etapa 0",
+                          "nombre": "Programa plan operativo - Etapa 0",
                           "descripcion_operativa": "Programa plan operativo - Etapa 0",
                           "hito": "N/A",
                           "subtareas": [
                             {
-                              "nombre": "4.1.1.1.1.1.1 Programa 1 mercado - Etapa 0",
+                              "nombre": "Programa 1 mercado - Etapa 0",
                               "descripcion_operativa": "Programa 1 mercado - Etapa 0",
                               "hito": "N/A",
                               "subtareas": [
                                 {
-                                  "nombre": "4.1.1.1.1.1.1.1 Programa 2 mercado - Etapa 0",
+                                  "nombre": "Programa 2 mercado - Etapa 0",
                                   "descripcion_operativa": "Programa 2 mercado - Etapa 0",
                                   "hito": "N/A",
                                   "subtareas": [
                                     {
-                                      "nombre": "4.1.1.1.1.1.1.1.1 Programa 3 Programa de planes de trabajo – Etapa 0",
+                                      "nombre": "Programa 3 Programa de planes de trabajo – Etapa 0",
                                       "descripcion_operativa": "Programa 3 Programa de planes de trabajo – Etapa 0",
                                       "hito": "N/A",
                                       "subtareas": [
                                         {
-                                          "nombre": "4.1.1.1.1.1.1.1.1.1 Programa 3 Programa de planes de trabajo – Etapa 0",
+                                          "nombre": "Programa 3 Programa de planes de trabajo – Etapa 0",
                                           "descripcion_operativa": "Programa 3 Programa de planes de trabajo – Etapa 0",
                                           "hito": "N/A",
                                           "subtareas": [
                                             {
-                                              "nombre": "4.1.1.1.1.1.1.1.1.1.1 Programa 4 Planeación – Etapa 1",
+                                              "nombre": "Programa 4 Planeación – Etapa 1",
                                               "descripcion_operativa": "Programa 4 Planeación – Etapa 1",
                                               "hito": "N/A",
                                               "subtareas": [
                                                 {
-                                                  "nombre": "4.1.1.1.1.1.1.1.1.1.1.1 Programa 5 estratégico tecnológico – Etapa 2",
+                                                  "nombre": "Programa 5 estratégico tecnológico – Etapa 2",
                                                   "descripcion_operativa": "Programa 5 estratégico tecnológico – Etapa 2",
                                                   "hito": "N/A",
                                                   "subtareas": [
                                                     {
-                                                      "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1 Programa 6 táctico tecnológico – Etapa 2",
+                                                      "nombre": "Programa 6 táctico tecnológico – Etapa 2",
                                                       "descripcion_operativa": "Programa 6 táctico tecnológico – Etapa 2",
                                                       "hito": "N/A",
                                                       "subtareas": [
                                                         {
-                                                          "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 7 Operativo tecnológico – Etapa 2",
+                                                          "nombre": "Programa 7 Operativo tecnológico – Etapa 2",
                                                           "descripcion_operativa": "Programa 7 Operativo tecnológico – Etapa 2",
                                                           "hito": "N/A",
                                                           "subtareas": [
                                                             {
-                                                              "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 8 Operativo tecnológico – Etapa 2",
+                                                              "nombre": "Programa 8 Operativo tecnológico – Etapa 2",
                                                               "descripcion_operativa": "Programa 8 Operativo tecnológico – Etapa 2",
                                                               "hito": "N/A",
                                                               "subtareas": [
                                                                 {
-                                                                  "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 9 estratégico operativo – Etapa 2",
+                                                                  "nombre": "Programa 9 estratégico operativo – Etapa 2",
                                                                   "descripcion_operativa": "Programa 9 estratégico operativo – Etapa 2",
                                                                   "hito": "N/A",
                                                                   "subtareas": [
                                                                     {
-                                                                      "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 10 táctico operativo – Etapa 2",
+                                                                      "nombre": "Programa 10 táctico operativo – Etapa 2",
                                                                       "descripcion_operativa": "Programa 10 táctico operativo – Etapa 2",
                                                                       "hito": "N/A",
                                                                       "subtareas": [
                                                                         {
-                                                                          "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 11 táctico operativo – Etapa 2",
+                                                                          "nombre": "Programa 11 táctico operativo – Etapa 2",
                                                                           "descripcion_operativa": "Programa 11 táctico operativo – Etapa 2",
                                                                           "hito": "N/A",
                                                                           "subtareas": [
                                                                             {
-                                                                              "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 12 operativo  operativo – Etapa 2",
+                                                                              "nombre": "Programa 12 operativo  operativo – Etapa 2",
                                                                               "descripcion_operativa": "Programa 12 operativo  operativo – Etapa 2",
                                                                               "hito": "N/A",
                                                                               "subtareas": [
                                                                                 {
-                                                                                  "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 13 estratégico RR. HH - Etapa 2",
+                                                                                  "nombre": "Programa 13 estratégico RR. HH - Etapa 2",
                                                                                   "descripcion_operativa": "Programa 13 estratégico RR. HH - Etapa 2",
                                                                                   "hito": "N/A",
                                                                                   "subtareas": [
                                                                                     {
-                                                                                      "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 14 táctico RR.HH - Etapa 2",
+                                                                                      "nombre": "Programa 14 táctico RR.HH - Etapa 2",
                                                                                       "descripcion_operativa": "Programa 14 táctico RR.HH - Etapa 2",
                                                                                       "hito": "N/A",
                                                                                       "subtareas": [
                                                                                         {
-                                                                                          "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 15 estrátegico comercial - Etapa 2",
+                                                                                          "nombre": "Programa 15 estrátegico comercial - Etapa 2",
                                                                                           "descripcion_operativa": "Programa 15 estrátegico comercial - Etapa 2",
                                                                                           "hito": "N/A",
                                                                                           "subtareas": [
                                                                                             {
-                                                                                              "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 16 táctico comercial - Etapa 2",
+                                                                                              "nombre": "Programa 16 táctico comercial - Etapa 2",
                                                                                               "descripcion_operativa": "Programa 16 táctico comercial - Etapa 2",
                                                                                               "hito": "N/A",
                                                                                               "subtareas": [
                                                                                                 {
-                                                                                                  "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 17 operativo comercial - Etapa 2",
+                                                                                                  "nombre": "Programa 17 operativo comercial - Etapa 2",
                                                                                                   "descripcion_operativa": "Programa 17 operativo comercial - Etapa 2",
                                                                                                   "hito": "N/A",
                                                                                                   "subtareas": [
                                                                                                     {
-                                                                                                      "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 18 estratégico  Finanzas – Etapa 2",
+                                                                                                      "nombre": "Programa 18 estratégico  Finanzas – Etapa 2",
                                                                                                       "descripcion_operativa": "Programa 18 estratégico  Finanzas – Etapa 2",
                                                                                                       "hito": "N/A",
                                                                                                       "subtareas": [
                                                                                                         {
-                                                                                                          "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 19 táctico  Finanzas – Etapa 2",
+                                                                                                          "nombre": "Programa 19 táctico  Finanzas – Etapa 2",
                                                                                                           "descripcion_operativa": "Programa 19 táctico  Finanzas – Etapa 2",
                                                                                                           "hito": "N/A",
                                                                                                           "subtareas": [
                                                                                                             {
-                                                                                                              "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 20 Operativo Finanzas  – Etapa 2",
+                                                                                                              "nombre": "Programa 20 Operativo Finanzas  – Etapa 2",
                                                                                                               "descripcion_operativa": "Programa 20 Operativo Finanzas  – Etapa 2",
                                                                                                               "hito": "N/A",
                                                                                                               "subtareas": [
                                                                                                                 {
-                                                                                                                  "nombre": "4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1 Programa 21 Cierre – Etapa 4",
+                                                                                                                  "nombre": "Programa 21 Cierre – Etapa 4",
                                                                                                                   "descripcion_operativa": "Programa 21 Cierre – Etapa 4",
                                                                                                                   "hito": "N/A",
                                                                                                                   "subtareas": []
@@ -737,13 +737,13 @@
           ]
         },
         {
-          "nombre": "4.2 Control de seguimiento",
+          "nombre": "Control de seguimiento",
           "descripcion_operativa": "Seguimiento del proyecto",
           "hito": "N/A",
           "subtareas": []
         },
         {
-          "nombre": "4.3 Control de cambios",
+          "nombre": "Control de cambios",
           "descripcion_operativa": "Gestión de cambios del proyecto",
           "hito": "N/A",
           "subtareas": []
@@ -754,22 +754,22 @@
       "nombre": "ETAPA 5 (Cierre)",
       "tareas": [
         {
-          "nombre": "5.1 Elaborar plantilla de resultados.",
+          "nombre": "Elaborar plantilla de resultados.",
           "descripcion_operativa": "Elaborar plantilla de resultados.",
           "hito": "N/A",
           "subtareas": [
             {
-              "nombre": "5.1.1 Elaborar plantilla de costos.",
+              "nombre": "Elaborar plantilla de costos.",
               "descripcion_operativa": "Elaborar plantilla de costos.",
               "hito": "N/A",
               "subtareas": [
                 {
-                  "nombre": "5.1.1.1 Elaborar plantilla de valor ganado.",
+                  "nombre": "Elaborar plantilla de valor ganado.",
                   "descripcion_operativa": "Elaborar plantilla de valor ganado.",
                   "hito": "N/A",
                   "subtareas": [
                     {
-                      "nombre": "5.1.1.1.1 Elaborar acta de cierre del proyecto.",
+                      "nombre": "Elaborar acta de cierre del proyecto.",
                       "descripcion_operativa": "Elaborar acta de cierre del proyecto.",
                       "hito": "N/A",
                       "subtareas": []

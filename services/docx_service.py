@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from io import BytesIO
 from typing import List, Optional
+import re
 
 from docx import Document
 from docx.shared import Inches, Pt, Cm, RGBColor, Emu
@@ -98,7 +99,7 @@ def crear_tabla_con_encabezados(doc, headers, colores, widths=None):
 
 
 def _aplicar_bordes_thick(cell):
-    border_style = {"sz": "6", "val": "single", "color": "1B3A5C"}
+    border_style = {"sz": "6", "val": "single", "color": "0D2B4E"}
     _set_cell_borders(
         cell, top=border_style, bottom=border_style,
         start=border_style, end=border_style,
@@ -249,6 +250,14 @@ def _add_styled_paragraph(doc, text, font_size=10, bold=False, color=None, align
 # RECURSIVIDAD — TABLA BASE EDT
 # ==============================================================================
 
+def _limpiar_prefijo(nombre: str) -> str:
+    """Remueve el prefijo numérico (ej. '1.1.1.1 ') del nombre de una tarea."""
+    m = re.match(r"^[\d.]+\.?\s+", nombre)
+    if m:
+        return nombre[m.end():]
+    return nombre
+
+
 def _agregar_filas_tabla_recursivo(
     table, tarea: TareaBase, codigo_padre: str, indice: int,
     nivel: int, color_etapa_idx: int
@@ -261,8 +270,9 @@ def _agregar_filas_tabla_recursivo(
     row = table.add_row()
     cells = row.cells
 
+    nombre_limpio = _limpiar_prefijo(tarea.nombre)
     indent = "    " * (nivel - 2) if nivel >= 2 else ""
-    nombre_display = f"{indent}{tarea.nombre}" if nivel >= 3 else tarea.nombre
+    nombre_display = f"{indent}{nombre_limpio}" if nivel >= 3 else nombre_limpio
 
     cells[0].text = codigo
     cells[1].text = nombre_display
@@ -314,6 +324,55 @@ def _agregar_filas_tabla_recursivo(
 # ==============================================================================
 # SECCIÓN 1 — ENCABEZADO PLANTILLA CORPORATIVA
 # ==============================================================================
+
+def _construir_tabla_firmas(doc) -> None:
+    """Inserta una tabla de firmas con los 3 roles de aprobación."""
+    _add_styled_paragraph(
+        doc, "Firmas de Validación",
+        font_size=12, bold=True, color=_COLOR_PRIMARIO,
+        alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=8,
+    )
+
+    headers_firma = ["Rol", "Nombre Completo", "Firma"]
+    tabla_firmas = crear_tabla_con_encabezados(
+        doc, headers_firma, "0D2B4E",
+    )
+
+    for _ in range(3):
+        tabla_firmas.add_row()
+
+    roles = ["Director del proyecto", "Patrocinador del proyecto", "Cliente del proyecto"]
+    for i, rol in enumerate(roles, start=1):
+        tabla_firmas.cell(i, 0).text = rol
+        tabla_firmas.cell(i, 1).text = ""
+        tabla_firmas.cell(i, 2).text = ""
+
+        for j in range(3):
+            cell = tabla_firmas.cell(i, j)
+            border_style = {"sz": "4", "val": "single", "color": "A9C4D8"}
+            _set_cell_borders(
+                cell, top=border_style, bottom=border_style,
+                start=border_style, end=border_style,
+            )
+            for paragraph in cell.paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(10)
+                    run.font.name = "Calibri"
+
+            if j == 2:
+                cell.width = Cm(5)
+
+        for paragraph in tabla_firmas.cell(i, 0).paragraphs:
+            for run in paragraph.runs:
+                run.font.bold = True
+                run.font.color.rgb = _COLOR_PRIMARIO
+
+    for row in tabla_firmas.rows:
+        row.cells[0].width = Cm(5)
+        row.cells[1].width = Cm(7)
+        row.cells[2].width = Cm(5)
+
+    doc.add_paragraph()
 
 def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str, tipo_encabezado: str = "EDT") -> None:
     """Construye el encabezado corporativo estilo tablero."""
@@ -461,7 +520,7 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
         "Hito del Acta de Constitución (Cronograma)",
     ]
     table = crear_tabla_con_encabezados(
-        doc, headers, "1B3A5C",
+        doc, headers, "0D2B4E",
         widths=[Cm(2.5), Cm(4.5), Cm(6.5), Cm(4)],
     )
 
@@ -472,7 +531,7 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
     root_row.cells[2].text = "Proyecto principal"
     root_row.cells[3].text = "—"
     for cell in root_row.cells:
-        _set_cell_shading(cell, "34495E")
+        _set_cell_shading(cell, "1A3A5C")
         for paragraph in cell.paragraphs:
             paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
             for run in paragraph.runs:
@@ -480,7 +539,7 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
                 run.font.size = Pt(10)
                 run.font.name = "Calibri"
                 run.font.color.rgb = _COLOR_BLANCO
-        border_style = {"sz": "4", "val": "single", "color": "34495E"}
+        border_style = {"sz": "4", "val": "single", "color": "1A3A5C"}
         _set_cell_borders(
             cell, top=border_style, bottom=border_style,
             start=border_style, end=border_style,
@@ -518,6 +577,7 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
             )
 
     doc.add_paragraph()
+    _construir_tabla_firmas(doc)
     doc.add_page_break()
 
 
@@ -565,7 +625,7 @@ def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None
     # Tabla de actividades
     headers_act = ["Actividad", "Tiempo", "Recursos", "Responsable"]
     tabla_actividades = crear_tabla_con_encabezados(
-        doc, headers_act, "1B3A5C",
+        doc, headers_act, "0D2B4E",
         widths=[Cm(5), Cm(3), Cm(5), Cm(4.5)],
     )
 
@@ -589,7 +649,7 @@ def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None
                     run.font.size = Pt(9)
                     run.font.name = "Calibri"
                     run.font.color.rgb = _COLOR_TEXTO
-            border_style = {"sz": "4", "val": "single", "color": "BDC3C7"}
+            border_style = {"sz": "4", "val": "single", "color": "A9C4D8"}
             _set_cell_borders(
                 cell, top=border_style, bottom=border_style,
                 start=border_style, end=border_style,
@@ -611,50 +671,7 @@ def _construir_seccion_minuta(doc, datos: DocumentoEDTInput, fecha: str) -> None
     )
 
     # Tabla de firmas
-    _add_styled_paragraph(
-        doc, "Firmas de Validación",
-        font_size=12, bold=True, color=_COLOR_PRIMARIO,
-        alignment=WD_ALIGN_PARAGRAPH.LEFT, space_after=8,
-    )
-
-    headers_firma = ["Rol", "Nombre Completo", "Firma"]
-    tabla_firmas = crear_tabla_con_encabezados(
-        doc, headers_firma, "1B3A5C",
-    )
-
-    for _ in range(3):
-        tabla_firmas.add_row()
-
-    roles = ["Director del proyecto", "Patrocinador del proyecto", "Cliente del proyecto"]
-    for i, rol in enumerate(roles, start=1):
-        tabla_firmas.cell(i, 0).text = rol
-        tabla_firmas.cell(i, 1).text = ""
-        tabla_firmas.cell(i, 2).text = ""
-
-        for j in range(3):
-            cell = tabla_firmas.cell(i, j)
-            border_style = {"sz": "4", "val": "single", "color": "BDC3C7"}
-            _set_cell_borders(
-                cell, top=border_style, bottom=border_style,
-                start=border_style, end=border_style,
-            )
-            for paragraph in cell.paragraphs:
-                for run in paragraph.runs:
-                    run.font.size = Pt(10)
-                    run.font.name = "Calibri"
-
-            if j == 2:
-                cell.width = Cm(5)
-
-        for paragraph in tabla_firmas.cell(i, 0).paragraphs:
-            for run in paragraph.runs:
-                run.font.bold = True
-                run.font.color.rgb = _COLOR_PRIMARIO
-
-    for row in tabla_firmas.rows:
-        row.cells[0].width = Cm(5)
-        row.cells[1].width = Cm(7)
-        row.cells[2].width = Cm(5)
+    _construir_tabla_firmas(doc)
 
 
 # ==============================================================================
@@ -751,7 +768,7 @@ def generar_documento_word(datos: DocumentoEDTInput) -> str:
             footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             for run in footer_p.runs:
                 run.font.size = Pt(7)
-                run.font.color.rgb = _COLOR_GRIS_CLARO
+                run.font.color.rgb = _COLOR_SECUNDARIO
                 run.font.name = "Calibri"
 
         # 7. Guardar archivo
