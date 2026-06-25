@@ -55,17 +55,17 @@ def generar_edt(datos: EDTInput) -> str:
     - Solo invoca esta herramienta cuando el JSON cumpla la regla de 1 solo hijo.
     - Soporta profundidad de tareas ilimitada mediante recursividad.
 
-    ESTRUCTURA OBLIGATORIA DE 5 ETAPAS:
-    1. ETAPA 1 (Inicio) → cascada vertical (1.1 → 1.1.1 → 1.1.1.1...)
-    2. ETAPA 2 (Planeación) → cascada vertical (2.1 → 2.1.1 → 2.1.1.1...)
-    3. ETAPA 3 (Ejecución) → 5 sub-áreas con cascada vertical independiente:
+    ESTRUCTURA OBLIGATORIA DE 5 ETAPAS (0 a 4):
+    1. ETAPA 0 (Inicio) → cascada vertical
+    2. ETAPA 1 (Planeación) → cascada vertical
+    3. ETAPA 2 (Ejecución) → 5 sub-áreas con cascada vertical independiente:
        3.1 ÁREA TECNOLÓGICO, 3.2 ÁREA OPERATIVO, 3.3 ÁREA RRHH,
        3.4 ÁREA FINANZAS, 3.5 ÁREA COMERCIAL
-    4. ETAPA 4 (Control) → 3 tareas:
+    4. ETAPA 3 (Control) → 3 tareas:
        4.1 Checklist → 21 subtareas en cascada vertical
        4.2 Control de seguimiento (sin hijos)
        4.3 Control de cambios (sin hijos)
-    5. ETAPA 5 (Cierre) → cascada vertical (5.1 → 5.1.1 → 5.1.1.1...)
+    5. ETAPA 4 (Cierre) → cascada vertical
     """
     try:
         return construir_mermaid(datos)
@@ -95,19 +95,19 @@ def exportar_imagen_edt(datos: EDTInput) -> Image:
     - El diagrama debe verse como 5 columnas verticales independientes.
 
     ESTRUCTURA OBLIGATORIA DE 5 ETAPAS:
-    1. ETAPA 1 (Inicio) → todas sus tareas en cascada vertical.
-    2. ETAPA 2 (Planeación) → todas sus tareas en cascada vertical.
-    3. ETAPA 3 (Ejecución) → 5 sub-áreas, cada una con cascada vertical:
+    1. ETAPA 0 (Inicio) → todas sus tareas en cascada vertical.
+    2. ETAPA 1 (Planeación) → todas sus tareas en cascada vertical.
+    3. ETAPA 2 (Ejecución) → 5 sub-áreas, cada una con cascada vertical:
        3.1 ÁREA TECNOLÓGICO → 3.1.1 → 3.1.1.1...
        3.2 ÁREA OPERATIVO → 3.2.1 → 3.2.1.1...
        3.3 ÁREA RECURSOS HUMANOS → 3.3.1 → 3.3.1.1...
        3.4 ÁREA FINANZAS → 3.4.1 → 3.4.1.1...
        3.5 ÁREA COMERCIAL → 3.5.1 → 3.5.1.1...
-    4. ETAPA 4 (Control) → 3 tareas:
+    4. ETAPA 3 (Control) → 3 tareas:
        4.1 Checklist → 21 subtareas en cascada vertical.
        4.2 Control de seguimiento (sin hijos).
        4.3 Control de cambios (sin hijos).
-    5. ETAPA 5 (Cierre) → todas sus tareas en cascada vertical.
+    5. ETAPA 4 (Cierre) → todas sus tareas en cascada vertical.
     """
     mermaid_code = construir_mermaid(datos)
     image_bytes = renderizar_mermaid_png(mermaid_code)

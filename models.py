@@ -36,20 +36,15 @@ class EDTInput(BaseModel):
         4. No agrupes tareas horizontalmente. Usa UN solo hijo por nivel.
         5. El diagrama debe verse como 5 columnas verticales independientes, una por cada etapa.
 
-        ESTRUCTURA OBLIGATORIA DE 5 ETAPAS:
-        1. ETAPA 1 (Inicio) → todas sus tareas hijas en cascada vertical (1.1 → 1.1.1 → 1.1.1.1...)
-        2. ETAPA 2 (Planeación) → todas sus tareas hijas en cascada vertical (2.1 → 2.1.1 → 2.1.1.1...)
-        3. ETAPA 3 (Ejecución) → 5 sub-áreas, cada una con sus tareas en cascada vertical independiente:
-           3.1 ÁREA TECNOLÓGICO → (3.1.1 → 3.1.1.1...)
-           3.2 ÁREA OPERATIVO → (3.2.1 → 3.2.1.1...)
-           3.3 ÁREA RECURSOS HUMANOS → (3.3.1 → 3.3.1.1...)
-           3.4 ÁREA FINANZAS → (3.4.1 → 3.4.1.1...)
-           3.5 ÁREA COMERCIAL → (3.5.1 → 3.5.1.1...)
-        4. ETAPA 4 (Control) → 3 tareas:
+        ESTRUCTURA OBLIGATORIA DE 5 ETAPAS (0 a 4):
+        1. ETAPA 0 (Inicio) → todas sus tareas hijas en cascada vertical
+        2. ETAPA 1 (Planeación) → todas sus tareas hijas en cascada vertical
+        3. ETAPA 2 (Ejecución) → 5 sub-áreas, cada una con sus tareas en cascada vertical independiente
+        4. ETAPA 3 (Control) → 3 tareas:
            4.1 Checklist → subtarea única: Checklist de los 21 programas, que contiene 21 subtareas en cascada vertical
            4.2 Control de seguimiento (sin hijos)
            4.3 Control de cambios (sin hijos)
-        5. ETAPA 5 (Cierre) → todas sus tareas hijas en cascada vertical (5.1 → 5.1.1 → 5.1.1.1...)
+        5. ETAPA 4 (Cierre) → todas sus tareas hijas en cascada vertical
         """
     )
 
@@ -86,32 +81,29 @@ class DocumentoEDTInput(EDTInput):
         Encadena las tareas en cascada: 1 → 1.1 → 1.1.1 → 1.1.1.1...
         ¡PROHIBIDO poner más de un hijo por nodo!
 
-        1. ETAPA 1 (Inicio):
+        1. ETAPA 0 (Inicio):
            Planeación Estratégica, Análisis del Entorno y Mercado, Estudio de Factibilidad,
            Definición de la Solución Tecnológica, Gestión Inicial del Proyecto.
-           → Todas sus tareas en cascada vertical (1.1 → 1.1.1 → 1.1.1.1...)
+           → Todas sus tareas en cascada vertical.
 
-        2. ETAPA 2 (Planeación):
+        2. ETAPA 1 (Planeación):
            Integración del Proyecto, Gestión de Interesados, Gestión del Alcance,
            Gestión de Requisitos.
-           → Todas sus tareas en cascada vertical (2.1 → 2.1.1 → 2.1.1.1...)
+           → Todas sus tareas en cascada vertical.
 
-        3. ETAPA 3 (Ejecución) — 5 sub-áreas, cada una en cascada vertical independiente:
-           3.1 ÁREA TECNOLÓGICO → (3.1.1 → 3.1.1.1...)
-           3.2 ÁREA OPERATIVO → (3.2.1 → 3.2.1.1...)
-           3.3 ÁREA RECURSOS HUMANOS → (3.3.1 → 3.3.1.1...)
-           3.4 ÁREA FINANZAS → (3.4.1 → 3.4.1.1...)
-           3.5 ÁREA COMERCIAL → (3.5.1 → 3.5.1.1...)
+        3. ETAPA 2 (Ejecución) — 5 sub-áreas, cada una en cascada vertical independiente:
+           3.1 ÁREA TECNOLÓGICO, 3.2 ÁREA OPERATIVO, 3.3 ÁREA RECURSOS HUMANOS,
+           3.4 ÁREA FINANZAS, 3.5 ÁREA COMERCIAL.
 
-        4. ETAPA 4 (Control) — 3 tareas:
+        4. ETAPA 3 (Control) — 3 tareas:
            4.1 Checklist → contiene subtarea única "Checklist de los 21 programas"
                con 21 subtareas hijas en cascada vertical.
-           4.2 Control de seguimiento (sin hijos, sin subtareas).
-           4.3 Control de cambios (sin hijos, sin subtareas).
+           4.2 Control de seguimiento (sin hijos).
+           4.3 Control de cambios (sin hijos).
 
-        5. ETAPA 5 (Cierre):
+        5. ETAPA 4 (Cierre):
            Plantilla de resultados, Acta de cierre.
-           → Todas sus tareas en cascada vertical (5.1 → 5.1.1 → 5.1.1.1...)
+           → Todas sus tareas en cascada vertical.
 
         Las tareas del proyecto deben anidarse en nivel 3 o inferior dentro de esta estructura.
         """,

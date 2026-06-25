@@ -424,7 +424,7 @@ def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str, t
     # Fila 0, columna 3: Etapa
     cell_etapa = table.cell(0, 3)
     _set_cell_text(
-        cell_etapa, "Etapa:\n1) Planeación",
+        cell_etapa, "Etapa:\n0) Planeación",
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
         color=_COLOR_TEXTO,
     )

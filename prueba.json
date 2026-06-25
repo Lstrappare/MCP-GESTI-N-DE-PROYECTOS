@@ -6,7 +6,7 @@
   "presupuesto_proyecto": "$3,500,000 MXN",
   "fases": [
     {
-      "nombre": "ETAPA 1 (Inicio)",
+      "nombre": "ETAPA 0 (Inicio)",
       "tareas": [
         {
           "nombre": "Definir objetivos generales y específicos del proyecto.",
@@ -150,7 +150,7 @@
       ]
     },
     {
-      "nombre": "ETAPA 2 (Planeación)",
+      "nombre": "ETAPA 1 (Planeación)",
       "tareas": [
         {
           "nombre": "Elaborar acta de constitución.",
@@ -196,7 +196,7 @@
       ]
     },
     {
-      "nombre": "ETAPA 3 (Ejecución)",
+      "nombre": "ETAPA 2 (Ejecución)",
       "tareas": [
         {
           "nombre": "ÁREA TECNOLÓGICO",
@@ -546,7 +546,7 @@
       ]
     },
     {
-      "nombre": "ETAPA 4 (Control)",
+      "nombre": "ETAPA 3 (Control)",
       "tareas": [
         {
           "nombre": "Checklist",
@@ -751,7 +751,7 @@
       ]
     },
     {
-      "nombre": "ETAPA 5 (Cierre)",
+      "nombre": "ETAPA 4 (Cierre)",
       "tareas": [
         {
           "nombre": "Elaborar plantilla de resultados.",
