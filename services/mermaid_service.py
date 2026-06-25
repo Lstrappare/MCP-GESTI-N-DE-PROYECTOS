@@ -110,10 +110,19 @@ def guardar_png_edt(datos: EDTInput, image_bytes: bytes) -> Path:
 
 
 def generar_imagen_mermaid_para_docx(datos: EDTInput) -> bytes:
-    """Genera la imagen PNG del diagrama EDT usando mermaid.ink (sin Kroki)."""
+    """Genera la imagen PNG del diagrama EDT usando Kroki, con fallback a mermaid.ink."""
     mermaid_code = construir_mermaid(datos)
-    encoded = base64.urlsafe_b64encode(mermaid_code.encode("utf-8")).decode("utf-8")
-    url_imagen = MERMAID_INK_IMG_URL_TEMPLATE.format(encoded=encoded)
-    response = httpx.get(url_imagen, timeout=30, follow_redirects=True)
-    response.raise_for_status()
-    return response.content
+
+    # Intentar primero con Kroki (POST, sin límite de URL)
+    payload = {"diagram": mermaid_code}
+    try:
+        response = httpx.post(KROKI_MERMAID_PNG_URL, json=payload, timeout=30, follow_redirects=True)
+        response.raise_for_status()
+        return response.content
+    except Exception:
+        # Fallback a mermaid.ink (GET, puede fallar con diagramas muy grandes)
+        encoded = base64.urlsafe_b64encode(mermaid_code.encode("utf-8")).decode("utf-8")
+        url_imagen = MERMAID_INK_IMG_URL_TEMPLATE.format(encoded=encoded)
+        response = httpx.get(url_imagen, timeout=30, follow_redirects=True)
+        response.raise_for_status()
+        return response.content

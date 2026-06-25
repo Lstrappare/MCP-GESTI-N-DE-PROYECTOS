@@ -29,11 +29,27 @@ class EDTInput(BaseModel):
     fases: List[FaseBase] = Field(
         ...,
         description="""
-        REGLA ESTRICTA PARA LA IA:
-        1. Debes generar exactamente las etapas principales indicadas en los documentos fuente (ej. Inicio, Planeación, Ejecución, Control, Cierre).
-        2. El anidamiento dentro de cada etapa debe ser COMPLETAMENTE VERTICAL Y LINEAL.
-        3. Cada tarea padre debe tener un máximo de UNA (1) subtarea.
-        4. Crea una cadena en cascada perfecta hacia abajo. ¡PROHIBIDO agrupar elementos horizontalmente!
+        REGLA ESTRICTA PARA LA IA — DIAGRAMA 100% VERTICAL:
+        1. Debes generar exactamente 5 etapas. Todas las tareas deben anidarse en UNA SOLA COLUMNA VERTICAL por etapa.
+        2. Cada tarea padre debe tener máximo UNA (1) subtarea. ¡PROHIBIDO poner más de un hijo por nodo!
+        3. Encadena las tareas en cascada perfecta hacia abajo (formato 1, 1.1, 1.1.1, 1.1.1.1...).
+        4. No agrupes tareas horizontalmente. Usa UN solo hijo por nivel.
+        5. El diagrama debe verse como 5 columnas verticales independientes, una por cada etapa.
+
+        ESTRUCTURA OBLIGATORIA DE 5 ETAPAS:
+        1. ETAPA 1 (Inicio) → todas sus tareas hijas en cascada vertical (1.1 → 1.1.1 → 1.1.1.1...)
+        2. ETAPA 2 (Planeación) → todas sus tareas hijas en cascada vertical (2.1 → 2.1.1 → 2.1.1.1...)
+        3. ETAPA 3 (Ejecución) → 5 sub-áreas, cada una con sus tareas en cascada vertical independiente:
+           3.1 ÁREA TECNOLÓGICO → (3.1.1 → 3.1.1.1...)
+           3.2 ÁREA OPERATIVO → (3.2.1 → 3.2.1.1...)
+           3.3 ÁREA RECURSOS HUMANOS → (3.3.1 → 3.3.1.1...)
+           3.4 ÁREA FINANZAS → (3.4.1 → 3.4.1.1...)
+           3.5 ÁREA COMERCIAL → (3.5.1 → 3.5.1.1...)
+        4. ETAPA 4 (Control) → 3 tareas:
+           4.1 Checklist → subtarea única: Checklist de los 21 programas, que contiene 21 subtareas en cascada vertical
+           4.2 Control de seguimiento (sin hijos)
+           4.3 Control de cambios (sin hijos)
+        5. ETAPA 5 (Cierre) → todas sus tareas hijas en cascada vertical (5.1 → 5.1.1 → 5.1.1.1...)
         """
     )
 
@@ -64,15 +80,38 @@ class DocumentoEDTInput(EDTInput):
     fases: List[FaseBase] = Field(
         ...,
         description="""
-        ESTRUCTURA METODOLÓGICA FIJA — 5 ETAPAS OBLIGATORIAS:
-        1. Etapa 0 (Inicio): Planeación Estratégica, Análisis del Entorno y Mercado,
-           Estudio de Factibilidad, Definición de la Solución Tecnológica, Gestión Inicial del Proyecto.
-        2. Etapa 1 (Planeación): Integración del Proyecto, Gestión de Interesados,
-           Gestión del Alcance, Gestión de Requisitos.
-        3. Etapa 2 (Ejecución): Tecnológica, Operativa, Recursos Humanos, Finanzas, Comercial.
-        4. Etapa 3 (Control): Checklist (con hija 'Checklist de los 21 programas'),
-           Control y seguimiento, Control de cambios.
-        5. Etapa 4 (Cierre): Plantilla de resultados, Acta de cierre.
+        ESTRUCTURA METODOLÓGICA FIJA — 5 ETAPAS OBLIGATORIAS (DIAGRAMA 100% VERTICAL):
+
+        REGLA DE VERTICALIDAD: cada tarea padre debe tener máximo UNA (1) subtarea.
+        Encadena las tareas en cascada: 1 → 1.1 → 1.1.1 → 1.1.1.1...
+        ¡PROHIBIDO poner más de un hijo por nodo!
+
+        1. ETAPA 1 (Inicio):
+           Planeación Estratégica, Análisis del Entorno y Mercado, Estudio de Factibilidad,
+           Definición de la Solución Tecnológica, Gestión Inicial del Proyecto.
+           → Todas sus tareas en cascada vertical (1.1 → 1.1.1 → 1.1.1.1...)
+
+        2. ETAPA 2 (Planeación):
+           Integración del Proyecto, Gestión de Interesados, Gestión del Alcance,
+           Gestión de Requisitos.
+           → Todas sus tareas en cascada vertical (2.1 → 2.1.1 → 2.1.1.1...)
+
+        3. ETAPA 3 (Ejecución) — 5 sub-áreas, cada una en cascada vertical independiente:
+           3.1 ÁREA TECNOLÓGICO → (3.1.1 → 3.1.1.1...)
+           3.2 ÁREA OPERATIVO → (3.2.1 → 3.2.1.1...)
+           3.3 ÁREA RECURSOS HUMANOS → (3.3.1 → 3.3.1.1...)
+           3.4 ÁREA FINANZAS → (3.4.1 → 3.4.1.1...)
+           3.5 ÁREA COMERCIAL → (3.5.1 → 3.5.1.1...)
+
+        4. ETAPA 4 (Control) — 3 tareas:
+           4.1 Checklist → contiene subtarea única "Checklist de los 21 programas"
+               con 21 subtareas hijas en cascada vertical.
+           4.2 Control de seguimiento (sin hijos, sin subtareas).
+           4.3 Control de cambios (sin hijos, sin subtareas).
+
+        5. ETAPA 5 (Cierre):
+           Plantilla de resultados, Acta de cierre.
+           → Todas sus tareas en cascada vertical (5.1 → 5.1.1 → 5.1.1.1...)
 
         Las tareas del proyecto deben anidarse en nivel 3 o inferior dentro de esta estructura.
         """,

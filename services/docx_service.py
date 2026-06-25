@@ -201,6 +201,31 @@ def _set_cell_borders(cell, **kwargs) -> None:
     tcPr.append(tcBorders)
 
 
+def _set_table_borders(table, size="4", color="000000"):
+    """Aplica bordes a nivel de tabla (cubre celdas fusionadas correctamente)."""
+    tbl = table._tbl
+    tblPr = tbl.tblPr
+    if tblPr is None:
+        tblPr = parse_xml(f'<w:tblPr {nsdecls("w")}/>')
+        tbl.insert(0, tblPr)
+
+    # Remover bordes existentes
+    for existing in tblPr.findall(qn('w:tblBorders')):
+        tblPr.remove(existing)
+
+    borders_xml = (
+        f'<w:tblBorders {nsdecls("w")}>'
+        f'  <w:top w:val="single" w:sz="{size}" w:space="0" w:color="{color}"/>'
+        f'  <w:left w:val="single" w:sz="{size}" w:space="0" w:color="{color}"/>'
+        f'  <w:bottom w:val="single" w:sz="{size}" w:space="0" w:color="{color}"/>'
+        f'  <w:right w:val="single" w:sz="{size}" w:space="0" w:color="{color}"/>'
+        f'  <w:insideH w:val="single" w:sz="{size}" w:space="0" w:color="{color}"/>'
+        f'  <w:insideV w:val="single" w:sz="{size}" w:space="0" w:color="{color}"/>'
+        f'</w:tblBorders>'
+    )
+    tblPr.append(parse_xml(borders_xml))
+
+
 # ==============================================================================
 # HELPERS — PÁRRAFOS
 # ==============================================================================
@@ -291,97 +316,101 @@ def _agregar_filas_tabla_recursivo(
 # ==============================================================================
 
 def _construir_encabezado_plantilla(doc, datos: DocumentoEDTInput, fecha: str, tipo_encabezado: str = "EDT") -> None:
-    """Construye el encabezado corporativo de la plantilla EDT o Minuta."""
+    """Construye el encabezado corporativo estilo tablero."""
+    if tipo_encabezado == "Minuta":
+        texto_tipo_doc = "Nombre Minuta:\nEstructura de Desglose de Trabajo (EDT)"
+        texto_numero = "Minuta No.:\n8"
+    else:
+        texto_tipo_doc = "Nombre Plantilla:\nEstructura de Desglose de Trabajo (EDT)"
+        texto_numero = "Plantilla No.:\n8"
+
+    # ── Logo + Empresa fuera de la tabla ──
+    p_logo = doc.add_paragraph()
+    p_logo.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    run_icon = p_logo.add_run("◼ ")
+    run_icon.font.size = Pt(14)
+    run_icon.font.bold = True
+    run_icon.font.name = "Calibri"
+    run_icon.font.color.rgb = _COLOR_PRIMARIO
+    run_nombre = p_logo.add_run(datos.nombre_empresa or "MINTRANET")
+    run_nombre.font.size = Pt(14)
+    run_nombre.font.bold = True
+    run_nombre.font.name = "Calibri"
+    run_nombre.font.color.rgb = _COLOR_PRIMARIO
+
+    # ── Tabla 4 columnas × 3 filas ──
     table = doc.add_table(rows=3, cols=4)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
 
-    if tipo_encabezado == "Minuta":
-        texto_plantilla = "Nombre Minuta: Estructura de Desglose de Trabajo (EDT)"
-        texto_numero = "Minuta No.: 8"
-    else:
-        texto_plantilla = "Nombre Plantilla: Estructura de Desglose de Trabajo (EDT)"
-        texto_numero = "Plantilla No.: 8"
-
-    # Columna 0: nombre_empresa (vertical merge rows 0-2)
+    # Columna 0: vertical merge rows 0-2 → Logo + Empresa
     _merge_vertical(table, 0, 0, 2)
-    cell_empresa = table.cell(0, 0)
+    cell_logo = table.cell(0, 0)
     _set_cell_text(
-        cell_empresa, datos.nombre_empresa or "MINTRANET",
-        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=14, bold=True,
-        color=_COLOR_BLANCO,
-    )
-    _set_cell_shading(cell_empresa, "1B3A5C")
-    _set_cell_width(cell_empresa, Cm(3.5))
-
-    # Fila 0, columnas 1-2: horizontal merge → Nombre Plantilla / Minuta
-    _merge_horizontal(table, 0, 1, 2)
-    cell_plantilla = table.cell(0, 1)
-    _set_cell_text(
-        cell_plantilla, texto_plantilla,
+        cell_logo, f"◼ LOGO\n\n{datos.nombre_empresa or 'MINTRANET'}",
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=10, bold=True,
         color=_COLOR_PRIMARIO,
+    )
+    _set_cell_width(cell_logo, Cm(3.5))
+
+    # Fila 0, columnas 1-2: horizontal merge → Nombre tipo de documento
+    _merge_horizontal(table, 0, 1, 2)
+    cell_tipo_doc = table.cell(0, 1)
+    _set_cell_text(
+        cell_tipo_doc, texto_tipo_doc,
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=10, bold=False,
+        color=_COLOR_TEXTO,
     )
 
     # Fila 0, columna 3: Etapa
     cell_etapa = table.cell(0, 3)
     _set_cell_text(
-        cell_etapa, "Etapa: 1)\nPlaneación",
+        cell_etapa, "Etapa:\n1) Planeación",
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
         color=_COLOR_TEXTO,
     )
-    _set_cell_shading(cell_etapa, "EBF5FB")
     _set_cell_width(cell_etapa, Cm(3))
 
-    # Fila 1, columna 1: Título del proyecto + ID
+    # Columna 1, filas 1-2: merge vertical → Título del proyecto + ID
+    _merge_vertical(table, 1, 1, 2)
     cell_titulo = table.cell(1, 1)
     _set_cell_text(
         cell_titulo,
-        f"Título del proyecto: {datos.nombre_proyecto}\nID del Proyecto: {datos.id_proyecto or 'N/A'}",
-        alignment=WD_ALIGN_PARAGRAPH.LEFT, font_size=9, bold=False,
+        f"Título del proyecto:\n{datos.nombre_proyecto}\n\nID del Proyecto:\n{datos.id_proyecto or 'N/A'}",
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
         color=_COLOR_TEXTO,
     )
     _set_cell_width(cell_titulo, Cm(5.5))
 
-    # Fila 1, columna 2: Presupuestos
+    # Columna 2, filas 1-2: merge vertical → Presupuestos
+    _merge_vertical(table, 2, 1, 2)
     cell_presup = table.cell(1, 2)
     _set_cell_text(
         cell_presup,
-        f"Presupuesto: {datos.presupuesto_fase or 'N/A'}\nPresupuesto del Proyecto: {datos.presupuesto_proyecto or 'N/A'}",
-        alignment=WD_ALIGN_PARAGRAPH.LEFT, font_size=9, bold=False,
+        f"Presupuesto:\n{datos.presupuesto_fase or 'N/A'}\n\nPresupuesto del Proyecto:\n{datos.presupuesto_proyecto or 'N/A'}",
+        alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
         color=_COLOR_TEXTO,
     )
     _set_cell_width(cell_presup, Cm(5.5))
 
-    # Fila 1, columna 3: Plantilla No. / Minuta No.
-    cell_plantilla_no = table.cell(1, 3)
+    # Columna 3, fila 1: Número de plantilla/minuta
+    cell_numero = table.cell(1, 3)
     _set_cell_text(
-        cell_plantilla_no, texto_numero,
+        cell_numero, texto_numero,
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
         color=_COLOR_TEXTO,
     )
-    _set_cell_shading(cell_plantilla_no, "EBF5FB")
 
-    # Fila 2, columnas 1-2: horizontal merge (continuidad visual, sin texto)
-    _merge_horizontal(table, 2, 1, 2)
-    cell_continuidad = table.cell(2, 1)
-    _set_cell_text(
-        cell_continuidad, "",
-        alignment=WD_ALIGN_PARAGRAPH.LEFT, font_size=9, bold=False,
-        color=_COLOR_TEXTO,
-    )
-
-    # Fila 2, columna 3: Fecha
+    # Columna 3, fila 2: Fecha
     cell_fecha = table.cell(2, 3)
     _set_cell_text(
-        cell_fecha, f"Fecha: {fecha}",
+        cell_fecha, f"Fecha:\n{fecha}",
         alignment=WD_ALIGN_PARAGRAPH.CENTER, font_size=9, bold=False,
         color=_COLOR_TEXTO,
     )
-    _set_cell_shading(cell_fecha, "EBF5FB")
 
-    # Aplicar estilo de plantilla a toda la tabla
-    _aplicar_estilo_tabla_plantilla(table)
+    # Aplicar bordes negros a nivel tabla (cubre celdas fusionadas)
+    _set_table_borders(table, size="4", color="000000")
 
     doc.add_paragraph()
 
@@ -425,10 +454,15 @@ def _construir_seccion_tabla(doc, datos: DocumentoEDTInput) -> None:
         alignment=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=12,
     )
 
-    headers = ["Código EDT", "Nombre de la Tarea", "Descripción Operativa", "Hito"]
+    headers = [
+        "Nivel EDT",
+        "Fase / Área / Actividad",
+        "Relación con el Plan Operativo y Plan General de Trabajo",
+        "Hito del Acta de Constitución (Cronograma)",
+    ]
     table = crear_tabla_con_encabezados(
         doc, headers, "1B3A5C",
-        widths=[Cm(2.5), Cm(6), Cm(6.5), Cm(2.5)],
+        widths=[Cm(2.5), Cm(4.5), Cm(6.5), Cm(4)],
     )
 
     # Fila del proyecto raíz

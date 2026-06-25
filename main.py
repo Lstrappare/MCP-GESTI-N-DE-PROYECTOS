@@ -44,22 +44,32 @@ mcp = FastMCP("MCP-GestionProyectos")
 @mcp.tool()
 def generar_edt(datos: EDTInput) -> str:
     """
-    Transforma la estructura de un proyecto en un diagrama de Mermaid.
+    Transforma la estructura de un proyecto en un diagrama de Mermaid 100% vertical.
 
     INSTRUCCIONES CRÍTICAS PARA EL LLM ANTES DE INVOCAR ESTA HERRAMIENTA:
     - Lee todos los archivos .txt proporcionados por el usuario.
-    - Extrae la información y fuérzala a una estructura de árbol de
-      profundidad máxima pero de anchura mínima.
-    - Para que el diagrama no se expanda hacia los lados, encadena cada
-      tarea como hija única de la tarea anterior.
-    - Solo invoca esta herramienta cuando hayas estructurado mentalmente
-      el JSON cumpliendo la regla de 1 solo hijo por nodo.
+    - Extrae la información y fuérzala a una estructura de árbol estrictamente vertical.
+    - Cada tarea padre debe tener UNA sola subtarea. ¡PROHIBIDO más de un hijo por nodo!
+    - Encadena tareas en cascada: 1 → 1.1 → 1.1.1 → 1.1.1.1...
+    - El diagrama debe verse como 5 columnas verticales independientes, una por etapa.
+    - Solo invoca esta herramienta cuando el JSON cumpla la regla de 1 solo hijo.
     - Soporta profundidad de tareas ilimitada mediante recursividad.
+
+    ESTRUCTURA OBLIGATORIA DE 5 ETAPAS:
+    1. ETAPA 1 (Inicio) → cascada vertical (1.1 → 1.1.1 → 1.1.1.1...)
+    2. ETAPA 2 (Planeación) → cascada vertical (2.1 → 2.1.1 → 2.1.1.1...)
+    3. ETAPA 3 (Ejecución) → 5 sub-áreas con cascada vertical independiente:
+       3.1 ÁREA TECNOLÓGICO, 3.2 ÁREA OPERATIVO, 3.3 ÁREA RRHH,
+       3.4 ÁREA FINANZAS, 3.5 ÁREA COMERCIAL
+    4. ETAPA 4 (Control) → 3 tareas:
+       4.1 Checklist → 21 subtareas en cascada vertical
+       4.2 Control de seguimiento (sin hijos)
+       4.3 Control de cambios (sin hijos)
+    5. ETAPA 5 (Cierre) → cascada vertical (5.1 → 5.1.1 → 5.1.1.1...)
     """
     try:
         return construir_mermaid(datos)
     except Exception as e:
-        # Retorno vital para que el Agente IA lea el error y corrija su JSON.
         return (
             f"Error de validación: {str(e)}. "
             "Corrige los parámetros y vuelve a ejecutar la herramienta."
@@ -69,8 +79,8 @@ def generar_edt(datos: EDTInput) -> str:
 @mcp.tool()
 def exportar_imagen_edt(datos: EDTInput) -> Image:
     """
-    Genera el EDT en Mermaid, lo renderiza como imagen PNG y lo muestra
-    directamente en el chat. También guarda el archivo en ~/Downloads/.
+    Genera el EDT en Mermaid 100% vertical, lo renderiza como imagen PNG y lo
+    muestra directamente en el chat. Guarda el archivo en ~/Downloads/.
 
     Usa la API pública kroki.io (POST) para renderizar sin límite de URL,
     con fallback a mermaid.ink (GET) si kroki falla.
@@ -79,36 +89,29 @@ def exportar_imagen_edt(datos: EDTInput) -> Image:
     - Cuando el usuario pida la imagen, el PNG, ver el diagrama o descargarlo.
     - Aplica las mismas reglas de estructura que generar_edt.
 
-    ESTRUCTURA METODOLÓGICA FIJA — 5 ETAPAS OBLIGATORIAS:
-    1. Etapa 0 (Inicio): Planeación Estratégica, Análisis del Entorno y Mercado,
-       Estudio de Factibilidad, Definición de la Solución Tecnológica, Gestión Inicial del Proyecto.
-    2. Etapa 1 (Planeación): Integración del Proyecto, Gestión de Interesados,
-       Gestión del Alcance, Gestión de Requisitos.
-    3. Etapa 2 (Ejecución): Tecnológica, Operativa, Recursos Humanos, Finanzas, Comercial.
-    4. Etapa 3 (Control): Checklist (con hija 'Checklist de los 21 programas'),
-       Control y seguimiento, Control de cambios.
-    5. Etapa 4 (Cierre): Plantilla de resultados, Acta de cierre.
+    REGLA DE VERTICALIDAD ABSOLUTA:
+    - Cada tarea padre debe tener UNA sola subtarea.
+    - Las tareas se encadenan en cascada: 1 → 1.1 → 1.1.1 → 1.1.1.1...
+    - El diagrama debe verse como 5 columnas verticales independientes.
 
-    Las tareas del proyecto deben anidarse como subtareas de nivel 3 o inferior
-    dentro de esta estructura fija.
-
-    REQUISITO DE NODOS:
-    - Para garantizar una imagen legible y sin errores, se recomienda que el
-      diagrama tenga exactamente 90 nodos (5 fases + 85 tareas).
-    - El JSON debe estructurarse en 5 fases, cada una con una cadena vertical
-      de 17 tareas anidadas secuencialmente (una subtarea por nodo).
-    - Ejemplo: 5 fases × 17 tareas = 85 tareas + 5 fases = 90 nodos.
+    ESTRUCTURA OBLIGATORIA DE 5 ETAPAS:
+    1. ETAPA 1 (Inicio) → todas sus tareas en cascada vertical.
+    2. ETAPA 2 (Planeación) → todas sus tareas en cascada vertical.
+    3. ETAPA 3 (Ejecución) → 5 sub-áreas, cada una con cascada vertical:
+       3.1 ÁREA TECNOLÓGICO → 3.1.1 → 3.1.1.1...
+       3.2 ÁREA OPERATIVO → 3.2.1 → 3.2.1.1...
+       3.3 ÁREA RECURSOS HUMANOS → 3.3.1 → 3.3.1.1...
+       3.4 ÁREA FINANZAS → 3.4.1 → 3.4.1.1...
+       3.5 ÁREA COMERCIAL → 3.5.1 → 3.5.1.1...
+    4. ETAPA 4 (Control) → 3 tareas:
+       4.1 Checklist → 21 subtareas en cascada vertical.
+       4.2 Control de seguimiento (sin hijos).
+       4.3 Control de cambios (sin hijos).
+    5. ETAPA 5 (Cierre) → todas sus tareas en cascada vertical.
     """
-    # 1. Construir el código Mermaid
     mermaid_code = construir_mermaid(datos)
-
-    # 2. Renderizar PNG (Kroki → fallback a mermaid.ink)
     image_bytes = renderizar_mermaid_png(mermaid_code)
-
-    # 3. Guardar en ~/Downloads/
     guardar_png_edt(datos, image_bytes)
-
-    # 4. Devolver objeto Image
     return Image(data=image_bytes, format="png")
 
 
