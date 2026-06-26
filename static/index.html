@@ -3,262 +3,824 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de EDT</title>
+    <title>EDT Pro — Generador Profesional</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Estilos básicos */
+        /* ===== RESET Y BASE ===== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             background: #f0f4f8;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-        h1 {
-            color: #1B3A5C;
-            border-bottom: 3px solid #2E86C1;
-            padding-bottom: 10px;
-        }
-        .seccion {
-            margin-bottom: 30px;
-            border: 1px solid #dde6ed;
-            padding: 20px;
-            border-radius: 6px;
-            background: #fafcfe;
-        }
-        .seccion h2 {
-            margin-top: 0;
-            color: #2E86C1;
-            font-size: 1.2rem;
-        }
-        label {
-            display: inline-block;
-            width: 160px;
-            font-weight: 600;
-            color: #1B3A5C;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 8px 12px;
-            margin: 5px 0 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-        textarea {
-            height: 60px;
-            resize: vertical;
-        }
-        .fila {
+            min-height: 100vh;
             display: flex;
+            justify-content: center;
+            padding: 30px 20px;
+        }
+        .app {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,20,40,0.12);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .app-header {
+            background: linear-gradient(135deg, #0D2B4E 0%, #1A5CA8 100%);
+            padding: 20px 35px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .app-header h1 { font-weight: 600; font-size: 1.6rem; }
+        .app-header h1 i { margin-right: 12px; color: #85C1E9; }
+        .badge-version {
+            background: rgba(255,255,255,0.15);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .progress-bar-container {
+            background: #e9edf4;
+            padding: 6px 35px;
+            display: flex;
+            align-items: center;
             gap: 20px;
             flex-wrap: wrap;
+            border-bottom: 1px solid #dde6ed;
         }
-        .col {
+        .progress-steps {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
             flex: 1;
-            min-width: 200px;
         }
-        .btn {
-            background: #1B3A5C;
-            color: white;
+        .step-dot {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #5a6c7d;
+            padding: 3px 10px 3px 6px;
+            border-radius: 30px;
+            background: white;
+            border: 1px solid #d0d8e0;
+            transition: all 0.2s;
+            cursor: default;
+            white-space: nowrap;
+        }
+        .step-dot.active { background: #0D2B4E; color: white; border-color: #0D2B4E; }
+        .step-dot.completed { background: #28a745; color: white; border-color: #28a745; }
+        .step-dot i { font-size: 0.55rem; }
+        .progress-text { font-size: 0.8rem; font-weight: 500; color: #2c3e50; white-space: nowrap; }
+
+        .tabs {
+            display: flex;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 0 35px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            padding: 12px 18px;
+            background: transparent;
             border: none;
-            padding: 10px 25px;
-            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4a5a6e;
             cursor: pointer;
-            font-size: 16px;
-            margin: 5px 5px 5px 0;
-            transition: background 0.2s;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
         }
-        .btn:hover {
-            background: #2E86C1;
-        }
-        .btn-success {
-            background: #28a745;
-        }
-        .btn-success:hover {
-            background: #218838;
-        }
-        .btn-warning {
-            background: #ffc107;
-            color: #333;
-        }
-        .btn-warning:hover {
-            background: #e0a800;
-        }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 13px;
-        }
-        .resultado {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-left: 5px solid #1B3A5C;
-            border-radius: 4px;
+        .tab-btn i { font-size: 0.9rem; color: #7a8a9e; }
+        .tab-btn:hover { color: #0D2B4E; background: #f0f4f9; }
+        .tab-btn.active { color: #0D2B4E; border-bottom-color: #1A5CA8; background: white; }
+        .tab-btn.active i { color: #1A5CA8; }
+
+        .tab-content {
             display: none;
+            padding: 30px 35px;
+            animation: fadeIn 0.25s ease;
         }
-        .imagen-container {
-            text-align: center;
-            margin: 20px 0;
-            display: none;
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0.4; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tab-content h2 {
+            font-size: 1.3rem;
+            color: #0D2B4E;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .imagen-container img {
-            max-width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .tab-content .subtitle {
+            color: #5a6c7d;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
         }
-        .cargando {
-            display: none;
-            font-weight: bold;
-            color: #2E86C1;
-            margin: 10px 0;
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px 30px;
         }
-        .flex {
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1a2a3a;
+        }
+        .form-group label .required { color: #dc3545; margin-left: 2px; }
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 10px 14px;
+            border: 1px solid #d0d8e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border 0.2s, box-shadow 0.2s;
+            background: white;
+            width: 100%;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #1A5CA8;
+            box-shadow: 0 0 0 3px rgba(26,92,168,0.12);
+        }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+
+        /* Listas dinámicas */
+        .item-row {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
             align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
         }
+        .item-row input, .item-row select {
+            flex: 1;
+            min-width: 100px;
+        }
+        .item-row .btn-remove {
+            background: transparent;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0 6px;
+        }
+        .item-row .btn-remove:hover { color: #bd2130; }
+
         .card-fase {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            background: #f5f8fa;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
         }
         .card-tarea {
-            border: 1px solid #dde6ed;
-            padding: 12px;
-            margin: 8px 0;
             background: white;
-            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin: 10px 0 10px 10px;
         }
         .card-subtarea {
+            background: #f8fafc;
             border: 1px solid #e9edf2;
-            padding: 8px;
-            margin: 5px 0 5px 30px;
-            background: #f9fafb;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin: 6px 0 6px 30px;
+        }
+
+        /* Tablas */
+        .table-edt, .table-benchmark {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+        .table-edt th, .table-edt td,
+        .table-benchmark th, .table-benchmark td {
+            border: 1px solid #d0d8e0;
+            padding: 6px 10px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .table-edt th, .table-benchmark th {
+            background: #e9edf4;
+            font-weight: 600;
+            color: #0D2B4E;
+        }
+        .table-edt td input, .table-edt td select,
+        .table-benchmark td input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 4px;
+            font-size: 0.85rem;
+        }
+        .table-edt td input:focus, .table-benchmark td input:focus {
+            outline: 2px solid #1A5CA8;
             border-radius: 4px;
+            background: white;
         }
-        .card-actividad {
-            border: 1px solid #dde6ed;
-            padding: 10px;
-            margin: 6px 0;
-            background: #f5f8fa;
-            border-radius: 4px;
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
         }
-        .grid-4 {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+        .btn-primary { background: #0D2B4E; color: white; }
+        .btn-primary:hover { background: #1A3A5C; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,43,78,0.2); }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; transform: translateY(-1px); }
+        .btn-warning { background: #ffc107; color: #1a2a3a; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-outline { background: transparent; border: 2px solid #d0d8e0; color: #2c3e50; }
+        .btn-outline:hover { background: #f0f4f9; }
+        .btn-sm { padding: 4px 14px; font-size: 0.8rem; }
+
+        .actions-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 25px 0 10px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
         }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        @media (max-width: 700px) {
-            .grid-4 { grid-template-columns: 1fr 1fr; }
-            .grid-2 { grid-template-columns: 1fr; }
-        }
-        .badge {
-            background: #2E86C1;
-            color: white;
-            padding: 2px 10px;
+
+        .result-box {
+            background: #f8fafc;
             border-radius: 12px;
-            font-size: 12px;
-            margin-left: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+            border-left: 5px solid #1A5CA8;
         }
+        .result-box.show { display: block; }
+        .result-box pre {
+            background: #1a2a3a;
+            color: #e2e8f0;
+            padding: 18px;
+            border-radius: 8px;
+            overflow: auto;
+            font-size: 0.85rem;
+            max-height: 400px;
+        }
+        .img-preview { text-align: center; margin: 15px 0; }
+        .img-preview img { max-width: 100%; max-height: 500px; border-radius: 8px; border: 1px solid #e2e8f0; }
+
         .alert {
-            padding: 15px;
-            border-radius: 4px;
+            padding: 14px 20px;
+            border-radius: 8px;
             margin: 10px 0;
+            font-weight: 500;
         }
         .alert-success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
         .alert-danger { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
         .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #1A5CA8;
+            font-weight: 600;
+        }
+        .loading.show { display: block; }
+
+        @media (max-width: 768px) {
+            .app-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .tabs { padding: 0 15px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.75rem; }
+            .tab-content { padding: 20px 15px; }
+            .progress-bar-container { padding: 6px 15px; flex-direction: column; align-items: stretch; }
+            .step-dot { font-size: 0.55rem; padding: 2px 6px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .item-row { flex-direction: column; align-items: stretch; }
+            .table-edt, .table-benchmark { font-size: 0.7rem; }
+            .table-edt th, .table-edt td, .table-benchmark th, .table-benchmark td { padding: 4px 6px; }
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>📊 Gestor de Estructura de Desglose del Trabajo (EDT)</h1>
-    <p>Completa los datos del proyecto y genera el diagrama, la imagen o el documento Word.</p>
+<div class="app" id="app">
 
-    <!-- ========== DATOS GENERALES ========== -->
-    <div class="seccion">
-        <h2>📋 Datos Generales</h2>
-        <div class="fila">
-            <div class="col">
-                <label>Nombre del Proyecto *</label>
-                <input type="text" id="nombreProyecto" placeholder="Ej: Sistema de Intranet" value="Proyecto MINTRANET">
-            </div>
-            <div class="col">
-                <label>ID del Proyecto</label>
-                <input type="text" id="idProyecto" placeholder="Ej: PRJ-001" value="NIMTR3EA5TB4">
-            </div>
-            <div class="col">
-                <label>Empresa</label>
-                <input type="text" id="nombreEmpresa" placeholder="Ej: MINTRANET" value="MINTRANET">
-            </div>
+    <!-- HEADER -->
+    <header class="app-header">
+        <h1><i class="fas fa-diagram-project"></i> EDT Pro</h1>
+        <span class="badge-version"><i class="fas fa-code-branch"></i> v3.0 · Etapa 0 + Etapa 1</span>
+    </header>
+
+    <!-- BARRA DE PROGRESO (12 pasos) -->
+    <div class="progress-bar-container">
+        <div class="progress-steps" id="progressSteps">
+            <span class="step-dot active" data-step="0"><i class="fas fa-check-circle"></i> 0.1</span>
+            <span class="step-dot" data-step="1"><i class="fas fa-bullseye"></i> 0.2</span>
+            <span class="step-dot" data-step="2"><i class="fas fa-chart-bar"></i> 0.3</span>
+            <span class="step-dot" data-step="3"><i class="fas fa-chart-line"></i> 0.4</span>
+            <span class="step-dot" data-step="4"><i class="fas fa-file-signature"></i> 1.1</span>
+            <span class="step-dot" data-step="5"><i class="fas fa-users"></i> 1.2</span>
+            <span class="step-dot" data-step="6"><i class="fas fa-bullseye"></i> 1.3</span>
+            <span class="step-dot" data-step="7"><i class="fas fa-sitemap"></i> 1.4</span>
+            <span class="step-dot" data-step="8"><i class="fas fa-tasks"></i> 1.5</span>
+            <span class="step-dot" data-step="9"><i class="fas fa-project-diagram"></i> EDT</span>
+            <span class="step-dot" data-step="10"><i class="fas fa-pen"></i> Minuta</span>
+            <span class="step-dot" data-step="11"><i class="fas fa-play"></i> Generar</span>
         </div>
-        <div class="fila">
-            <div class="col">
-                <label>Presupuesto de la Fase</label>
-                <input type="text" id="presupuestoFase" placeholder="$ 500,000" value="$20,880.00 MXN">
-            </div>
-            <div class="col">
-                <label>Presupuesto Total</label>
-                <input type="text" id="presupuestoTotal" placeholder="$ 3,000,000" value="$7,125,000 MXN">
-            </div>
+        <span class="progress-text" id="progressText">Paso 1 de 12</span>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs" id="tabsContainer">
+        <button class="tab-btn active" data-tab="tab0"><i class="fas fa-file-alt"></i> 0.1 Datos</button>
+        <button class="tab-btn" data-tab="tab1"><i class="fas fa-bullseye"></i> 0.2 Perfil</button>
+        <button class="tab-btn" data-tab="tab2"><i class="fas fa-chart-bar"></i> 0.3 Benchmark</button>
+        <button class="tab-btn" data-tab="tab3"><i class="fas fa-chart-line"></i> 0.4 Mercado</button>
+        <button class="tab-btn" data-tab="tab4"><i class="fas fa-file-signature"></i> 1.1 Acta</button>
+        <button class="tab-btn" data-tab="tab5"><i class="fas fa-users"></i> 1.2 Interesados</button>
+        <button class="tab-btn" data-tab="tab6"><i class="fas fa-bullseye"></i> 1.3 Alcance</button>
+        <button class="tab-btn" data-tab="tab7"><i class="fas fa-sitemap"></i> 1.4 EDT</button>
+        <button class="tab-btn" data-tab="tab8"><i class="fas fa-tasks"></i> 1.5 PDP</button>
+        <button class="tab-btn" data-tab="tab9"><i class="fas fa-project-diagram"></i> EDT Estructura</button>
+        <button class="tab-btn" data-tab="tab10"><i class="fas fa-pen-fancy"></i> Minuta</button>
+        <button class="tab-btn" data-tab="tab11"><i class="fas fa-play"></i> Generar</button>
+    </div>
+
+    <!-- ======================== CONTENIDO ======================== -->
+
+    <!-- ===== TAB 0: DATOS GENERALES (0.1) ===== -->
+    <div class="tab-content active" id="tab0">
+        <h2><i class="fas fa-file-alt"></i> Formulario 0.1 - Datos Generales</h2>
+        <p class="subtitle">Complete la información base que se reutilizará en todas las plantillas.</p>
+        <div class="form-grid">
+            <div class="form-group"><label>Nombre del proyecto <span class="required">*</span></label><input type="text" id="nombreProyecto" value="Proyecto MINTRANET"></div>
+            <div class="form-group"><label>Siglas del proyecto <span class="required">*</span></label><input type="text" id="siglasProyecto" value="MIN"></div>
+            <div class="form-group"><label>ID del proyecto <span class="required">*</span></label><input type="text" id="idProyecto" value="NIMTR3EA5TB4"></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px;">
+            <div class="form-group"><label>Líder del proyecto <span class="required">*</span></label><input type="text" id="liderProyecto" value="José Manuel Cisneros"></div>
+            <div class="form-group"><label>Presupuesto total (MXN) <span class="required">*</span></label><input type="text" id="presupuestoTotal" value="$7,125,000 MXN"></div>
+            <div class="form-group"><label>Moneda</label><select id="moneda"><option value="MXN" selected>MXN - Peso Mexicano</option><option value="USD">USD</option><option value="EUR">EUR</option></select></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px;">
+            <div class="form-group"><label>Fecha de inicio <span class="required">*</span></label><input type="date" id="fechaInicio" value="2026-01-15"></div>
+            <div class="form-group"><label>Fecha de fin estimada</label><input type="date" id="fechaFin" value="2026-12-20"></div>
+            <div class="form-group"><label>Profesor / Asesor</label><input type="text" id="profesor" value="Lorena"></div>
+        </div>
+        <div style="margin-top:20px;">
+            <label style="font-weight:600; font-size:0.85rem;">👥 Miembros del equipo (máx 5)</label>
+            <div id="miembrosContainer"></div>
+            <button class="btn btn-outline btn-sm" onclick="agregarMiembro()"><i class="fas fa-plus"></i> Agregar miembro</button>
+        </div>
+        <div class="actions-bar">
+            <button class="btn btn-primary" onclick="irAlPaso(1)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
         </div>
     </div>
 
-    <!-- ========== EDT (FASES Y TAREAS) ========== -->
-    <div class="seccion">
-        <h2>📂 Estructura EDT (Fases y Tareas)</h2>
-        <p>Agrega fases, y dentro de cada una, tareas con descripción e hito. Puedes anidar subtareas.</p>
+    <!-- ===== TAB 1: PERFIL (0.2) ===== -->
+    <div class="tab-content" id="tab1">
+        <h2><i class="fas fa-bullseye"></i> Formulario 0.2 - Perfil del Proyecto</h2>
+        <p class="subtitle">Defina el tema, objetivo, características y funcionalidades.</p>
+        <div class="form-grid">
+            <div class="form-group"><label>Tema principal <span class="required">*</span></label><input type="text" id="temaPrincipal" value="Intranet Empresarial"></div>
+            <div class="form-group"><label>Sector <span class="required">*</span></label><input type="text" id="sector" value="Tecnologías de la información"></div>
+            <div class="form-group"><label>Giro del negocio <span class="required">*</span></label><input type="text" id="giro" value="Consultoría en TI"></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px;">
+            <div class="form-group"><label>PIB del sector (%)</label><input type="text" id="pibSector" value="8.5"></div>
+            <div class="form-group"><label>PIB del cliente / e-commerce (%)</label><input type="text" id="pibCliente" value="12.3"></div>
+            <div class="form-group"><label>Título completo del proyecto <span class="required">*</span></label><input type="text" id="tituloCompleto" value="Proyecto de Intranet MINTRANET"></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px;">
+            <div class="form-group"><label>Objetivo general <span class="required">*</span></label><textarea id="objetivoGeneral" rows="2">Desarrollar una intranet corporativa que optimice la comunicación y colaboración interna.</textarea></div>
+            <div class="form-group"><label>Descripción del producto <span class="required">*</span></label><textarea id="descripcionProducto" rows="2">Plataforma web con módulos de noticias, directorio, chat y gestión de documentos.</textarea></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px;">
+            <div class="form-group"><label>¿Qué hace y cómo funciona? <span class="required">*</span></label><textarea id="queHace" rows="2">Permite a los empleados comunicarse, compartir documentos y estar informados en tiempo real.</textarea></div>
+            <div class="form-group"><label>Modelo de comercialización <span class="required">*</span></label><input type="text" id="modeloComercial" value="Suscripción SaaS B2B"></div>
+        </div>
+        <div class="form-group"><label>Diferencial clave <span class="required">*</span></label><input type="text" id="diferencialClave" value="Integración con Microsoft 365"></div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">📋 Requerimientos Funcionales</label><div id="reqFuncionalesContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarReqFuncional()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">🛡️ Requerimientos No Funcionales</label><div id="reqNoFuncionalesContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarReqNoFuncional()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">⚙️ Características</label><div id="caracteristicasContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarCaracteristica()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">🔧 Funcionalidades</label><div id="funcionalidadesContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarFuncionalidad()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">🎁 Beneficios</label><div id="beneficiosContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarBeneficio()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">🚀 Diferenciadores</label><div id="diferenciadoresContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarDiferenciador()"><i class="fas fa-plus"></i> Agregar</button></div>
+
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(0)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(2)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ===== TAB 2: BENCHMARKING (0.3) ===== -->
+    <div class="tab-content" id="tab2">
+        <h2><i class="fas fa-chart-bar"></i> Formulario 0.3 - Benchmarking Competitivo</h2>
+        <p class="subtitle">Compare su solución con los principales competidores del mercado.</p>
+        <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
+            <label style="font-weight:600;">Competidores:</label>
+            <select id="numCompetidores" onchange="generarTablaBenchmark()">
+                <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="generarTablaBenchmark()"><i class="fas fa-sync"></i> Generar tabla</button>
+        </div>
+        <div id="benchmarkContainer"></div>
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(1)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(3)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ===== TAB 3: MERCADO Y FINANZAS (0.4) ===== -->
+    <div class="tab-content" id="tab3">
+        <h2><i class="fas fa-chart-line"></i> Formulario 0.4 - Mercado y Finanzas</h2>
+        <p class="subtitle">Defina los mercados objetivo, demanda, proyecciones de ventas y crecimiento.</p>
+
+        <h3 style="margin-top:20px;">🎯 Mercado Meta (Año 1)</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Ubicación</label><input type="text" id="mercadoMetaUbicacion" value="Cuauhtémoc, CDMX"></div>
+            <div class="form-group"><label>Total empresas</label><input type="number" id="mercadoMetaTotal" value="150" onchange="calcularClientes()"></div>
+            <div class="form-group"><label>Tasa aceptación (%)</label><input type="number" id="mercadoMetaTasa" value="32" onchange="calcularClientes()"></div>
+            <div class="form-group"><label>Clientes estimados</label><input type="text" id="mercadoMetaClientes" readonly value="48"></div>
+        </div>
+
+        <h3 style="margin-top:20px;">📍 Mercado Objetivo (Año 2)</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Ubicación</label><input type="text" id="mercadoObjUbicacion" value="Benito Juárez, CDMX"></div>
+            <div class="form-group"><label>Total empresas</label><input type="number" id="mercadoObjTotal" value="240" onchange="calcularClientes()"></div>
+            <div class="form-group"><label>Tasa aceptación (%)</label><input type="number" id="mercadoObjTasa" value="32" onchange="calcularClientes()"></div>
+            <div class="form-group"><label>Clientes estimados</label><input type="text" id="mercadoObjClientes" readonly value="77"></div>
+        </div>
+
+        <h3 style="margin-top:20px;">🚀 Mercado Potencial (Año 3-5)</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Ubicación</label><input type="text" id="mercadoPotUbicacion" value="Miguel Hidalgo, CDMX"></div>
+            <div class="form-group"><label>Total empresas</label><input type="number" id="mercadoPotTotal" value="400" onchange="calcularClientes()"></div>
+            <div class="form-group"><label>Tasa aceptación (%)</label><input type="number" id="mercadoPotTasa" value="32" onchange="calcularClientes()"></div>
+            <div class="form-group"><label>Clientes estimados</label><input type="text" id="mercadoPotClientes" readonly value="128"></div>
+        </div>
+
+        <h3 style="margin-top:20px;">📋 Encuesta de Aceptación</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Sí, definitivamente</label><input type="number" id="encuestaSi" value="15"></div>
+            <div class="form-group"><label>Tal vez</label><input type="number" id="encuestaTalVez" value="18"></div>
+            <div class="form-group"><label>No por el momento</label><input type="number" id="encuestaNo" value="15"></div>
+        </div>
+
+        <h3 style="margin-top:20px;">💰 Proyección de Ventas a 3 Años</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Costo mensual por licencia (MXN)</label><input type="number" id="costoLicencia" value="4000" onchange="calcularProyeccion()"></div>
+            <div class="form-group"><label>Costo anual por empresa</label><input type="text" id="costoAnual" readonly value="$48,000"></div>
+        </div>
+        <table class="table-benchmark">
+            <thead><tr><th>Año</th><th>Demanda</th><th>Ingreso total</th></tr></thead>
+            <tbody>
+                <tr><td>Año 1</td><td><input type="number" id="demandaAnio1" value="48" onchange="calcularProyeccion()"></td><td><input type="text" id="ingresoAnio1" readonly value="$2,304,000"></td></tr>
+                <tr><td>Año 2</td><td><input type="number" id="demandaAnio2" value="77" onchange="calcularProyeccion()"></td><td><input type="text" id="ingresoAnio2" readonly value="$3,696,000"></td></tr>
+                <tr><td>Año 3</td><td><input type="number" id="demandaAnio3" value="128" onchange="calcularProyeccion()"></td><td><input type="text" id="ingresoAnio3" readonly value="$6,144,000"></td></tr>
+            </tbody>
+        </table>
+        <div style="margin-top:15px; display:flex; gap:20px; flex-wrap:wrap;">
+            <div class="form-group" style="flex:1;"><label>Incremento (Año1→Año2)</label><input type="text" id="incrementoVentas" readonly value="$1,392,000"></div>
+            <div class="form-group" style="flex:1;"><label>Porcentaje incremento (%)</label><input type="text" id="porcentajeIncremento" readonly value="60.42%"></div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(2)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(4)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ===== TAB 4: ACTA CONSTITUCIÓN (1.1) ===== -->
+    <div class="tab-content" id="tab4">
+        <h2><i class="fas fa-file-signature"></i> Formulario 1.1 - Acta de Constitución</h2>
+        <p class="subtitle">Documento formal que autoriza el inicio del proyecto y define sus bases.</p>
+        <div class="form-grid">
+            <div class="form-group"><label>Nombre del proyecto <span class="required">*</span></label><input type="text" id="actaNombre" value="Proyecto MINTRANET"></div>
+            <div class="form-group"><label>Fecha del acta <span class="required">*</span></label><input type="date" id="actaFecha" value="2026-06-25"></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px;">
+            <div class="form-group"><label>Enunciado del Trabajo <span class="required">*</span></label><textarea id="actaEnunciado" rows="2">Desarrollar e implementar una intranet corporativa para MINTRANET.</textarea></div>
+            <div class="form-group"><label>Caso del Negocio <span class="required">*</span></label><textarea id="actaCaso" rows="2">Mejorar la comunicación interna y reducir costos operativos.</textarea></div>
+        </div>
+        <div class="form-group"><label>Acuerdos <span class="required">*</span></label><textarea id="actaAcuerdos" rows="2">Se acuerda iniciar el proyecto con el presupuesto y equipo definido.</textarea></div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">🎯 Objetivos del Producto</label><div id="objProductoContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarObjProducto()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">📊 Objetivos del Proyecto</label><div id="objProyectoContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarObjProyecto()"><i class="fas fa-plus"></i> Agregar</button></div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">📦 Principales Entregables</label>
+            <div id="entregablesContainer"></div>
+            <div class="item-row"><input type="text" placeholder="Entregable" id="entregableInput"><input type="text" placeholder="Responsable" id="entregableRespInput"><button class="btn btn-success btn-sm" onclick="agregarEntregable()"><i class="fas fa-plus"></i></button></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">⏰ Hitos del Proyecto</label>
+            <div id="hitosContainer"></div>
+            <div class="item-row"><input type="text" placeholder="Hito" id="hitoInput"><input type="date" id="hitoFechaInput"><input type="text" placeholder="Responsable" id="hitoRespInput"><button class="btn btn-success btn-sm" onclick="agregarHito()"><i class="fas fa-plus"></i></button></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">🚫 Exclusiones</label><div id="exclusionesContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarExclusion()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">📌 Supuestos</label><div id="supuestosActaContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarSupuestoActa()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">⚠️ Riesgos</label><div id="riesgosActaContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarRiesgoActa()"><i class="fas fa-plus"></i> Agregar</button></div>
+        <div style="margin-top:20px;"><label style="font-weight:600;">🔗 Dependencias</label><div id="dependenciasActaContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarDependenciaActa()"><i class="fas fa-plus"></i> Agregar</button></div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">👥 Actores Clave</label>
+            <div id="actoresContainer"></div>
+            <div class="item-row"><input type="text" placeholder="Rol" id="actorRolInput"><input type="text" placeholder="Nombre / Descripción" id="actorDescInput"><button class="btn btn-success btn-sm" onclick="agregarActor()"><i class="fas fa-plus"></i></button></div>
+        </div>
+
+        <div class="form-group"><label>Presupuesto del proyecto (MXN) <span class="required">*</span></label><input type="text" id="presupuestoActa" value="$5,028,745"></div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">✍️ Firmas de Aprobación</label>
+            <div id="firmantesContainer"></div>
+            <div class="item-row"><input type="text" placeholder="Nombre completo" id="firmanteNombreInput"><input type="text" placeholder="Rol / Cargo" id="firmanteRolInput"><button class="btn btn-success btn-sm" onclick="agregarFirmante()"><i class="fas fa-plus"></i></button></div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(3)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(5)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ===== TAB 5: GESTIÓN INTERESADOS (1.2) ===== -->
+    <div class="tab-content" id="tab5">
+        <h2><i class="fas fa-users"></i> Formulario 1.2 - Gestión de Interesados</h2>
+        <p class="subtitle">Identifique y analice los actores clave del proyecto.</p>
+        <div class="form-grid">
+            <div class="form-group"><label>Nombre del proyecto</label><input type="text" id="interesadosNombre" value="Proyecto MINTRANET"></div>
+            <div class="form-group"><label>Fecha de análisis</label><input type="date" id="interesadosFecha" value="2026-06-25"></div>
+            <div class="form-group"><label>Responsable del análisis</label><input type="text" id="interesadosResponsable" value="Líder de Proyecto"></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">📊 Matriz de Interesados</label>
+            <table class="table-benchmark" id="tablaInteresados">
+                <thead><tr><th>#</th><th>Nombre / Rol</th><th>Descripción</th><th>Poder</th><th>Interés</th><th>Estrategia</th><th>Acciones</th></tr></thead>
+                <tbody id="interesadosBody">
+                    <tr><td>1</td><td><input type="text" value="Chico Marinez Ricardo"></td><td><input type="text" value="Líder de Proyecto"></td><td><select><option value="Alto" selected>Alto</option><option value="Medio">Medio</option><option value="Bajo">Bajo</option></select></td><td><select><option value="Alto" selected>Alto</option><option value="Medio">Medio</option><option value="Bajo">Bajo</option></select></td><td><select><option value="Gestionar atentamente" selected>Gestionar atentamente</option><option value="Mantener satisfecho">Mantener satisfecho</option><option value="Mantener informado">Mantener informado</option><option value="Monitorear">Monitorear</option></select></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaInteresado(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td>2</td><td><input type="text" value="Equipo de desarrollo"></td><td><input type="text" value="Desarrolladores"></td><td><select><option value="Medio" selected>Medio</option><option value="Alto">Alto</option><option value="Bajo">Bajo</option></select></td><td><select><option value="Alto" selected>Alto</option><option value="Medio">Medio</option><option value="Bajo">Bajo</option></select></td><td><select><option value="Mantener satisfecho" selected>Mantener satisfecho</option><option value="Gestionar atentamente">Gestionar atentamente</option><option value="Mantener informado">Mantener informado</option><option value="Monitorear">Monitorear</option></select></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaInteresado(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td>3</td><td><input type="text" value="Empresas e-commerce"></td><td><input type="text" value="Clientes objetivo"></td><td><select><option value="Medio" selected>Medio</option><option value="Alto">Alto</option><option value="Bajo">Bajo</option></select></td><td><select><option value="Alto" selected>Alto</option><option value="Medio">Medio</option><option value="Bajo">Bajo</option></select></td><td><select><option value="Mantener informado" selected>Mantener informado</option><option value="Gestionar atentamente">Gestionar atentamente</option><option value="Mantener satisfecho">Mantener satisfecho</option><option value="Monitorear">Monitorear</option></select></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaInteresado(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td>4</td><td><input type="text" value="Inversionistas"></td><td><input type="text" value="Patrocinadores"></td><td><select><option value="Alto" selected>Alto</option><option value="Medio">Medio</option><option value="Bajo">Bajo</option></select></td><td><select><option value="Medio" selected>Medio</option><option value="Alto">Alto</option><option value="Bajo">Bajo</option></select></td><td><select><option value="Mantener satisfecho" selected>Mantener satisfecho</option><option value="Gestionar atentamente">Gestionar atentamente</option><option value="Mantener informado">Mantener informado</option><option value="Monitorear">Monitorear</option></select></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaInteresado(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td>5</td><td><input type="text" value="INDAUTOR"></td><td><input type="text" value="Registro de propiedad"></td><td><select><option value="Bajo" selected>Bajo</option><option value="Alto">Alto</option><option value="Medio">Medio</option></select></td><td><select><option value="Bajo" selected>Bajo</option><option value="Alto">Alto</option><option value="Medio">Medio</option></select></td><td><select><option value="Monitorear" selected>Monitorear</option><option value="Gestionar atentamente">Gestionar atentamente</option><option value="Mantener satisfecho">Mantener satisfecho</option><option value="Mantener informado">Mantener informado</option></select></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaInteresado(this)"><i class="fas fa-times"></i></button></td></tr>
+                </tbody>
+            </table>
+            <button class="btn btn-outline btn-sm" onclick="agregarFilaInteresado()"><i class="fas fa-plus"></i> Agregar interesado</button>
+        </div>
+
+        <div style="margin-top:20px;">
+            <div class="form-group"><label>📢 Plan de Comunicación - Frecuencia general</label><input type="text" id="frecuenciaComunicacion" value="Mensual"></div>
+            <div class="form-group"><label>Canales principales</label><textarea id="canalesComunicacion" rows="2">Correo electrónico, reuniones semanales, dashboard en línea, informes mensuales</textarea></div>
+            <div class="form-group"><label>Observaciones / Notas</label><textarea id="observacionesInteresados" rows="2">Información adicional sobre la gestión de interesados.</textarea></div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(4)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(6)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ===== TAB 6: GESTIÓN ALCANCE (1.3) ===== -->
+    <div class="tab-content" id="tab6">
+        <h2><i class="fas fa-bullseye"></i> Formulario 1.3 - Gestión del Alcance</h2>
+        <p class="subtitle">Defina el alcance del proyecto, sus límites, entregables y procesos de control.</p>
+        <div class="form-grid">
+            <div class="form-group"><label>Nombre del proyecto</label><input type="text" id="alcanceNombre" value="Proyecto MINTRANET"></div>
+            <div class="form-group"><label>Fecha de definición</label><input type="date" id="alcanceFecha" value="2026-06-25"></div>
+            <div class="form-group"><label>Responsable gestión del alcance</label><input type="text" id="alcanceResponsable" value="Líder de Proyecto"></div>
+        </div>
+        <div class="form-group"><label>📝 Descripción del producto/servicio <span class="required">*</span></label><textarea id="alcanceDescripcion" rows="2">Plataforma SaaS B2B de detección inteligente de phishing para pequeñas empresas de comercio electrónico en la CDMX.</textarea></div>
+        <div class="form-group"><label>Criterios de aceptación <span class="required">*</span></label><textarea id="alcanceCriterios" rows="2">• Precisión >85% en detección\n• Tiempo de respuesta <10 segundos\n• Dashboard funcional\n• 48 licencias activas en año 1</textarea></div>
+        <div class="form-group"><label>Entregables principales <span class="required">*</span></label><textarea id="alcanceEntregables" rows="2">• Plataforma SaaS funcional\n• Modelos de ML entrenados\n• Dashboard estadístico\n• Registro INDAUTOR\n• 48 contratos firmados</textarea></div>
+        <div class="form-group"><label>Exclusiones del alcance <span class="required">*</span></label><textarea id="alcanceExclusiones" rows="2">• App móvil nativa\n• Infraestructura en cliente\n• Integración con ERP/CRM\n• Capacitación avanzada</textarea></div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">⚙️ Procesos de Gestión del Alcance</label>
+            <div class="form-group"><label>Proceso de definición de alcance</label><textarea id="procDefinicion" rows="2">Se definirá mediante reuniones con stakeholders y juicio de expertos.</textarea></div>
+            <div class="form-group"><label>Proceso para elaboración de EDT</label><textarea id="procEDT" rows="2">Se creará mediante descomposición jerárquica y se aprobará por el comité.</textarea></div>
+            <div class="form-group"><label>Proceso para línea base del alcance</label><textarea id="procLineaBase" rows="2">Se establecerá y aprobará formalmente, y se mantendrá mediante control de cambios.</textarea></div>
+            <div class="form-group"><label>Proceso para aceptación del alcance</label><textarea id="procAceptacion" rows="2">Se obtendrá mediante revisión formal de entregables y firma de aceptación.</textarea></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">🔄 Control de Cambios del Alcance</label>
+            <div class="form-group"><label>¿Quién puede solicitar cambios?</label><input type="text" id="quienSolicita" value="Líder de proyecto, stakeholders autorizados"></div>
+            <div class="form-group"><label>Niveles de autorización</label><input type="text" id="nivelesAutorizacion" value="Cambios importantes: Comité de dirección"></div>
+            <div class="form-group"><label>Procedimiento de control de cambios</label><textarea id="procedimientoCambios" rows="2">1. Solicitud formal mediante FCC\n2. Análisis de impacto (tiempo/costo/alcance)\n3. Evaluación por Comité de Cambios\n4. Aprobación o rechazo\n5. Actualización de líneas base</textarea></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">✅ Verificación y Control del Alcance</label>
+            <div class="form-group"><label>Método de verificación de entregables</label><input type="text" id="metodoVerificacion" value="Pruebas y validación"></div>
+            <div class="form-group"><label>Frecuencia de revisión del alcance</label><input type="text" id="frecuenciaRevision" value="Quincenal"></div>
+            <div class="form-group"><label>Herramientas para gestión del alcance</label><input type="text" id="herramientasAlcance" value="EDT en software de diagramación, Jira, Trello, Excel, MS Project"></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">🔒 Restricciones y Supuestos del Alcance</label>
+            <div><label>⛔ Restricciones</label><div id="restriccionesContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarRestriccion()"><i class="fas fa-plus"></i> Agregar</button></div>
+            <div style="margin-top:10px;"><label>📌 Supuestos</label><div id="supuestosAlcanceContainer"></div><button class="btn btn-outline btn-sm" onclick="agregarSupuestoAlcance()"><i class="fas fa-plus"></i> Agregar</button></div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(5)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(7)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ===== TAB 7: EDT DETALLADA (1.4) ===== -->
+    <div class="tab-content" id="tab7">
+        <h2><i class="fas fa-sitemap"></i> Formulario 1.4 - EDT (WBS) Detallada</h2>
+        <p class="subtitle">Descomponga el trabajo del proyecto en paquetes de trabajo manejables.</p>
+        <div class="form-grid">
+            <div class="form-group"><label>Nombre del proyecto</label><input type="text" id="edtDetNombre" value="Proyecto MINTRANET"></div>
+            <div class="form-group"><label>Fecha de creación</label><input type="date" id="edtDetFecha" value="2026-06-25"></div>
+            <div class="form-group"><label>Gerente / Responsable EDT</label><input type="text" id="edtDetResponsable" value="Chico Marinez Ricardo"></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">📋 Paquetes de Trabajo (WBS)</label>
+            <table class="table-edt" id="tablaEDTDetallada">
+                <thead><tr><th>Código</th><th>Título</th><th>Responsable</th><th>Fecha inicio</th><th>Fecha venc.</th><th>Duración (días)</th><th>% completado</th><th></th></tr></thead>
+                <tbody id="edtDetBody">
+                    <tr><td><input type="text" value="1"></td><td><input type="text" value="INICIO"></td><td><input type="text" value="Líder de Proyecto"></td><td><input type="date"></td><td><input type="date"></td><td><input type="number" value="0"></td><td><input type="number" value="0"></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaEdtDet(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td><input type="text" value="1.1"></td><td><input type="text" value="Definición del tema"></td><td><input type="text" value="Líder de Proyecto"></td><td><input type="date"></td><td><input type="date"></td><td><input type="number" value="1"></td><td><input type="number" value="0"></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaEdtDet(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td><input type="text" value="2"></td><td><input type="text" value="PLANEACIÓN"></td><td><input type="text" value="Líder de Proyecto"></td><td><input type="date"></td><td><input type="date"></td><td><input type="number" value="0"></td><td><input type="number" value="0"></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaEdtDet(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td><input type="text" value="3"></td><td><input type="text" value="EJECUCIÓN"></td><td><input type="text" value="Equipo Técnico"></td><td><input type="date"></td><td><input type="date"></td><td><input type="number" value="0"></td><td><input type="number" value="0"></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaEdtDet(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td><input type="text" value="4"></td><td><input type="text" value="CONTROL"></td><td><input type="text" value="Líder de Proyecto"></td><td><input type="date"></td><td><input type="date"></td><td><input type="number" value="0"></td><td><input type="number" value="0"></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaEdtDet(this)"><i class="fas fa-times"></i></button></td></tr>
+                    <tr><td><input type="text" value="5"></td><td><input type="text" value="CIERRE"></td><td><input type="text" value="Líder de Proyecto"></td><td><input type="date"></td><td><input type="date"></td><td><input type="number" value="0"></td><td><input type="number" value="0"></td><td><button class="btn btn-danger btn-sm" onclick="eliminarFilaEdtDet(this)"><i class="fas fa-times"></i></button></td></tr>
+                </tbody>
+            </table>
+            <button class="btn btn-outline btn-sm" onclick="agregarFilaEdtDet()"><i class="fas fa-plus"></i> Agregar paquete de trabajo</button>
+        </div>
+
+        <div style="margin-top:20px;">
+            <div class="form-grid">
+                <div class="form-group"><label>📈 Total paquetes de trabajo</label><input type="text" id="totalPaquetes" readonly value="7"></div>
+                <div class="form-group"><label>Etapas principales</label><input type="text" id="etapasPrincipales" readonly value="5 (Inicio, Planeación, Ejecución, Control, Cierre)"></div>
+                <div class="form-group"><label>Porcentaje completado promedio</label><input type="text" id="porcentajePromedio" readonly value="0.0%"></div>
+                <div class="form-group"><label>Última actualización</label><input type="text" id="ultimaActualizacion" readonly value="25/6/2026"></div>
+            </div>
+        </div>
+
+        <div class="form-group"><label>📖 Diccionario de la EDT (Opcional)</label><textarea id="diccionarioEDT" rows="3">Describa aquí los detalles de cada paquete de trabajo, criterios de aceptación, recursos asignados, etc.</textarea></div>
+
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(6)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(8)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ===== TAB 8: PDP (1.5) ===== -->
+    <div class="tab-content" id="tab8">
+        <h2><i class="fas fa-tasks"></i> Formulario 1.5 - Plan para la Dirección del Proyecto (PDP)</h2>
+        <p class="subtitle">Documento maestro que integra todos los planes subsidiarios del proyecto.</p>
+        <div class="form-grid">
+            <div class="form-group"><label>Nombre del proyecto</label><input type="text" id="pdpNombre" value="Proyecto MINTRANET"></div>
+            <div class="form-group"><label>Siglas</label><input type="text" id="pdpSiglas" value="MIN/PRJ-2026-001"></div>
+            <div class="form-group"><label>Fecha de aprobación</label><input type="date" id="pdpFecha" value="2026-06-25"></div>
+            <div class="form-group"><label>Versión del PDP</label><input type="text" id="pdpVersion" value="1.0"></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">🔄 Ciclo de Vida del Proyecto</label>
+            <div class="form-group"><label>Tipo de ciclo de vida</label><input type="text" id="cicloVida" value="Híbrido (Predictivo + Ágil)"></div>
+            <div class="form-group"><label>Descripción del enfoque multifase</label><textarea id="enfoqueMultifase" rows="2">El proyecto adopta un ciclo de vida Híbrido: predictivo por etapas (E0-E4) para la gestión global, e iterativo-ágil (sprints de 2 semanas) para el desarrollo técnico de la plataforma FastAPI/ML.</textarea></div>
+            <div class="form-group"><label>Enfoque de trabajo</label><textarea id="enfoqueTrabajo" rows="2">Metodología HÍBRIDA: gestión predictiva por etapas + desarrollo iterativo-ágil (Scrum de 2 semanas). Desarrollo técnico en sprints gestionados en Jira Software.</textarea></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">📏 Líneas Base del Proyecto</label>
+            <div class="form-group"><label>Línea Base del Alcance</label><textarea id="lbAlcance" rows="2">EDT con 84 actividades en 5 etapas, congelada al cierre de la Etapa 1. Cambios requieren FCC aprobado.</textarea></div>
+            <div class="form-group"><label>Línea Base del Cronograma</label><textarea id="lbCronograma" rows="2">9 hitos (M0-M9) y Gantt maestro en Jira Software. SPI umbral: 0.90. Reporte EVM semanal.</textarea></div>
+            <div class="form-group"><label>Línea Base de Costos</label><textarea id="lbCostos" rows="2">Presupuesto de $5,028,745 MXN distribuido por etapa y área. CPI umbral: 0.90. Reserva de contingencia activa.</textarea></div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">⚙️ Procesos de Dirección de Proyectos (PMBOK)</label>
+            <table class="table-benchmark">
+                <thead><tr><th>Proceso</th><th>Nivel de Implementación</th><th>Herramientas/Técnicas</th></tr></thead>
+                <tbody>
+                    <tr><td>Gestión de la Integración</td><td><input type="text" value="Completo"></td><td><input type="text" value="PDP, EVM, Control de Cambios"></td></tr>
+                    <tr><td>Gestión del Alcance</td><td><input type="text" value="Completo"></td><td><input type="text" value="EDT, Juicio experto, FCC"></td></tr>
+                    <tr><td>Gestión del Cronograma</td><td><input type="text" value="Completo"></td><td><input type="text" value="Jira, Gantt, EVM, Planning Poker"></td></tr>
+                    <tr><td>Gestión de los Costos</td><td><input type="text" value="Completo"></td><td><input type="text" value="EVM, Aspel COI, Presupuesto maestro"></td></tr>
+                    <tr><td>Gestión de la Calidad</td><td><input type="text" value="Completo"></td><td><input type="text" value="Pruebas unitarias, Pentesting, OWASP"></td></tr>
+                    <tr><td>Gestión de los Recursos</td><td><input type="text" value="Completo"></td><td><input type="text" value="Matriz RACI, BambooHR, HackerRank"></td></tr>
+                    <tr><td>Gestión de las Comunicaciones</td><td><input type="text" value="Completo"></td><td><input type="text" value="Slack, Confluence, Dashboard, Minutas"></td></tr>
+                    <tr><td>Gestión de los Riesgos</td><td><input type="text" value="Completo"></td><td><input type="text" value="Registro de riesgos, Matriz P-I, EVM"></td></tr>
+                    <tr><td>Gestión de las Adquisiciones</td><td><input type="text" value="Completo"></td><td><input type="text" value="Análisis proveedores, SLAs, Contratos"></td></tr>
+                    <tr><td>Gestión de los Interesados</td><td><input type="text" value="Completo"></td><td><input type="text" value="Registro interesados, CRM, Estrategias comunicación"></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">📅 Revisiones de Gestión</label>
+            <div id="revisionesContainer"></div>
+            <div class="item-row">
+                <input type="text" placeholder="Nombre de la revisión" id="revNombreInput">
+                <input type="text" placeholder="Descripción" id="revDescInput">
+                <input type="text" placeholder="Frecuencia" id="revFrecInput">
+                <button class="btn btn-success btn-sm" onclick="agregarRevision()"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">📎 Planes Subsidiarios</label>
+            <div id="planesSubsidiarios">
+                <label><input type="checkbox" checked> Gestión del Alcance</label>
+                <label><input type="checkbox" checked> Gestión de Requisitos</label>
+                <label><input type="checkbox" checked> Gestión del Cronograma</label>
+                <label><input type="checkbox" checked> Gestión de Costos</label>
+                <label><input type="checkbox" checked> Gestión de la Calidad</label>
+                <label><input type="checkbox" checked> Gestión de los Recursos</label>
+                <label><input type="checkbox" checked> Gestión de las Comunicaciones</label>
+                <label><input type="checkbox" checked> Gestión de los Riesgos</label>
+                <label><input type="checkbox" checked> Gestión de las Adquisiciones</label>
+                <label><input type="checkbox" checked> Gestión de los Interesados</label>
+                <label><input type="checkbox" checked> Gestión de Cambios</label>
+                <label><input type="checkbox" checked> Gestión de la Configuración</label>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;"><label style="font-weight:600;">✍️ Aprobaciones del PDP</label>
+            <div id="aprobacionesPdpContainer"></div>
+            <div class="item-row">
+                <input type="text" placeholder="Nombre" id="aprobNombreInput">
+                <input type="text" placeholder="Rol" id="aprobRolInput">
+                <input type="date" id="aprobFechaInput">
+                <button class="btn btn-success btn-sm" onclick="agregarAprobacionPdp()"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(7)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(9)"><i class="fas fa-arrow-right"></i> Guardar y Siguiente →</button>
+        </div>
+    </div>
+
+    <!-- ===== TAB 9: EDT ESTRUCTURA (original) ===== -->
+    <div class="tab-content" id="tab9">
+        <h2><i class="fas fa-project-diagram"></i> EDT Estructura (Fases y Tareas)</h2>
+        <p class="subtitle">Agrega fases, y dentro de cada una, tareas con descripción e hito. Puedes anidar subtareas.</p>
         <div id="fasesContainer"></div>
-        <button class="btn btn-success btn-sm" onclick="agregarFase()">➕ Agregar Fase</button>
-    </div>
-
-    <!-- ========== MINUTA DE VALIDACIÓN ========== -->
-    <div class="seccion">
-        <h2>📝 Minuta de Validación</h2>
-        <p>Registra al menos 3 actividades de validación con su tiempo, recursos y responsable.</p>
-        <div id="actividadesContainer"></div>
-        <button class="btn btn-success btn-sm" onclick="agregarActividad()">➕ Agregar Actividad</button>
-        <div style="margin-top:15px;">
-            <label>Conclusión de la Minuta</label>
-            <textarea id="conclusionMinuta" rows="3">La estructura de desglose del trabajo ha sido validada por los responsables del proyecto. Se confirma la alineación con los objetivos estratégicos, la viabilidad técnica y financiera, y se autoriza el inicio de la fase de ejecución conforme al plan presentado.</textarea>
+        <button class="btn btn-success btn-sm" onclick="agregarFaseEstructura()"><i class="fas fa-plus"></i> Agregar Fase</button>
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(8)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(10)"><i class="fas fa-arrow-right"></i> Siguiente: Minuta</button>
         </div>
     </div>
 
-    <!-- ========== BOTONES DE ACCIÓN ========== -->
-    <div class="flex" style="margin-top:20px;">
-        <button class="btn btn-warning" onclick="validarDatos()">✔️ Validar Datos</button>
-        <button class="btn" onclick="generarMermaid()">📐 Generar Mermaid</button>
-        <button class="btn btn-success" onclick="generarImagen()">🖼️ Generar Imagen</button>
-        <button class="btn btn-danger" onclick="generarDocumento()">📄 Generar Documento</button>
+    <!-- ===== TAB 10: MINUTA ===== -->
+    <div class="tab-content" id="tab10">
+        <h2><i class="fas fa-pen-fancy"></i> Minuta de Validación</h2>
+        <p class="subtitle">Registra al menos 3 actividades de validación con su tiempo, recursos y responsable.</p>
+        <div id="actividadesContainer"></div>
+        <button class="btn btn-success btn-sm" onclick="agregarActividadMinuta()"><i class="fas fa-plus"></i> Agregar Actividad</button>
+        <div style="margin-top:20px;">
+            <div class="form-group"><label>Conclusión de la Minuta <span class="required">*</span></label><textarea id="conclusionMinuta" rows="3">La estructura de desglose del trabajo ha sido validada por los responsables del proyecto. Se confirma la alineación con los objetivos estratégicos, la viabilidad técnica y financiera, y se autoriza el inicio de la fase de ejecución conforme al plan presentado.</textarea></div>
+        </div>
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(9)"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button class="btn btn-primary" onclick="irAlPaso(11)"><i class="fas fa-arrow-right"></i> Siguiente: Generar</button>
+        </div>
     </div>
 
-    <div id="cargando" class="cargando">⏳ Procesando... por favor espera.</div>
-    <div id="resultado" class="resultado"></div>
-    <div id="imagenResultado" class="imagen-container"></div>
-    <div id="enlaceDocumento" style="display:none; margin-top:15px;">
-        <a id="descargaDoc" href="#" class="btn btn-success">⬇️ Descargar Documento Word</a>
+    <!-- ===== TAB 11: GENERAR ===== -->
+    <div class="tab-content" id="tab11">
+        <h2><i class="fas fa-play"></i> Generar Documentos</h2>
+        <p class="subtitle">Valida tus datos y genera el diagrama Mermaid, la imagen PNG o el documento Word.</p>
+        <div class="actions-bar" style="border-top: none; padding-top: 0;">
+            <button class="btn btn-warning" onclick="validarDatos()"><i class="fas fa-check-circle"></i> Validar Datos</button>
+            <button class="btn btn-primary" onclick="generarMermaid()"><i class="fas fa-code"></i> Generar Mermaid</button>
+            <button class="btn btn-success" onclick="generarImagen()"><i class="fas fa-image"></i> Generar Imagen</button>
+            <button class="btn btn-danger" onclick="generarDocumento()"><i class="fas fa-file-word"></i> Generar Documento</button>
+        </div>
+        <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Procesando...</div>
+        <div id="resultado" class="result-box"></div>
+        <div id="imagenResultado" class="img-preview" style="display:none;"></div>
+        <div id="enlaceDocumento" style="display:none; margin-top:15px;">
+            <a id="descargaDoc" href="#" class="btn btn-success"><i class="fas fa-download"></i> Descargar Documento Word</a>
+        </div>
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="irAlPaso(10)"><i class="fas fa-arrow-left"></i> Anterior</button>
+        </div>
     </div>
+
 </div>
 
 <script>
@@ -267,57 +829,469 @@
     // ======================================================================
     let fases = [];
     let actividadesMinuta = [];
+    let miembros = [];
+    let reqFuncionales = [], reqNoFuncionales = [], caracteristicas = [], funcionalidades = [], beneficios = [], diferenciadores = [];
+    let objProducto = [], objProyecto = [];
+    let entregables = [], hitos = [], exclusiones = [], supuestosActa = [], riesgosActa = [], dependenciasActa = [], actores = [], firmantes = [];
+    let restricciones = [], supuestosAlcance = [];
+    let revisiones = [], aprobacionesPdp = [];
 
     // ======================================================================
-    // FUNCIONES PARA FASES Y TAREAS (con subtareas)
+    // NAVEGACIÓN
     // ======================================================================
+    function irAlPaso(paso) {
+        const tabs = ['tab0','tab1','tab2','tab3','tab4','tab5','tab6','tab7','tab8','tab9','tab10','tab11'];
+        const btn = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+        const steps = document.querySelectorAll('.step-dot');
 
-    function agregarFase(nombre = "", tareasIniciales = null) {
-        const fase = {
-            nombre: nombre || `Fase ${fases.length + 1}`,
-            tareas: tareasIniciales || []
-        };
-        if (!fase.tareas.length) {
-            fase.tareas.push({ nombre: "Nueva tarea", descripcion_operativa: "", hito: "", subtareas: [] });
-        }
-        fases.push(fase);
-        renderizarFases();
+        btn.forEach(b => b.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+        steps.forEach(s => s.classList.remove('active','completed'));
+
+        const tabId = tabs[paso];
+        document.getElementById(tabId).classList.add('active');
+        document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+
+        steps.forEach((s, i) => {
+            if (i < paso) s.classList.add('completed');
+            if (i === paso) s.classList.add('active');
+        });
+        document.getElementById('progressText').textContent = `Paso ${paso+1} de 12`;
     }
 
-    function renderizarFases() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            const paso = parseInt(tabId.replace('tab',''));
+            irAlPaso(paso);
+        });
+    });
+
+    // ======================================================================
+    // FUNCIONES GENÉRICAS PARA LISTAS DINÁMICAS
+    // ======================================================================
+    function crearItemHTML(placeholder, valor, onchange, btnRemove) {
+        return `<div class="item-row"><input type="text" placeholder="${placeholder}" value="${valor}" onchange="${onchange}"><button class="btn-remove" onclick="${btnRemove}"><i class="fas fa-times-circle"></i></button></div>`;
+    }
+
+    function renderizarLista(containerId, items, placeholder, onChangeFn, removeFn) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        items.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `<input type="text" placeholder="${placeholder}" value="${item}" onchange="${onChangeFn}(${idx}, this.value)"><button class="btn-remove" onclick="${removeFn}(${idx})"><i class="fas fa-times-circle"></i></button>`;
+            container.appendChild(div);
+        });
+    }
+
+    // ======================================================================
+    // MIEMBROS
+    // ======================================================================
+    function agregarMiembro(nombre='', rol='') {
+        if (miembros.length >= 5) { alert('Máximo 5 miembros.'); return; }
+        miembros.push({ nombre, rol });
+        renderizarMiembros();
+    }
+    function eliminarMiembro(idx) { miembros.splice(idx,1); renderizarMiembros(); }
+    function renderizarMiembros() {
+        const container = document.getElementById('miembrosContainer');
+        container.innerHTML = '';
+        miembros.forEach((m, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Nombre completo" value="${m.nombre}" onchange="actualizarMiembro(${idx},'nombre',this.value)">
+                <input type="text" placeholder="Rol" value="${m.rol}" onchange="actualizarMiembro(${idx},'rol',this.value)">
+                <button class="btn-remove" onclick="eliminarMiembro(${idx})"><i class="fas fa-times-circle"></i></button>
+            `;
+            container.appendChild(div);
+        });
+        document.getElementById('btnAgregarMiembro').style.display = miembros.length>=5 ? 'none' : 'inline-flex';
+    }
+    function actualizarMiembro(idx, campo, valor) { miembros[idx][campo] = valor; }
+
+    // ======================================================================
+    // PERFIL (0.2)
+    // ======================================================================
+    function agregarReqFuncional(t='') { reqFuncionales.push(t); renderizarReqFuncionales(); }
+    function eliminarReqFuncional(i) { reqFuncionales.splice(i,1); renderizarReqFuncionales(); }
+    function renderizarReqFuncionales() { renderizarLista('reqFuncionalesContainer', reqFuncionales, 'Requerimiento funcional', 'actualizarReqFuncional', 'eliminarReqFuncional'); }
+    function actualizarReqFuncional(i,v) { reqFuncionales[i]=v; }
+
+    function agregarReqNoFuncional(t='') { reqNoFuncionales.push(t); renderizarReqNoFuncionales(); }
+    function eliminarReqNoFuncional(i) { reqNoFuncionales.splice(i,1); renderizarReqNoFuncionales(); }
+    function renderizarReqNoFuncionales() { renderizarLista('reqNoFuncionalesContainer', reqNoFuncionales, 'Requerimiento no funcional', 'actualizarReqNoFuncional', 'eliminarReqNoFuncional'); }
+    function actualizarReqNoFuncional(i,v) { reqNoFuncionales[i]=v; }
+
+    function agregarCaracteristica(t='') { caracteristicas.push(t); renderizarCaracteristicas(); }
+    function eliminarCaracteristica(i) { caracteristicas.splice(i,1); renderizarCaracteristicas(); }
+    function renderizarCaracteristicas() { renderizarLista('caracteristicasContainer', caracteristicas, 'Característica', 'actualizarCaracteristica', 'eliminarCaracteristica'); }
+    function actualizarCaracteristica(i,v) { caracteristicas[i]=v; }
+
+    function agregarFuncionalidad(t='') { funcionalidades.push(t); renderizarFuncionalidades(); }
+    function eliminarFuncionalidad(i) { funcionalidades.splice(i,1); renderizarFuncionalidades(); }
+    function renderizarFuncionalidades() { renderizarLista('funcionalidadesContainer', funcionalidades, 'Funcionalidad', 'actualizarFuncionalidad', 'eliminarFuncionalidad'); }
+    function actualizarFuncionalidad(i,v) { funcionalidades[i]=v; }
+
+    function agregarBeneficio(t='') { beneficios.push(t); renderizarBeneficios(); }
+    function eliminarBeneficio(i) { beneficios.splice(i,1); renderizarBeneficios(); }
+    function renderizarBeneficios() { renderizarLista('beneficiosContainer', beneficios, 'Beneficio', 'actualizarBeneficio', 'eliminarBeneficio'); }
+    function actualizarBeneficio(i,v) { beneficios[i]=v; }
+
+    function agregarDiferenciador(t='') { diferenciadores.push(t); renderizarDiferenciadores(); }
+    function eliminarDiferenciador(i) { diferenciadores.splice(i,1); renderizarDiferenciadores(); }
+    function renderizarDiferenciadores() { renderizarLista('diferenciadoresContainer', diferenciadores, 'Diferenciador', 'actualizarDiferenciador', 'eliminarDiferenciador'); }
+    function actualizarDiferenciador(i,v) { diferenciadores[i]=v; }
+
+    // ======================================================================
+    // BENCHMARKING (0.3)
+    // ======================================================================
+    let benchmarkData = {
+        filas: [
+            { nombre: "MONETARIO", ejemplo: "Ej: $4,000 MXN/mes" },
+            { nombre: "MODELO DE NEGOCIO", ejemplo: "Ej: Suscripción SaaS B2B" },
+            { nombre: "ENFOQUE DE CALIDAD", ejemplo: "Ej: Detección preventiva" },
+            { nombre: "TECNOLOGÍA CLAVE", ejemplo: "Ej: Machine Learning + heurísticas" },
+            { nombre: "PÚBLICO OBJETIVO", ejemplo: "Ej: Pequeñas empresas e-commerce" },
+            { nombre: "PROPUESTA DE VALOR", ejemplo: "Ej: Plataforma SaaS especializada" }
+        ]
+    };
+    function generarTablaBenchmark() {
+        const num = parseInt(document.getElementById('numCompetidores').value);
+        const container = document.getElementById('benchmarkContainer');
+        let html = `<table class="table-benchmark"><thead><tr><th>CARACTERÍSTICA</th><th>TU Propuesta</th>`;
+        for (let i=1; i<=num; i++) html += `<th>Competidor ${i}</th>`;
+        html += `</tr></thead><tbody>`;
+        benchmarkData.filas.forEach((fila, idx) => {
+            html += `<tr><td>${idx+1}. ${fila.nombre}</td>`;
+            html += `<td><input type="text" placeholder="${fila.ejemplo}" id="bench_tu_${idx}" value="${fila.ejemplo}"></td>`;
+            for (let i=1; i<=num; i++) html += `<td><input type="text" placeholder="${fila.ejemplo}" id="bench_comp_${idx}_${i}" value="${fila.ejemplo}"></td>`;
+            html += `</tr>`;
+        });
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+    function obtenerDatosBenchmark() {
+        const num = parseInt(document.getElementById('numCompetidores').value);
+        const data = { competidores: num, filas: [] };
+        benchmarkData.filas.forEach((fila, idx) => {
+            const tu = document.getElementById(`bench_tu_${idx}`)?.value || fila.ejemplo;
+            const comps = [];
+            for (let i=1; i<=num; i++) comps.push(document.getElementById(`bench_comp_${idx}_${i}`)?.value || fila.ejemplo);
+            data.filas.push({ nombre: fila.nombre, tu, competidores: comps });
+        });
+        return data;
+    }
+
+    // ======================================================================
+    // MERCADO Y FINANZAS (0.4)
+    // ======================================================================
+    function calcularClientes() {
+        const calc = (total, tasa) => Math.round((parseFloat(total)||0) * (parseFloat(tasa)||0) / 100);
+        document.getElementById('mercadoMetaClientes').value = calc(document.getElementById('mercadoMetaTotal').value, document.getElementById('mercadoMetaTasa').value);
+        document.getElementById('mercadoObjClientes').value = calc(document.getElementById('mercadoObjTotal').value, document.getElementById('mercadoObjTasa').value);
+        document.getElementById('mercadoPotClientes').value = calc(document.getElementById('mercadoPotTotal').value, document.getElementById('mercadoPotTasa').value);
+        calcularProyeccion();
+    }
+    function calcularProyeccion() {
+        const costo = (parseFloat(document.getElementById('costoLicencia').value)||0) * 12;
+        document.getElementById('costoAnual').value = '$' + costo.toLocaleString();
+        const d1 = parseFloat(document.getElementById('demandaAnio1').value)||0;
+        const d2 = parseFloat(document.getElementById('demandaAnio2').value)||0;
+        const d3 = parseFloat(document.getElementById('demandaAnio3').value)||0;
+        document.getElementById('ingresoAnio1').value = '$' + (d1*costo).toLocaleString();
+        document.getElementById('ingresoAnio2').value = '$' + (d2*costo).toLocaleString();
+        document.getElementById('ingresoAnio3').value = '$' + (d3*costo).toLocaleString();
+        const inc = d2*costo - d1*costo;
+        document.getElementById('incrementoVentas').value = '$' + inc.toLocaleString();
+        document.getElementById('porcentajeIncremento').value = (d1*costo > 0 ? (inc/(d1*costo)*100).toFixed(2) : 0) + '%';
+    }
+
+    // ======================================================================
+    // ACTA (1.1)
+    // ======================================================================
+    function agregarObjProducto(t='') { objProducto.push(t); renderizarObjProducto(); }
+    function eliminarObjProducto(i) { objProducto.splice(i,1); renderizarObjProducto(); }
+    function renderizarObjProducto() { renderizarLista('objProductoContainer', objProducto, 'Objetivo del producto', 'actualizarObjProducto', 'eliminarObjProducto'); }
+    function actualizarObjProducto(i,v) { objProducto[i]=v; }
+
+    function agregarObjProyecto(t='') { objProyecto.push(t); renderizarObjProyecto(); }
+    function eliminarObjProyecto(i) { objProyecto.splice(i,1); renderizarObjProyecto(); }
+    function renderizarObjProyecto() { renderizarLista('objProyectoContainer', objProyecto, 'Objetivo del proyecto', 'actualizarObjProyecto', 'eliminarObjProyecto'); }
+    function actualizarObjProyecto(i,v) { objProyecto[i]=v; }
+
+    function agregarEntregable() {
+        const nom = document.getElementById('entregableInput').value.trim();
+        const resp = document.getElementById('entregableRespInput').value.trim();
+        if (!nom) return alert('Ingrese un entregable.');
+        entregables.push({ nombre: nom, responsable: resp });
+        renderizarEntregables();
+        document.getElementById('entregableInput').value = '';
+        document.getElementById('entregableRespInput').value = '';
+    }
+    function eliminarEntregable(i) { entregables.splice(i,1); renderizarEntregables(); }
+    function renderizarEntregables() {
+        const container = document.getElementById('entregablesContainer');
+        container.innerHTML = '';
+        entregables.forEach((e, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `<input type="text" value="${e.nombre}" onchange="entregables[${idx}].nombre=this.value"><input type="text" value="${e.responsable}" onchange="entregables[${idx}].responsable=this.value"><button class="btn-remove" onclick="eliminarEntregable(${idx})"><i class="fas fa-times-circle"></i></button>`;
+            container.appendChild(div);
+        });
+    }
+
+    function agregarHito() {
+        const nom = document.getElementById('hitoInput').value.trim();
+        const fecha = document.getElementById('hitoFechaInput').value;
+        const resp = document.getElementById('hitoRespInput').value.trim();
+        if (!nom) return alert('Ingrese un hito.');
+        hitos.push({ nombre: nom, fecha, responsable: resp });
+        renderizarHitos();
+        document.getElementById('hitoInput').value = '';
+        document.getElementById('hitoFechaInput').value = '';
+        document.getElementById('hitoRespInput').value = '';
+    }
+    function eliminarHito(i) { hitos.splice(i,1); renderizarHitos(); }
+    function renderizarHitos() {
+        const container = document.getElementById('hitosContainer');
+        container.innerHTML = '';
+        hitos.forEach((h, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `<input type="text" value="${h.nombre}" onchange="hitos[${idx}].nombre=this.value"><input type="date" value="${h.fecha}" onchange="hitos[${idx}].fecha=this.value"><input type="text" value="${h.responsable}" onchange="hitos[${idx}].responsable=this.value"><button class="btn-remove" onclick="eliminarHito(${idx})"><i class="fas fa-times-circle"></i></button>`;
+            container.appendChild(div);
+        });
+    }
+
+    function agregarExclusion(t='') { exclusiones.push(t); renderizarExclusiones(); }
+    function eliminarExclusion(i) { exclusiones.splice(i,1); renderizarExclusiones(); }
+    function renderizarExclusiones() { renderizarLista('exclusionesContainer', exclusiones, 'Exclusión', 'actualizarExclusion', 'eliminarExclusion'); }
+    function actualizarExclusion(i,v) { exclusiones[i]=v; }
+
+    function agregarSupuestoActa(t='') { supuestosActa.push(t); renderizarSupuestosActa(); }
+    function eliminarSupuestoActa(i) { supuestosActa.splice(i,1); renderizarSupuestosActa(); }
+    function renderizarSupuestosActa() { renderizarLista('supuestosActaContainer', supuestosActa, 'Supuesto', 'actualizarSupuestoActa', 'eliminarSupuestoActa'); }
+    function actualizarSupuestoActa(i,v) { supuestosActa[i]=v; }
+
+    function agregarRiesgoActa(t='') { riesgosActa.push(t); renderizarRiesgosActa(); }
+    function eliminarRiesgoActa(i) { riesgosActa.splice(i,1); renderizarRiesgosActa(); }
+    function renderizarRiesgosActa() { renderizarLista('riesgosActaContainer', riesgosActa, 'Riesgo', 'actualizarRiesgoActa', 'eliminarRiesgoActa'); }
+    function actualizarRiesgoActa(i,v) { riesgosActa[i]=v; }
+
+    function agregarDependenciaActa(t='') { dependenciasActa.push(t); renderizarDependenciasActa(); }
+    function eliminarDependenciaActa(i) { dependenciasActa.splice(i,1); renderizarDependenciasActa(); }
+    function renderizarDependenciasActa() { renderizarLista('dependenciasActaContainer', dependenciasActa, 'Dependencia', 'actualizarDependenciaActa', 'eliminarDependenciaActa'); }
+    function actualizarDependenciaActa(i,v) { dependenciasActa[i]=v; }
+
+    function agregarActor() {
+        const rol = document.getElementById('actorRolInput').value.trim();
+        const desc = document.getElementById('actorDescInput').value.trim();
+        if (!rol) return alert('Ingrese un rol.');
+        actores.push({ rol, descripcion: desc });
+        renderizarActores();
+        document.getElementById('actorRolInput').value = '';
+        document.getElementById('actorDescInput').value = '';
+    }
+    function eliminarActor(i) { actores.splice(i,1); renderizarActores(); }
+    function renderizarActores() {
+        const container = document.getElementById('actoresContainer');
+        container.innerHTML = '';
+        actores.forEach((a, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `<input type="text" value="${a.rol}" onchange="actores[${idx}].rol=this.value"><input type="text" value="${a.descripcion}" onchange="actores[${idx}].descripcion=this.value"><button class="btn-remove" onclick="eliminarActor(${idx})"><i class="fas fa-times-circle"></i></button>`;
+            container.appendChild(div);
+        });
+    }
+
+    function agregarFirmante() {
+        const nom = document.getElementById('firmanteNombreInput').value.trim();
+        const rol = document.getElementById('firmanteRolInput').value.trim();
+        if (!nom) return alert('Ingrese un nombre.');
+        firmantes.push({ nombre: nom, rol: rol });
+        renderizarFirmantes();
+        document.getElementById('firmanteNombreInput').value = '';
+        document.getElementById('firmanteRolInput').value = '';
+    }
+    function eliminarFirmante(i) { firmantes.splice(i,1); renderizarFirmantes(); }
+    function renderizarFirmantes() {
+        const container = document.getElementById('firmantesContainer');
+        container.innerHTML = '';
+        firmantes.forEach((f, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `<input type="text" value="${f.nombre}" onchange="firmantes[${idx}].nombre=this.value"><input type="text" value="${f.rol}" onchange="firmantes[${idx}].rol=this.value"><button class="btn-remove" onclick="eliminarFirmante(${idx})"><i class="fas fa-times-circle"></i></button>`;
+            container.appendChild(div);
+        });
+    }
+
+    // ======================================================================
+    // INTERESADOS (1.2)
+    // ======================================================================
+    function agregarFilaInteresado() {
+        const tbody = document.getElementById('interesadosBody');
+        const row = tbody.insertRow();
+        const num = tbody.rows.length;
+        row.innerHTML = `
+            <td>${num}</td>
+            <td><input type="text" value="Nuevo interesado"></td>
+            <td><input type="text" value="Descripción"></td>
+            <td><select><option value="Alto">Alto</option><option value="Medio" selected>Medio</option><option value="Bajo">Bajo</option></select></td>
+            <td><select><option value="Alto" selected>Alto</option><option value="Medio">Medio</option><option value="Bajo">Bajo</option></select></td>
+            <td><select><option value="Gestionar atentamente">Gestionar atentamente</option><option value="Mantener satisfecho" selected>Mantener satisfecho</option><option value="Mantener informado">Mantener informado</option><option value="Monitorear">Monitorear</option></select></td>
+            <td><button class="btn btn-danger btn-sm" onclick="eliminarFilaInteresado(this)"><i class="fas fa-times"></i></button></td>
+        `;
+        actualizarNumerosInteresados();
+    }
+    function eliminarFilaInteresado(btn) {
+        btn.closest('tr').remove();
+        actualizarNumerosInteresados();
+    }
+    function actualizarNumerosInteresados() {
+        const rows = document.querySelectorAll('#interesadosBody tr');
+        rows.forEach((row, idx) => row.cells[0].textContent = idx+1);
+    }
+
+    // ======================================================================
+    // ALCANCE (1.3)
+    // ======================================================================
+    function agregarRestriccion(t='') { restricciones.push(t); renderizarRestricciones(); }
+    function eliminarRestriccion(i) { restricciones.splice(i,1); renderizarRestricciones(); }
+    function renderizarRestricciones() { renderizarLista('restriccionesContainer', restricciones, 'Restricción', 'actualizarRestriccion', 'eliminarRestriccion'); }
+    function actualizarRestriccion(i,v) { restricciones[i]=v; }
+
+    function agregarSupuestoAlcance(t='') { supuestosAlcance.push(t); renderizarSupuestosAlcance(); }
+    function eliminarSupuestoAlcance(i) { supuestosAlcance.splice(i,1); renderizarSupuestosAlcance(); }
+    function renderizarSupuestosAlcance() { renderizarLista('supuestosAlcanceContainer', supuestosAlcance, 'Supuesto', 'actualizarSupuestoAlcance', 'eliminarSupuestoAlcance'); }
+    function actualizarSupuestoAlcance(i,v) { supuestosAlcance[i]=v; }
+
+    // ======================================================================
+    // EDT DETALLADA (1.4)
+    // ======================================================================
+    function agregarFilaEdtDet() {
+        const tbody = document.getElementById('edtDetBody');
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td><input type="text" value="${tbody.rows.length+1}"></td>
+            <td><input type="text" value="Nuevo paquete"></td>
+            <td><input type="text" value="Responsable"></td>
+            <td><input type="date"></td>
+            <td><input type="date"></td>
+            <td><input type="number" value="0"></td>
+            <td><input type="number" value="0"></td>
+            <td><button class="btn btn-danger btn-sm" onclick="eliminarFilaEdtDet(this)"><i class="fas fa-times"></i></button></td>
+        `;
+        actualizarResumenEdtDet();
+    }
+    function eliminarFilaEdtDet(btn) {
+        btn.closest('tr').remove();
+        actualizarResumenEdtDet();
+    }
+    function actualizarResumenEdtDet() {
+        const rows = document.querySelectorAll('#edtDetBody tr');
+        document.getElementById('totalPaquetes').value = rows.length;
+        let totalPct = 0;
+        rows.forEach(row => {
+            const pct = parseFloat(row.querySelectorAll('td')[6].querySelector('input').value) || 0;
+            totalPct += pct;
+        });
+        document.getElementById('porcentajePromedio').value = rows.length ? (totalPct / rows.length).toFixed(1) + '%' : '0.0%';
+        document.getElementById('ultimaActualizacion').value = new Date().toLocaleDateString('es-ES');
+    }
+
+    // ======================================================================
+    // PDP (1.5)
+    // ======================================================================
+    function agregarRevision() {
+        const nom = document.getElementById('revNombreInput').value.trim();
+        const desc = document.getElementById('revDescInput').value.trim();
+        const frec = document.getElementById('revFrecInput').value.trim();
+        if (!nom) return alert('Ingrese un nombre para la revisión.');
+        revisiones.push({ nombre: nom, descripcion: desc, frecuencia: frec });
+        renderizarRevisiones();
+        document.getElementById('revNombreInput').value = '';
+        document.getElementById('revDescInput').value = '';
+        document.getElementById('revFrecInput').value = '';
+    }
+    function eliminarRevision(i) { revisiones.splice(i,1); renderizarRevisiones(); }
+    function renderizarRevisiones() {
+        const container = document.getElementById('revisionesContainer');
+        container.innerHTML = '';
+        revisiones.forEach((r, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `<input type="text" value="${r.nombre}" onchange="revisiones[${idx}].nombre=this.value"><input type="text" value="${r.descripcion}" onchange="revisiones[${idx}].descripcion=this.value"><input type="text" value="${r.frecuencia}" onchange="revisiones[${idx}].frecuencia=this.value"><button class="btn-remove" onclick="eliminarRevision(${idx})"><i class="fas fa-times-circle"></i></button>`;
+            container.appendChild(div);
+        });
+    }
+
+    function agregarAprobacionPdp() {
+        const nom = document.getElementById('aprobNombreInput').value.trim();
+        const rol = document.getElementById('aprobRolInput').value.trim();
+        const fecha = document.getElementById('aprobFechaInput').value;
+        if (!nom) return alert('Ingrese un nombre.');
+        aprobacionesPdp.push({ nombre: nom, rol, fecha });
+        renderizarAprobacionesPdp();
+        document.getElementById('aprobNombreInput').value = '';
+        document.getElementById('aprobRolInput').value = '';
+        document.getElementById('aprobFechaInput').value = '';
+    }
+    function eliminarAprobacionPdp(i) { aprobacionesPdp.splice(i,1); renderizarAprobacionesPdp(); }
+    function renderizarAprobacionesPdp() {
+        const container = document.getElementById('aprobacionesPdpContainer');
+        container.innerHTML = '';
+        aprobacionesPdp.forEach((a, idx) => {
+            const div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `<input type="text" value="${a.nombre}" onchange="aprobacionesPdp[${idx}].nombre=this.value"><input type="text" value="${a.rol}" onchange="aprobacionesPdp[${idx}].rol=this.value"><input type="date" value="${a.fecha}" onchange="aprobacionesPdp[${idx}].fecha=this.value"><button class="btn-remove" onclick="eliminarAprobacionPdp(${idx})"><i class="fas fa-times-circle"></i></button>`;
+            container.appendChild(div);
+        });
+    }
+
+    // ======================================================================
+    // EDT ESTRUCTURA (original)
+    // ======================================================================
+    function agregarFaseEstructura(nombre="", tareas=null) {
+        const fase = { nombre: nombre || `Fase ${fases.length+1}`, tareas: tareas || [] };
+        if (!fase.tareas.length) fase.tareas.push({ nombre: "Nueva tarea", descripcion_operativa: "", hito: "", subtareas: [] });
+        fases.push(fase);
+        renderizarFasesEstructura();
+    }
+    function renderizarFasesEstructura() {
         const container = document.getElementById('fasesContainer');
         container.innerHTML = '';
         fases.forEach((fase, idxF) => {
             const divFase = document.createElement('div');
             divFase.className = 'card-fase';
             divFase.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <input type="text" value="${fase.nombre}" placeholder="Nombre de la fase" style="width:60%; font-weight:bold; font-size:1.1em;" onchange="actualizarFase(${idxF}, 'nombre', this.value)">
-                    <button class="btn btn-danger btn-sm" onclick="eliminarFase(${idxF})">🗑️ Eliminar Fase</button>
+                <div class="fase-header">
+                    <input type="text" value="${fase.nombre}" placeholder="Nombre de la fase" onchange="fases[${idxF}].nombre=this.value">
+                    <button class="btn btn-danger btn-sm" onclick="eliminarFaseEstructura(${idxF})"><i class="fas fa-trash"></i></button>
                 </div>
                 <div id="tareasFase-${idxF}" style="margin-top:10px;"></div>
-                <button class="btn btn-success btn-sm" onclick="agregarTarea(${idxF})">➕ Agregar Tarea</button>
+                <button class="btn btn-success btn-sm" onclick="agregarTareaEstructura(${idxF})"><i class="fas fa-plus"></i> Agregar Tarea</button>
             `;
             container.appendChild(divFase);
 
-            // Renderizar tareas de esta fase
             const tareasContainer = document.getElementById(`tareasFase-${idxF}`);
             fase.tareas.forEach((tarea, idxT) => {
                 const divTarea = document.createElement('div');
                 divTarea.className = 'card-tarea';
                 divTarea.innerHTML = `
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <input type="text" value="${tarea.nombre}" placeholder="Nombre tarea" style="flex:2;" onchange="actualizarTarea(${idxF}, ${idxT}, 'nombre', this.value)">
-                        <input type="text" value="${tarea.descripcion_operativa || ''}" placeholder="Descripción operativa" style="flex:3;" onchange="actualizarTarea(${idxF}, ${idxT}, 'descripcion_operativa', this.value)">
-                        <input type="text" value="${tarea.hito || ''}" placeholder="Hito" style="flex:1;" onchange="actualizarTarea(${idxF}, ${idxT}, 'hito', this.value)">
-                        <button class="btn btn-danger btn-sm" onclick="eliminarTarea(${idxF}, ${idxT})">✖</button>
+                        <input type="text" value="${tarea.nombre}" placeholder="Nombre tarea" style="flex:2;" onchange="fases[${idxF}].tareas[${idxT}].nombre=this.value">
+                        <input type="text" value="${tarea.descripcion_operativa||''}" placeholder="Descripción operativa" style="flex:2;" onchange="fases[${idxF}].tareas[${idxT}].descripcion_operativa=this.value">
+                        <input type="text" value="${tarea.hito||''}" placeholder="Hito" style="flex:1;" onchange="fases[${idxF}].tareas[${idxT}].hito=this.value">
+                        <button class="btn btn-danger btn-sm" onclick="eliminarTareaEstructura(${idxF},${idxT})"><i class="fas fa-times"></i></button>
                     </div>
                     <div id="subtareas-${idxF}-${idxT}" style="margin-left:30px; margin-top:5px;"></div>
-                    <button class="btn btn-sm" style="background:#6c757d; color:white;" onclick="agregarSubtarea(${idxF}, ${idxT})">➕ Subtarea</button>
+                    <button class="btn btn-outline btn-sm" onclick="agregarSubtareaEstructura(${idxF},${idxT})"><i class="fas fa-plus"></i> Subtarea</button>
                 `;
                 tareasContainer.appendChild(divTarea);
 
-                // Renderizar subtareas
                 const subtareasContainer = document.getElementById(`subtareas-${idxF}-${idxT}`);
                 if (tarea.subtareas) {
                     tarea.subtareas.forEach((sub, idxS) => {
@@ -325,10 +1299,10 @@
                         divSub.className = 'card-subtarea';
                         divSub.innerHTML = `
                             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                                <input type="text" value="${sub.nombre}" placeholder="Subtarea" style="flex:2;" onchange="actualizarSubtarea(${idxF}, ${idxT}, ${idxS}, 'nombre', this.value)">
-                                <input type="text" value="${sub.descripcion_operativa || ''}" placeholder="Descripción" style="flex:3;" onchange="actualizarSubtarea(${idxF}, ${idxT}, ${idxS}, 'descripcion_operativa', this.value)">
-                                <input type="text" value="${sub.hito || ''}" placeholder="Hito" style="flex:1;" onchange="actualizarSubtarea(${idxF}, ${idxT}, ${idxS}, 'hito', this.value)">
-                                <button class="btn btn-danger btn-sm" onclick="eliminarSubtarea(${idxF}, ${idxT}, ${idxS})">✖</button>
+                                <input type="text" value="${sub.nombre}" placeholder="Subtarea" style="flex:2;" onchange="fases[${idxF}].tareas[${idxT}].subtareas[${idxS}].nombre=this.value">
+                                <input type="text" value="${sub.descripcion_operativa||''}" placeholder="Descripción" style="flex:2;" onchange="fases[${idxF}].tareas[${idxT}].subtareas[${idxS}].descripcion_operativa=this.value">
+                                <input type="text" value="${sub.hito||''}" placeholder="Hito" style="flex:1;" onchange="fases[${idxF}].tareas[${idxT}].subtareas[${idxS}].hito=this.value">
+                                <button class="btn btn-danger btn-sm" onclick="eliminarSubtareaEstructura(${idxF},${idxT},${idxS})"><i class="fas fa-times"></i></button>
                             </div>
                         `;
                         subtareasContainer.appendChild(divSub);
@@ -337,146 +1311,266 @@
             });
         });
     }
-
-    // Funciones de manipulación de fases/tareas/subtareas
-    function actualizarFase(idx, campo, valor) { fases[idx][campo] = valor; }
-    function eliminarFase(idx) { fases.splice(idx, 1); renderizarFases(); }
-    function agregarTarea(idxF) {
+    function eliminarFaseEstructura(idx) { fases.splice(idx,1); renderizarFasesEstructura(); }
+    function agregarTareaEstructura(idxF) {
         fases[idxF].tareas.push({ nombre: "Nueva tarea", descripcion_operativa: "", hito: "", subtareas: [] });
-        renderizarFases();
+        renderizarFasesEstructura();
     }
-    function eliminarTarea(idxF, idxT) {
-        fases[idxF].tareas.splice(idxT, 1);
-        renderizarFases();
-    }
-    function actualizarTarea(idxF, idxT, campo, valor) {
-        fases[idxF].tareas[idxT][campo] = valor;
-    }
-    function agregarSubtarea(idxF, idxT) {
+    function eliminarTareaEstructura(idxF, idxT) { fases[idxF].tareas.splice(idxT,1); renderizarFasesEstructura(); }
+    function agregarSubtareaEstructura(idxF, idxT) {
         if (!fases[idxF].tareas[idxT].subtareas) fases[idxF].tareas[idxT].subtareas = [];
         fases[idxF].tareas[idxT].subtareas.push({ nombre: "Nueva subtarea", descripcion_operativa: "", hito: "" });
-        renderizarFases();
+        renderizarFasesEstructura();
     }
-    function eliminarSubtarea(idxF, idxT, idxS) {
-        fases[idxF].tareas[idxT].subtareas.splice(idxS, 1);
-        renderizarFases();
-    }
-    function actualizarSubtarea(idxF, idxT, idxS, campo, valor) {
-        fases[idxF].tareas[idxT].subtareas[idxS][campo] = valor;
-    }
+    function eliminarSubtareaEstructura(idxF, idxT, idxS) { fases[idxF].tareas[idxT].subtareas.splice(idxS,1); renderizarFasesEstructura(); }
 
     // ======================================================================
-    // FUNCIONES PARA ACTIVIDADES DE MINUTA
+    // MINUTA
     // ======================================================================
-
-    function agregarActividad(actividad = "", tiempo = "", recursos = "", responsable = "") {
+    function agregarActividadMinuta(actividad="", tiempo="", recursos="", responsable="") {
         actividadesMinuta.push({ actividad, tiempo, recursos, responsable });
-        renderizarActividades();
+        renderizarActividadesMinuta();
     }
-
-    function renderizarActividades() {
+    function eliminarActividadMinuta(idx) { actividadesMinuta.splice(idx,1); renderizarActividadesMinuta(); }
+    function renderizarActividadesMinuta() {
         const container = document.getElementById('actividadesContainer');
         container.innerHTML = '';
         actividadesMinuta.forEach((act, idx) => {
             const div = document.createElement('div');
-            div.className = 'card-actividad';
+            div.className = 'card-fase';
+            div.style.background = 'white';
             div.innerHTML = `
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <input type="text" value="${act.actividad}" placeholder="Actividad" style="flex:2;" onchange="actualizarActividad(${idx}, 'actividad', this.value)">
-                    <input type="text" value="${act.tiempo}" placeholder="Tiempo" style="flex:1;" onchange="actualizarActividad(${idx}, 'tiempo', this.value)">
-                    <input type="text" value="${act.recursos}" placeholder="Recursos" style="flex:2;" onchange="actualizarActividad(${idx}, 'recursos', this.value)">
-                    <input type="text" value="${act.responsable}" placeholder="Responsable" style="flex:1;" onchange="actualizarActividad(${idx}, 'responsable', this.value)">
-                    <button class="btn btn-danger btn-sm" onclick="eliminarActividad(${idx})">✖</button>
+                    <input type="text" value="${act.actividad}" placeholder="Actividad" style="flex:2;" onchange="actividadesMinuta[${idx}].actividad=this.value">
+                    <input type="text" value="${act.tiempo}" placeholder="Tiempo" style="flex:1;" onchange="actividadesMinuta[${idx}].tiempo=this.value">
+                    <input type="text" value="${act.recursos}" placeholder="Recursos" style="flex:2;" onchange="actividadesMinuta[${idx}].recursos=this.value">
+                    <input type="text" value="${act.responsable}" placeholder="Responsable" style="flex:1;" onchange="actividadesMinuta[${idx}].responsable=this.value">
+                    <button class="btn btn-danger btn-sm" onclick="eliminarActividadMinuta(${idx})"><i class="fas fa-trash"></i></button>
                 </div>
             `;
             container.appendChild(div);
         });
     }
 
-    function actualizarActividad(idx, campo, valor) {
-        actividadesMinuta[idx][campo] = valor;
-    }
-    function eliminarActividad(idx) {
-        actividadesMinuta.splice(idx, 1);
-        renderizarActividades();
-    }
-
-    // Inicializar con 3 actividades de ejemplo
-    function initActividades() {
+    function initActividadesMinuta() {
         actividadesMinuta = [
             { actividad: "Revisar EDT completa", tiempo: "3 horas", recursos: "Documento EDT impreso, sala de juntas", responsable: "Director del proyecto" },
             { actividad: "Validar estructura con stakeholders", tiempo: "2 horas", recursos: "Acta de constitución, matriz de interesados", responsable: "Patrocinador del proyecto" },
             { actividad: "Firmar aprobación de la EDT", tiempo: "30 minutos", recursos: "Sistema documental, firmas electrónicas", responsable: "Cliente del proyecto" }
         ];
-        renderizarActividades();
+        renderizarActividadesMinuta();
     }
 
     // ======================================================================
-    // CONSTRUIR OBJETOS JSON PARA LA API
+    // RECOPILACIÓN DE DATOS
     // ======================================================================
-
-    function getDatosGenerales() {
-        return {
-            nombre_proyecto: document.getElementById('nombreProyecto').value.trim(),
-            id_proyecto: document.getElementById('idProyecto').value.trim() || "N/A",
-            nombre_empresa: document.getElementById('nombreEmpresa').value.trim() || "N/A",
-            presupuesto_fase: document.getElementById('presupuestoFase').value.trim() || "N/A",
-            presupuesto_proyecto: document.getElementById('presupuestoTotal').value.trim() || "N/A",
-        };
-    }
-
-    function getEDTInput() {
-        const gral = getDatosGenerales();
-        return {
-            nombre_proyecto: gral.nombre_proyecto,
-            fases: fases.map(f => ({
-                nombre: f.nombre.trim(),
-                tareas: f.tareas.map(t => ({
-                    nombre: t.nombre.trim(),
-                    subtareas: (t.subtareas || []).map(s => ({
-                        nombre: s.nombre.trim()
-                    }))
-                }))
-            }))
-        };
-    }
-
     function getDocumentoInput() {
-        const gral = getDatosGenerales();
+        const general = {
+            nombre_proyecto: document.getElementById('nombreProyecto').value.trim(),
+            siglas: document.getElementById('siglasProyecto').value.trim(),
+            id_proyecto: document.getElementById('idProyecto').value.trim() || "N/A",
+            lider: document.getElementById('liderProyecto').value.trim(),
+            presupuesto_total: document.getElementById('presupuestoTotal').value.trim() || "N/A",
+            moneda: document.getElementById('moneda').value,
+            fecha_inicio: document.getElementById('fechaInicio').value,
+            fecha_fin: document.getElementById('fechaFin').value || null,
+            profesor: document.getElementById('profesor').value.trim(),
+            miembros: miembros.filter(m => m.nombre.trim() !== "").map(m => ({ nombre: m.nombre.trim(), rol: m.rol.trim() })),
+        };
+
+        const perfil = {
+            tema_principal: document.getElementById('temaPrincipal').value.trim(),
+            sector: document.getElementById('sector').value.trim(),
+            giro: document.getElementById('giro').value.trim(),
+            pib_sector: document.getElementById('pibSector').value.trim(),
+            pib_cliente: document.getElementById('pibCliente').value.trim(),
+            titulo_completo: document.getElementById('tituloCompleto').value.trim(),
+            objetivo_general: document.getElementById('objetivoGeneral').value.trim(),
+            descripcion_producto: document.getElementById('descripcionProducto').value.trim(),
+            que_hace: document.getElementById('queHace').value.trim(),
+            modelo_comercial: document.getElementById('modeloComercial').value.trim(),
+            diferencial_clave: document.getElementById('diferencialClave').value.trim(),
+            req_funcionales: reqFuncionales.filter(t => t.trim() !== ""),
+            req_no_funcionales: reqNoFuncionales.filter(t => t.trim() !== ""),
+            caracteristicas: caracteristicas.filter(t => t.trim() !== ""),
+            funcionalidades: funcionalidades.filter(t => t.trim() !== ""),
+            beneficios: beneficios.filter(t => t.trim() !== ""),
+            diferenciadores: diferenciadores.filter(t => t.trim() !== "")
+        };
+
+        const acta = {
+            nombre: document.getElementById('actaNombre').value.trim(),
+            fecha: document.getElementById('actaFecha').value,
+            enunciado: document.getElementById('actaEnunciado').value.trim(),
+            caso: document.getElementById('actaCaso').value.trim(),
+            acuerdos: document.getElementById('actaAcuerdos').value.trim(),
+            objetivos_producto: objProducto.filter(t => t.trim() !== ""),
+            objetivos_proyecto: objProyecto.filter(t => t.trim() !== ""),
+            entregables: entregables.filter(e => e.nombre.trim() !== ""),
+            hitos: hitos.filter(h => h.nombre.trim() !== ""),
+            exclusiones: exclusiones.filter(t => t.trim() !== ""),
+            supuestos: supuestosActa.filter(t => t.trim() !== ""),
+            riesgos: riesgosActa.filter(t => t.trim() !== ""),
+            dependencias: dependenciasActa.filter(t => t.trim() !== ""),
+            actores: actores.filter(a => a.rol.trim() !== ""),
+            presupuesto: document.getElementById('presupuestoActa').value.trim(),
+            firmantes: firmantes.filter(f => f.nombre.trim() !== "")
+        };
+
+        const interesados = {
+            nombre: document.getElementById('interesadosNombre').value.trim(),
+            fecha: document.getElementById('interesadosFecha').value,
+            responsable: document.getElementById('interesadosResponsable').value.trim(),
+            matriz: [],
+            frecuencia: document.getElementById('frecuenciaComunicacion').value.trim(),
+            canales: document.getElementById('canalesComunicacion').value.trim(),
+            observaciones: document.getElementById('observacionesInteresados').value.trim()
+        };
+        // Recoger filas de la tabla de interesados
+        document.querySelectorAll('#interesadosBody tr').forEach(row => {
+            const inputs = row.querySelectorAll('input');
+            const selects = row.querySelectorAll('select');
+            if (inputs.length >= 2) {
+                interesados.matriz.push({
+                    nombre: inputs[0].value,
+                    descripcion: inputs[1].value,
+                    poder: selects[0].value,
+                    interes: selects[1].value,
+                    estrategia: selects[2].value
+                });
+            }
+        });
+
+        const alcance = {
+            nombre: document.getElementById('alcanceNombre').value.trim(),
+            fecha: document.getElementById('alcanceFecha').value,
+            responsable: document.getElementById('alcanceResponsable').value.trim(),
+            descripcion: document.getElementById('alcanceDescripcion').value.trim(),
+            criterios: document.getElementById('alcanceCriterios').value.trim(),
+            entregables: document.getElementById('alcanceEntregables').value.trim(),
+            exclusiones: document.getElementById('alcanceExclusiones').value.trim(),
+            proc_definicion: document.getElementById('procDefinicion').value.trim(),
+            proc_edt: document.getElementById('procEDT').value.trim(),
+            proc_linea_base: document.getElementById('procLineaBase').value.trim(),
+            proc_aceptacion: document.getElementById('procAceptacion').value.trim(),
+            quien_solicita: document.getElementById('quienSolicita').value.trim(),
+            niveles_autorizacion: document.getElementById('nivelesAutorizacion').value.trim(),
+            procedimiento_cambios: document.getElementById('procedimientoCambios').value.trim(),
+            metodo_verificacion: document.getElementById('metodoVerificacion').value.trim(),
+            frecuencia_revision: document.getElementById('frecuenciaRevision').value.trim(),
+            herramientas: document.getElementById('herramientasAlcance').value.trim(),
+            restricciones: restricciones.filter(t => t.trim() !== ""),
+            supuestos: supuestosAlcance.filter(t => t.trim() !== "")
+        };
+
+        const edtDet = {
+            nombre: document.getElementById('edtDetNombre').value.trim(),
+            fecha: document.getElementById('edtDetFecha').value,
+            responsable: document.getElementById('edtDetResponsable').value.trim(),
+            paquetes: [],
+            diccionario: document.getElementById('diccionarioEDT').value.trim()
+        };
+        document.querySelectorAll('#edtDetBody tr').forEach(row => {
+            const inputs = row.querySelectorAll('input');
+            if (inputs.length >= 7) {
+                edtDet.paquetes.push({
+                    codigo: inputs[0].value,
+                    titulo: inputs[1].value,
+                    responsable: inputs[2].value,
+                    fecha_inicio: inputs[3].value,
+                    fecha_venc: inputs[4].value,
+                    duracion: parseFloat(inputs[5].value) || 0,
+                    porcentaje: parseFloat(inputs[6].value) || 0
+                });
+            }
+        });
+
+        const pdp = {
+            nombre: document.getElementById('pdpNombre').value.trim(),
+            siglas: document.getElementById('pdpSiglas').value.trim(),
+            fecha: document.getElementById('pdpFecha').value,
+            version: document.getElementById('pdpVersion').value.trim(),
+            ciclo_vida: document.getElementById('cicloVida').value.trim(),
+            enfoque_multifase: document.getElementById('enfoqueMultifase').value.trim(),
+            enfoque_trabajo: document.getElementById('enfoqueTrabajo').value.trim(),
+            lb_alcance: document.getElementById('lbAlcance').value.trim(),
+            lb_cronograma: document.getElementById('lbCronograma').value.trim(),
+            lb_costos: document.getElementById('lbCostos').value.trim(),
+            revisiones: revisiones,
+            planes: [],
+            aprobaciones: aprobacionesPdp
+        };
+        // Recoger planes subsidiarios (checkboxes)
+        document.querySelectorAll('#planesSubsidiarios input[type="checkbox"]:checked').forEach(cb => {
+            pdp.planes.push(cb.nextSibling.textContent.trim());
+        });
+
+        const mercado = {
+            meta: {
+                ubicacion: document.getElementById('mercadoMetaUbicacion').value.trim(),
+                total: parseInt(document.getElementById('mercadoMetaTotal').value) || 0,
+                tasa: parseFloat(document.getElementById('mercadoMetaTasa').value) || 0,
+                clientes: parseInt(document.getElementById('mercadoMetaClientes').value) || 0
+            },
+            objetivo: {
+                ubicacion: document.getElementById('mercadoObjUbicacion').value.trim(),
+                total: parseInt(document.getElementById('mercadoObjTotal').value) || 0,
+                tasa: parseFloat(document.getElementById('mercadoObjTasa').value) || 0,
+                clientes: parseInt(document.getElementById('mercadoObjClientes').value) || 0
+            },
+            potencial: {
+                ubicacion: document.getElementById('mercadoPotUbicacion').value.trim(),
+                total: parseInt(document.getElementById('mercadoPotTotal').value) || 0,
+                tasa: parseFloat(document.getElementById('mercadoPotTasa').value) || 0,
+                clientes: parseInt(document.getElementById('mercadoPotClientes').value) || 0
+            },
+            encuesta: {
+                si: parseInt(document.getElementById('encuestaSi').value) || 0,
+                tal_vez: parseInt(document.getElementById('encuestaTalVez').value) || 0,
+                no: parseInt(document.getElementById('encuestaNo').value) || 0
+            },
+            proyeccion: {
+                costo_mensual: parseFloat(document.getElementById('costoLicencia').value) || 0,
+                costo_anual: parseFloat(document.getElementById('costoAnual').value.replace(/[$,]/g,'')) || 0,
+                demanda: [
+                    parseInt(document.getElementById('demandaAnio1').value) || 0,
+                    parseInt(document.getElementById('demandaAnio2').value) || 0,
+                    parseInt(document.getElementById('demandaAnio3').value) || 0
+                ],
+                ingreso: [
+                    parseFloat(document.getElementById('ingresoAnio1').value.replace(/[$,]/g,'')) || 0,
+                    parseFloat(document.getElementById('ingresoAnio2').value.replace(/[$,]/g,'')) || 0,
+                    parseFloat(document.getElementById('ingresoAnio3').value.replace(/[$,]/g,'')) || 0
+                ],
+                incremento: parseFloat(document.getElementById('incrementoVentas').value.replace(/[$,]/g,'')) || 0,
+                porcentaje_incremento: parseFloat(document.getElementById('porcentajeIncremento').value) || 0
+            }
+        };
+
         return {
-            nombre_proyecto: gral.nombre_proyecto,
-            id_proyecto: gral.id_proyecto,
-            nombre_empresa: gral.nombre_empresa,
-            presupuesto_fase: gral.presupuesto_fase,
-            presupuesto_proyecto: gral.presupuesto_proyecto,
-            presupuesto_total: gral.presupuesto_proyecto, // alias
+            ...general,
+            nombre_empresa: "MINTRANET",
+            presupuesto_fase: document.getElementById('presupuestoFase')?.value.trim() || "N/A",
             fecha_generacion: new Date().toISOString(),
-            fases: fases.map(f => ({
-                nombre: f.nombre.trim(),
-                tareas: f.tareas.map(t => ({
-                    nombre: t.nombre.trim(),
-                    descripcion_operativa: t.descripcion_operativa || "N/A",
-                    hito: t.hito || "N/A",
-                    subtareas: (t.subtareas || []).map(s => ({
-                        nombre: s.nombre.trim(),
-                        descripcion_operativa: s.descripcion_operativa || "N/A",
-                        hito: s.hito || "N/A",
-                        subtareas: []
-                    }))
-                }))
-            })),
+            perfil,
+            acta,
+            interesados,
+            alcance,
+            edt_detallada: edtDet,
+            pdp,
+            mercado,
+            fases: fases,
             actividades_minuta: actividadesMinuta.filter(a => a.actividad.trim() !== ""),
-            conclusion_minuta: document.getElementById('conclusionMinuta').value.trim() || "La estructura de desglose del trabajo queda validada por los responsables del proyecto, conforme a los criterios técnicos, financieros y metodológicos establecidos."
+            conclusion_minuta: document.getElementById('conclusionMinuta').value.trim()
         };
     }
 
     // ======================================================================
-    // FUNCIONES DE LLAMADA A LA API
+    // LLAMADAS A LA API (igual que antes)
     // ======================================================================
-
     async function llamarAPI(endpoint, datos) {
-        const loading = document.getElementById('cargando');
-        loading.style.display = 'block';
+        const loading = document.getElementById('loading');
+        loading.classList.add('show');
         try {
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -492,112 +1586,93 @@
             alert('Error en la petición: ' + e.message);
             throw e;
         } finally {
-            loading.style.display = 'none';
+            loading.classList.remove('show');
         }
     }
 
-    function mostrarResultado(html) {
+    function mostrarResultado(html, tipo='info') {
         const div = document.getElementById('resultado');
-        div.style.display = 'block';
-        div.innerHTML = html;
+        div.className = 'result-box show';
+        div.innerHTML = `<div class="alert alert-${tipo}">${html}</div>`;
     }
 
     function limpiarResultados() {
-        document.getElementById('resultado').style.display = 'none';
+        document.getElementById('resultado').className = 'result-box';
+        document.getElementById('resultado').innerHTML = '';
         document.getElementById('imagenResultado').style.display = 'none';
+        document.getElementById('imagenResultado').innerHTML = '';
         document.getElementById('enlaceDocumento').style.display = 'none';
     }
-
-    // ======================================================================
-    // ACCIONES DE LOS BOTONES
-    // ======================================================================
 
     async function validarDatos() {
         limpiarResultados();
         const datos = getDocumentoInput();
-        if (!datos.nombre_proyecto) {
-            mostrarResultado('<div class="alert alert-danger">❌ El nombre del proyecto es obligatorio.</div>');
-            return;
-        }
+        if (!datos.nombre_proyecto) { mostrarResultado('❌ El nombre del proyecto es obligatorio.', 'danger'); return; }
         try {
             const result = await llamarAPI('/api/edt/validar', datos);
-            let html = '';
-            if (result.es_valido) {
-                html = `<div class="alert alert-success">✅ ${result.mensaje}</div>`;
-            } else {
-                html = `<div class="alert alert-danger">⚠️ ${result.mensaje}</div>`;
+            if (result.es_valido) mostrarResultado(`✅ ${result.mensaje}`, 'success');
+            else {
+                let html = `⚠️ ${result.mensaje}`;
                 if (result.faltantes && result.faltantes.length) {
-                    html += `<ul style="color:#721c24;">`;
+                    html += `<ul style="margin-top:10px; padding-left:20px;">`;
                     result.faltantes.forEach(f => html += `<li>${f}</li>`);
                     html += `</ul>`;
                 }
+                mostrarResultado(html, 'danger');
             }
-            mostrarResultado(html);
-        } catch (e) {}
+        } catch(e) {}
     }
 
     async function generarMermaid() {
         limpiarResultados();
-        const datos = getEDTInput();
-        if (!datos.nombre_proyecto) {
-            mostrarResultado('<div class="alert alert-danger">❌ El nombre del proyecto es obligatorio.</div>');
-            return;
-        }
+        const nombre = document.getElementById('nombreProyecto').value.trim();
+        if (!nombre) { mostrarResultado('❌ El nombre del proyecto es obligatorio.', 'danger'); return; }
+        const datos = { nombre_proyecto: nombre, fases: fases };
         try {
             const result = await llamarAPI('/api/edt/mermaid', datos);
-            mostrarResultado(`<pre style="background:#f0f0f0; padding:15px; border-radius:4px; overflow:auto;">${result.mermaid}</pre>`);
-        } catch (e) {}
+            mostrarResultado(`<pre>${result.mermaid}</pre>`, 'info');
+        } catch(e) {}
     }
 
     async function generarImagen() {
         limpiarResultados();
-        const datos = getEDTInput();
-        if (!datos.nombre_proyecto) {
-            mostrarResultado('<div class="alert alert-danger">❌ El nombre del proyecto es obligatorio.</div>');
-            return;
-        }
+        const nombre = document.getElementById('nombreProyecto').value.trim();
+        if (!nombre) { mostrarResultado('❌ El nombre del proyecto es obligatorio.', 'danger'); return; }
+        const datos = { nombre_proyecto: nombre, fases: fases };
         try {
             const result = await llamarAPI('/api/edt/imagen', datos);
             const imgDiv = document.getElementById('imagenResultado');
             imgDiv.style.display = 'block';
-            imgDiv.innerHTML = `<h3>Diagrama EDT</h3><img src="data:image/png;base64,${result.imagen_base64}" alt="Diagrama EDT">`;
-            mostrarResultado('<div class="alert alert-success">✅ Imagen generada correctamente.</div>');
-        } catch (e) {}
+            imgDiv.innerHTML = `<h4 style="color:#0D2B4E; margin-bottom:12px;">📊 Diagrama EDT</h4><img src="data:image/png;base64,${result.imagen_base64}" alt="Diagrama EDT">`;
+            mostrarResultado('✅ Imagen generada correctamente.', 'success');
+        } catch(e) {}
     }
 
     async function generarDocumento() {
         limpiarResultados();
         const datos = getDocumentoInput();
-        if (!datos.nombre_proyecto) {
-            mostrarResultado('<div class="alert alert-danger">❌ El nombre del proyecto es obligatorio.</div>');
-            return;
-        }
-        // Validar primero
+        if (!datos.nombre_proyecto) { mostrarResultado('❌ El nombre del proyecto es obligatorio.', 'danger'); return; }
         try {
             const valid = await llamarAPI('/api/edt/validar', datos);
             if (!valid.es_valido) {
-                let html = `<div class="alert alert-danger">⚠️ Datos incompletos. Corrige lo siguiente:</div><ul>`;
+                let html = `⚠️ Datos incompletos. Corrige lo siguiente:<ul style="margin-top:10px; padding-left:20px;">`;
                 valid.faltantes.forEach(f => html += `<li>${f}</li>`);
                 html += `</ul>`;
-                mostrarResultado(html);
+                mostrarResultado(html, 'danger');
                 return;
             }
-        } catch (e) { return; }
+        } catch(e) { return; }
 
-        // Generar documento
-        const loading = document.getElementById('cargando');
-        loading.style.display = 'block';
+        const loading = document.getElementById('loading');
+        loading.classList.add('show');
         try {
             const response = await fetch('/api/edt/documento', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
             });
-            loading.style.display = 'none';
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Error ${response.status}: ${errorText}`);
-            }
+            loading.classList.remove('show');
+            if (!response.ok) throw new Error(`Error ${response.status}: ${await response.text()}`);
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.getElementById('descargaDoc');
@@ -610,9 +1685,9 @@
             }
             a.download = filename;
             document.getElementById('enlaceDocumento').style.display = 'block';
-            mostrarResultado('<div class="alert alert-success">✅ Documento Word generado. Haz clic en el botón para descargar.</div>');
-        } catch (e) {
-            loading.style.display = 'none';
+            mostrarResultado('✅ Documento Word generado. Haz clic en el botón para descargar.', 'success');
+        } catch(e) {
+            loading.classList.remove('show');
             alert('Error: ' + e.message);
         }
     }
@@ -620,44 +1695,38 @@
     // ======================================================================
     // INICIALIZACIÓN
     // ======================================================================
-
     window.onload = function() {
-        // Agregar fases de ejemplo (puedes personalizar o dejar vacías)
-        fases = [
-            {
-                nombre: "ETAPA 0 (Inicio)",
-                tareas: [
-                    { nombre: "Definir objetivos generales", descripcion_operativa: "Definir objetivos", hito: "N/A", subtareas: [] }
-                ]
-            },
-            {
-                nombre: "ETAPA 1 (Planeación)",
-                tareas: [
-                    { nombre: "Elaborar acta de constitución", descripcion_operativa: "Documento formal", hito: "N/A", subtareas: [] }
-                ]
-            },
-            {
-                nombre: "ETAPA 2 (Ejecución)",
-                tareas: [
-                    { nombre: "ÁREA TECNOLÓGICO", descripcion_operativa: "Desarrollo", hito: "N/A", subtareas: [] }
-                ]
-            },
-            {
-                nombre: "ETAPA 3 (Control)",
-                tareas: [
-                    { nombre: "Checklist", descripcion_operativa: "Verificación", hito: "N/A", subtareas: [] }
-                ]
-            },
-            {
-                nombre: "ETAPA 4 (Cierre)",
-                tareas: [
-                    { nombre: "Elaborar plantilla de resultados", descripcion_operativa: "Cierre", hito: "N/A", subtareas: [] }
-                ]
-            }
+        // Miembros
+        miembros = [
+            { nombre: "José Manuel Cisneros", rol: "Project Manager" },
+            { nombre: "Rogelio García", rol: "Desarrollador" }
         ];
-        renderizarFases();
-        initActividades();
+        renderizarMiembros();
+
+        // Fases de ejemplo
+        fases = [
+            { nombre: "ETAPA 0 (Inicio)", tareas: [ { nombre: "Definir objetivos generales", descripcion_operativa: "Definir objetivos", hito: "N/A", subtareas: [] } ] },
+            { nombre: "ETAPA 1 (Planeación)", tareas: [ { nombre: "Elaborar acta de constitución", descripcion_operativa: "Documento formal", hito: "N/A", subtareas: [] } ] },
+            { nombre: "ETAPA 2 (Ejecución)", tareas: [ { nombre: "ÁREA TECNOLÓGICO", descripcion_operativa: "Desarrollo", hito: "N/A", subtareas: [] } ] },
+            { nombre: "ETAPA 3 (Control)", tareas: [ { nombre: "Checklist", descripcion_operativa: "Verificación", hito: "N/A", subtareas: [] } ] },
+            { nombre: "ETAPA 4 (Cierre)", tareas: [ { nombre: "Elaborar plantilla de resultados", descripcion_operativa: "Cierre", hito: "N/A", subtareas: [] } ] }
+        ];
+        renderizarFasesEstructura();
+
+        // Actividades de minuta
+        initActividadesMinuta();
+
+        // Benchmark
+        generarTablaBenchmark();
+
+        // Cálculos
+        calcularClientes();
+        calcularProyeccion();
+
+        // Inicializar paso 0
+        irAlPaso(0);
     };
 </script>
 </body>
 </html>
+
